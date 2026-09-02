@@ -53,11 +53,10 @@ O sistema busca melhorar o controle e a segurança ferroviária por meio da cole
 ## Tecnologias utilizadas
 
 
-* [ ] Linguagem/Framework de back-end:
-* [ ] Linguagem/Framework de front-end:
-* [ ] Banco de dados:
-* [ ] Microcontrolador/sensores (IoT):
-* [ ] Outras ferramentas:
+Linguagem/Framework de back-end:
+Linguagem/Framework de front-end:
+Banco de dados:
+Microcontrolador/sensores (IoT):
 
 ## Estrutura do projeto
 
