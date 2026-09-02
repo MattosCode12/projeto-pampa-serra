@@ -1,3 +1,4 @@
+[README (1).md](https://github.com/user-attachments/files/31735094/README.1.md)
 # Projeto sobre Ferrorama com IOT
 
 <p align="center">
@@ -10,67 +11,78 @@
    <img src="http://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=RED&style=for-the-badge" #vitrinedev/>
 </p>
 
+Projeto desenvolvido com foco em tecnologia, automação e monitoramento ferroviário, utilizando conceitos de **IoT (Internet of Things)**.
 
-Pampa-Serra – Ferroramas
+## Tópicos
 
-Projeto desenvolvido com foco em tecnologia, automação e monitoramento ferroviário, utilizando conceitos de IoT (Internet of Things).
+* [Descrição do projeto](Código para uma empresa de trem um ferrorama)
+* [Funcionalidades](Na parte da descrição)
+* [Tecnologias utilizadas](Css, Html, JavaScript)
+* [Estrutura do projeto](Foco em facilitar tarefas de uma empresa de trem.)
+* [Padrão de código](Variaveis)
 
-Tópicos
-Descrição do projeto
-Funcionalidades
-Tecnologias utilizadas
-Estrutura do projeto
-Como executar o projeto
-Metodologia de desenvolvimento
-Padrão de código
-Desenvolvedores
-Descrição do projeto
+## Descrição do projeto
 
-O Pampa-Serra é um projeto desenvolvido com foco em tecnologia, automação e monitoramento ferroviário, utilizando conceitos de IoT (Internet of Things). O objetivo principal é criar uma solução inteligente para acompanhamento de informações da ferrovia em tempo real, integrando sensores, conectividade e uma interface moderna para visualização dos dados.
+O **Pampa-Serra** é um projeto desenvolvido com foco em tecnologia, automação e monitoramento ferroviário, utilizando conceitos de IoT (Internet of Things). O objetivo principal é criar uma solução inteligente para acompanhamento de informações da ferrovia em tempo real, integrando sensores, conectividade e uma interface moderna para visualização dos dados.
 
 O sistema busca melhorar o controle e a segurança ferroviária por meio da coleta e transmissão de dados importantes, permitindo um gerenciamento mais eficiente das operações.
 
-Funcionalidades
-RF	Descrição
-RF01	Permitir login de usuários no sistema
-RF02	Validar credenciais de acesso no banco de dados
-RF03	Permitir cadastro de sensores ferroviários
-RF04	Listar sensores cadastrados no sistema
-RF05	Permitir exclusão de sensores cadastrados
-RF06	Exibir dados ferroviários em tempo real
-RF07	Mostrar a localização atual do trem
-RF08	Classificar automaticamente o status operacional do trem
-RF09	Gerar relatórios analíticos do sistema ferroviário
-RF10	Permitir visualização de relatórios
-RF11	Permitir logout do usuário
-RF12	Atualizar dados automaticamente em tempo real
-RF13	Exibir localização do trem através de mapa interativo
-RF14	Classificar automaticamente situações de: Normal, Alerta e Falha
-RF15	Permitir visualização de relatórios anteriores
-RF16	Permitir visualização detalhada dos sensores cadastrados
+## Funcionalidades
 
-Para acompanhar o status atual de cada Requisito Funcional (concluído, em desenvolvimento ou pendente), consulte o Kanban do projeto no GitHub Projects.
+| RF | Descrição |
+|----|-----------|
+| RF01 | Permitir login de usuários no sistema |
+| RF02 | Validar credenciais de acesso no banco de dados |
+| RF03 | Permitir cadastro de sensores ferroviários |
+| RF04 | Listar sensores cadastrados no sistema |
+| RF05 | Permitir exclusão de sensores cadastrados |
+| RF06 | Exibir dados ferroviários em tempo real |
+| RF07 | Mostrar a localização atual do trem |
+| RF08 | Classificar automaticamente o status operacional do trem |
+| RF09 | Gerar relatórios analíticos do sistema ferroviário |
+| RF10 | Permitir visualização de relatórios |
+| RF11 | Permitir logout do usuário |
+| RF12 | Atualizar dados automaticamente em tempo real |
+| RF13 | Exibir localização do trem através de mapa interativo |
+| RF14 | Classificar automaticamente situações de: Normal, Alerta e Falha |
+| RF15 | Permitir visualização de relatórios anteriores |
+| RF16 | Permitir visualização detalhada dos sensores cadastrados |
 
-Tecnologias utilizadas
+> Para acompanhar o status atual de cada Requisito Funcional (concluído, em desenvolvimento ou pendente), consulte o [Kanban do projeto no GitHub Projects](#).
 
- Linguagem/Framework de back-end:
- Linguagem/Framework de front-end:
- Banco de dados:
- Microcontrolador/sensores (IoT):
- Outras ferramentas:
-Estrutura do projeto
+## Tecnologias utilizadas
+
+
+* [ ] Linguagem/Framework de back-end:
+* [ ] Linguagem/Framework de front-end:
+* [ ] Banco de dados:
+* [ ] Microcontrolador/sensores (IoT):
+* [ ] Outras ferramentas:
+
+## Estrutura do projeto
+
+```
 projeto-pampa-serra/
 ├── backend/        # API e regras de negócio
 ├── frontend/       # Interface do usuário
 ├── database/       # Scripts e modelagem do banco de dados
 ├── iot/            # Firmware e integração dos sensores
 └── docs/           # Documentação do projeto
+```
 
-Ajustem essa estrutura para refletir a organização real das pastas do repositório.
+> Ajustem essa estrutura para refletir a organização real das pastas do repositório.
 
-Padrão de código: Variaveis
+Repositório: `https://github.com/MattosCode12/projeto-pampa-serra.git`
 
-Desenvolvedores: Rafael, Enzo, Thiago, Nicolas
+## Metodologia de desenvolvimento
 
+Kanban
 
+## Padrão de código
+
+Variaveis
+
+## Desenvolvedores
+
+Rafael, Thiago, Enzo, Nicolas
 
