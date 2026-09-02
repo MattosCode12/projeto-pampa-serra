@@ -11,79 +11,65 @@
 </p>
 
 
-###  tópicos
+Pampa-Serra – Ferroramas
 
-- [Descrição do projeto](#descrição-do-projeto)
+Projeto desenvolvido com foco em tecnologia, automação e monitoramento ferroviário, utilizando conceitos de IoT (Internet of Things).
 
-- [Funcionalidades](#funcionalidades)
+Tópicos
+Descrição do projeto
+Funcionalidades
+Tecnologias utilizadas
+Estrutura do projeto
+Como executar o projeto
+Metodologia de desenvolvimento
+Padrão de código
+Desenvolvedores
+Descrição do projeto
 
-- [Ferramentas utilizadas](#ferramentas-utilizadas)
+O Pampa-Serra é um projeto desenvolvido com foco em tecnologia, automação e monitoramento ferroviário, utilizando conceitos de IoT (Internet of Things). O objetivo principal é criar uma solução inteligente para acompanhamento de informações da ferrovia em tempo real, integrando sensores, conectividade e uma interface moderna para visualização dos dados.
 
-- [Desenvolvedores](#desenvolvedores)
+O sistema busca melhorar o controle e a segurança ferroviária por meio da coleta e transmissão de dados importantes, permitindo um gerenciamento mais eficiente das operações.
 
-  
-----
+Funcionalidades
+RF	Descrição
+RF01	Permitir login de usuários no sistema
+RF02	Validar credenciais de acesso no banco de dados
+RF03	Permitir cadastro de sensores ferroviários
+RF04	Listar sensores cadastrados no sistema
+RF05	Permitir exclusão de sensores cadastrados
+RF06	Exibir dados ferroviários em tempo real
+RF07	Mostrar a localização atual do trem
+RF08	Classificar automaticamente o status operacional do trem
+RF09	Gerar relatórios analíticos do sistema ferroviário
+RF10	Permitir visualização de relatórios
+RF11	Permitir logout do usuário
+RF12	Atualizar dados automaticamente em tempo real
+RF13	Exibir localização do trem através de mapa interativo
+RF14	Classificar automaticamente situações de: Normal, Alerta e Falha
+RF15	Permitir visualização de relatórios anteriores
+RF16	Permitir visualização detalhada dos sensores cadastrados
 
-## descrição do projeto
+Para acompanhar o status atual de cada Requisito Funcional (concluído, em desenvolvimento ou pendente), consulte o Kanban do projeto no GitHub Projects.
 
-<p align="justify">
-o Pampa-Serra é um projeto desenvolvdo com foco em tecnologia , automaçao e monitoramento ferroviário utilizando conceito de Iot (internet of things ). o objetivo principal é criar uma solução inteligente para acompanhamento de informações da ferrovia em tempo real, integrando sensores,conectividade e uma interface moderna para visualização dos dados.
+Tecnologias utilizadas
+<!-- Preencham com o stack real do projeto -->
+ Linguagem/Framework de back-end:
+ Linguagem/Framework de front-end:
+ Banco de dados:
+ Microcontrolador/sensores (IoT):
+ Outras ferramentas:
+Estrutura do projeto
+projeto-pampa-serra/
+├── backend/        # API e regras de negócio
+├── frontend/       # Interface do usuário
+├── database/       # Scripts e modelagem do banco de dados
+├── iot/            # Firmware e integração dos sensores
+└── docs/           # Documentação do projeto
 
-o sistema busca melhorar o controle e a segurança ferroviaria através da coleta e transmissao de dados importantes, permitindo um gerenciamento mais eficiente nas operações   
+Ajustem essa estrutura para refletir a organização real das pastas do repositório.
 
-</p>
+Desenvolvedores: Rafael, Enzo, Thiago, Nicolas
 
-<img width="1536" height="1024" alt="p1 0" src="https://github.com/user-attachments/assets/f562d813-d53f-4c82-af82-6f59808bca99" />
-
-
----
-
-##  Funcionalidades
-
- **Funcionalidade 1:** Permitir login de usuários no sistema.
-
- **Funcionalidade 2:** Validar credenciais de acesso no banco de dados.
-
- **Funcionalidade 3:** Permitir cadastro de sensores ferroviários.
-
- **Funcionalidade 4:** Listar sensores cadastrados no sistema.
-
- **Funcionalidade 5:** Permitir exclusão de sensores cadastrados.
-
- **Funcionalidade 6:** Exibir dados ferroviários em tempo real.
-
- **Funcionalidade 7:** Mostrar a localização atual do trem.
-
- **Funcionalidade 8:** Classificar automaticamente o status operacional do trem.
-
- **Funcionalidade 9:** Gerar relatórios analíticos do sistema ferroviário.
-
- **Funcionalidade 10:** Permitir visualização de relatórios.
-
- **Funcionalidade 11:** Permitir logout do usuário.
-
- **Funcionalidade 12:** Atualizar dados automaticamente em tempo real.
-
- **Funcionalidade 13:** Exibir localização do trem através de mapa interativo.
-
- **Funcionalidade 14:** Classificar automaticamente situações de:
-- Normal
-- Alerta
-- Falha
-
- **Funcionalidade 15:** Permitir visualização de relatórios anteriores.
-
- **Funcionalidade 16:** Permitir visualização detalhada dos sensores cadastrados.
-
-###
-
----
-
-## Ferramentas utilizadas  
-
-<p align="left">
-  <img src="https://skillicons.dev/icons?i=html,css,js,bootstrap" />
-</p>
 
 
 
