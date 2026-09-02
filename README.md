@@ -66,8 +66,6 @@ projeto-pampa-serra/
 ├── iot/            # Firmware e integração dos sensores
 └── docs/           # Documentação do projeto
 
-Ajustem essa estrutura para refletir a organização real das pastas do repositório.
-
 Desenvolvedores: Rafael, Enzo, Thiago, Nicolas
 
 
