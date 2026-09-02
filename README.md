@@ -32,22 +32,22 @@ O sistema busca melhorar o controle e a segurança ferroviária por meio da cole
 
 Funcionalidades
 RF	Descrição
-RF01	Permitir login de usuários no sistema
-RF02	Validar credenciais de acesso no banco de dados
-RF03	Permitir cadastro de sensores ferroviários
-RF04	Listar sensores cadastrados no sistema
-RF05	Permitir exclusão de sensores cadastrados
-RF06	Exibir dados ferroviários em tempo real
-RF07	Mostrar a localização atual do trem
-RF08	Classificar automaticamente o status operacional do trem
-RF09	Gerar relatórios analíticos do sistema ferroviário
-RF10	Permitir visualização de relatórios
-RF11	Permitir logout do usuário
-RF12	Atualizar dados automaticamente em tempo real
-RF13	Exibir localização do trem através de mapa interativo
-RF14	Classificar automaticamente situações de: Normal, Alerta e Falha
-RF15	Permitir visualização de relatórios anteriores
-RF16	Permitir visualização detalhada dos sensores cadastrados
+-RF01	Permitir login de usuários no sistema
+-RF02	Validar credenciais de acesso no banco de dados
+-RF03	Permitir cadastro de sensores ferroviários
+-RF04	Listar sensores cadastrados no sistema
+-RF05	Permitir exclusão de sensores cadastrados
+-RF06	Exibir dados ferroviários em tempo real
+-RF07	Mostrar a localização atual do trem
+-RF08	Classificar automaticamente o status operacional do trem
+-RF09	Gerar relatórios analíticos do sistema ferroviário
+-RF10	Permitir visualização de relatórios
+-RF11	Permitir logout do usuário
+-RF12	Atualizar dados automaticamente em tempo real
+-RF13	Exibir localização do trem através de mapa interativo
+-RF14	Classificar automaticamente situações de: Normal, Alerta e Falha
+-RF15	Permitir visualização de relatórios anteriores
+-RF16	Permitir visualização detalhada dos sensores cadastrados
 
 Para acompanhar o status atual de cada Requisito Funcional (concluído, em desenvolvimento ou pendente), consulte o Kanban do projeto no GitHub Projects.
 
