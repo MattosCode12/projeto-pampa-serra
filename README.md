@@ -40,7 +40,31 @@ O sistema busca melhorar o controle e a segurança ferroviária por meio da cole
 | RF15 | Permitir visualização de relatórios anteriores |
 | RF16 | Permitir visualização detalhada dos sensores cadastrados |
 
+## funcionalidades
+
+| RNF | Descrição |
+|----|-----------|
+| RNF01 |  |
+| RNF02 |  |
+| RNF03 |  |
+| RNF04 |  |
+| RNF05 |  |
+| RNF06 |  |
+| RNF07 |  |
+| RNF08 |  |
+| RNF09 |  |
+| RNF10 |  |
+| RNF11 |  |
+| RNF12 |  |
+| RNF13 |  |
+| RNF14 |  |
+| RNF15 |  |
+| RNF16 |  |
+
+
 > Para acompanhar o status atual de cada Requisito Funcional (concluído, em desenvolvimento ou pendente), consulte o [Kanban do projeto no GitHub Projects](#).
+
+
 
 ## Tecnologias utilizadas
 
