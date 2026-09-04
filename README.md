@@ -13,14 +13,6 @@
 
 Projeto desenvolvido com foco em tecnologia, automação e monitoramento ferroviário, utilizando conceitos de **IoT (Internet of Things)**.
 
-## Tópicos
-
-* [Descrição do projeto](Código para uma empresa de trem um ferrorama)
-* [Funcionalidades](Na parte da descrição)
-* [Tecnologias utilizadas](Css, Html, JavaScript)
-* [Estrutura do projeto](Foco em facilitar tarefas de uma empresa de trem.)
-* [Padrão de código](Variaveis)
-
 ## Descrição do projeto
 
 O **Pampa-Serra** é um projeto desenvolvido com foco em tecnologia, automação e monitoramento ferroviário, utilizando conceitos de IoT (Internet of Things). O objetivo principal é criar uma solução inteligente para acompanhamento de informações da ferrovia em tempo real, integrando sensores, conectividade e uma interface moderna para visualização dos dados.
@@ -74,14 +66,7 @@ projeto-pampa-serra/
 Repositório: `https://github.com/MattosCode12/projeto-pampa-serra.git`
 
 ## Metodologia de desenvolvimento
-
 Kanban
 
-## Padrão de código
 
-Variaveis
-
-## Desenvolvedores
-
-Rafael, Thiago, Enzo, Nicolas
 
