@@ -3,14 +3,14 @@
 $servidor = "localhost";
 $usuario = "root";
 $senha = "";
-$banco = "pampa-serra";
-$porta = 8080;
+$banco = "pampa_serra";
 
 $conexao = new mysqli(
     $servidor,
     $usuario,
     $senha,
-    $banco
+    $banco,
+    3306
 );
 
 if ($conexao->connect_error) {
