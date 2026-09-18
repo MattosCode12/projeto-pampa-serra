@@ -11,7 +11,7 @@ formLogin.addEventListener("submit", function(e){
     return;
   }
 
-  window.location.href = "home.html";
+ 
 });
 
 const formCadastro = document.getElementById("formCadastro");
@@ -46,7 +46,7 @@ if (formCadastro) {
     }
 
     alert("Cadastro realizado com sucesso!");
-    window.location.href = "home.html";
+    
   });
 }
 
