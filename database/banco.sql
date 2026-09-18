@@ -1,6 +1,6 @@
 CREATE DATABASE pampa_serra;
 
-USE pampa_serra;
+USE pampa-serra;
 
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
