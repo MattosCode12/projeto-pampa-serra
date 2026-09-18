@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["nome"] = $usuario["nome"];
                 $_SESSION["email"] = $usuario["email"];
 
-                header("Location: dashboard.php");
+                header("Location: home.php");
 
                 exit;
 
