@@ -1,182 +1,244 @@
 <?php
+
+$sensores = [
+
+    [
+        "nome" => "Sensor 1.21",
+        "km" => "KM 0",
+        "local" => "Porto Alegre",
+        "tipo" => "GPS + Sensor de partida",
+        "descricao" => "Início da viagem e acompanhamento da rota"
+    ],
+
+    [
+        "nome" => "Sensor 1.47",
+        "km" => "KM 22",
+        "local" => "Aeroporto",
+        "tipo" => "Sensor de aproximação",
+        "descricao" => "Controle do trem em área urbana."
+    ],
+
+    [
+        "nome" => "Sensor 1.82",
+        "km" => "KM 35",
+        "local" => "São Leopoldo",
+        "tipo" => "Sensor de obstáculos",
+        "descricao" => "Aumentar a segurança nos trilhos."
+    ],
+
+    [
+        "nome" => "Sensor 1.93",
+        "km" => "KM 52",
+        "local" => "Novo Hamburgo",
+        "tipo" => "Sensor de passagem e sensor de peso dos vagões",
+        "descricao" => "Esta será a única parada intermediária da linha."
+    ],
+
+    [
+        "nome" => "Sensor 2.03",
+        "km" => "KM 62",
+        "local" => "Sapiranga",
+        "tipo" => "Sensor de temperatura",
+        "descricao" => "Monitoramento dos freios e motor."
+    ],
+
+    [
+        "nome" => "Sensor 2.19",
+        "km" => "KM 74",
+        "local" => "Parobé",
+        "tipo" => "Sensor de energia",
+        "descricao" => "Controle do consumo do trem."
+    ],
+
+    [
+        "nome" => "Sensor 2.34",
+        "km" => "KM 84",
+        "local" => "Taquara",
+        "tipo" => "Sensor de presença",
+        "descricao" => "Detectar a passagem do trem."
+    ],
+
+    [
+        "nome" => "Sensor 2.51",
+        "km" => "KM 96",
+        "local" => "Igrejinha",
+        "tipo" => "Sensor Climático",
+        "descricao" => "Para detectar chuva e neblina."
+    ],
+
+    [
+        "nome" => "Sensor 2.79",
+        "km" => "KM 106",
+        "local" => "Três Coroas",
+        "tipo" => "Sensor de vibração",
+        "descricao" => "Monitorar desgaste dos trilhos."
+    ],
+
+    [
+        "nome" => "Sensor 3.12",
+        "km" => "KM 114",
+        "local" => "Canela",
+        "tipo" => "Sensor de velocidade",
+        "descricao" => "Para controle em curvas."
+    ],
+
+    [
+        "nome" => "Sensor 3.36",
+        "km" => "KM 120",
+        "local" => "Gramado",
+        "tipo" => "Sensor final e GPS",
+        "descricao" => "Encerramento da rota e registro da chegada."
+    ]
+
+];
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sensores - Pampa Serra</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../style/style.css">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Sensores - Pampa Serra</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../style/style.css"
+    >
+
 </head>
+
 <body class="sensores-page">
 
-  <nav class="navbar-sensores">
-    <img src="../assets/img/Logo.png" id="logo-sensores" alt="Logo Pampa Serra">
+    <nav class="navbar-sensores">
 
-    <div class="buscar-sensor">
-      <input type="text" placeholder="Buscar">
-      <button type="button">
-        <i class="bi bi-search"></i>
-      </button>
-    </div>
+        <img
+            src="../assets/img/Logo.png"
+            id="logo-sensores"
+            alt="Logo Pampa Serra"
+        >
 
-    <div class="botoes-topo">
-      <button class="btn-topo" onclick="window.location.href='criar.html'">Criar</button>
-    </div>
-  </nav>
+        <div class="buscar-sensor">
 
-  <main class="sensores-container">
+            <input
+                type="text"
+                id="buscarSensor"
+                placeholder="Buscar"
+            >
 
-    <div class="row g-4 justify-content-center">
+            <button type="button">
 
-      <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 1.21</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 0</u></div>
-          <div class="sensor-linha">Porto Alegre</div>
-          <div class="sensor-linha">GPS + Sensor de partida</div>
-          <div class="sensor-linha sensor-desc">Início da viagem<br>e acompanhamento da rota</div>
-        </div>
-      </div>
+                <i class="bi bi-search"></i>
 
-      <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 1.47</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 22</u></div>
-          <div class="sensor-linha">Aeroporto</div>
-          <div class="sensor-linha">Sensor de aproximação</div>
-          <div class="sensor-linha sensor-desc">Controle do trem em área<br>urbana.</div>
-        </div>
-      </div>
+            </button>
 
-      <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 1.82</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 35</u></div>
-          <div class="sensor-linha">São Leopoldo</div>
-          <div class="sensor-linha">Sensor de obstáculos</div>
-          <div class="sensor-linha sensor-desc">Aumentar a segurança nos<br>trilhos.</div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 1.93</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 52</u></div>
-          <div class="sensor-linha">Novo Hamburgo</div>
-          <div class="sensor-linha">Sensor de passagem e<br>sensor de peso dos vagões</div>
-          <div class="sensor-linha sensor-desc">Esta será a única parada<br>intermediária da linha.</div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 2.03</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 62</u></div>
-          <div class="sensor-linha">Sapiranga</div>
-          <div class="sensor-linha">Sensor de temperatura</div>
-          <div class="sensor-linha sensor-desc">Monitoramento dos freios e<br>motor.</div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 2.19</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 74</u></div>
-          <div class="sensor-linha">Parobé</div>
-          <div class="sensor-linha">Sensor de energia</div>
-          <div class="sensor-linha sensor-desc">Controle do consumo do<br>trem.</div>
-        </div>
-      </div>
-
-       <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 2.34</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 84</u></div>
-          <div class="sensor-linha">Taquara</div>
-          <div class="sensor-linha">Sensor de presença</div>
-          <div class="sensor-linha sensor-desc">Detectar a passagem do<br>trem.</div>
-        </div>
-      </div>
-
-       <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 2.51</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 96</u></div>
-          <div class="sensor-linha">Igrejinha</div>
-          <div class="sensor-linha">Sensor Climático</div>
-          <div class="sensor-linha sensor-desc">Para detectar chuva e<br>neblina.</div>
-        </div>
-      </div>
-
-       <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 2.79</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 106</u></div>
-          <div class="sensor-linha">Três Coroas</div>
-          <div class="sensor-linha">Sensor de vibração</div>
-          <div class="sensor-linha sensor-desc">Monitorar desgaste dos<br>trilhos.</div>
-        </div>
-      </div>
-
-       <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 3.12</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 114</u></div>
-          <div class="sensor-linha">Canela</div>
-          <div class="sensor-linha">Sensor de velocidade</div>
-          <div class="sensor-linha sensor-desc">Para controle em curvas.</div>
-        </div>
-      </div>
-
-       <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-        <div class="sensor-card">
-          <div class="sensor-linha sensor-titulo">
-            <span>Sensor 3.36</span>
-            <button><i class="bi bi-trash"></i></button>
-          </div>
-          <div class="sensor-linha"><u>KM 120</u></div>
-          <div class="sensor-linha">Gramado</div>
-          <div class="sensor-linha">Sensor final e GPS</div>
-          <div class="sensor-linha sensor-desc">Encerramento da rota e<br>registro da chegada.</div>
         </div>
 
-    </div>
+        <div class="botoes-topo">
 
-  </main>
+            <button
+                class="btn-topo"
+                onclick="window.location.href='criar_sensor.php'"
+            >
+                Criar
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <main class="sensores-container">
+
+        <div class="row g-4 justify-content-center">
+
+            <?php foreach ($sensores as $sensor) { ?>
+
+                <div class="col-12 col-md-6 col-lg-4 sensor-item">
+
+                    <div class="sensor-card">
+
+                        <div class="sensor-linha sensor-titulo">
+
+                            <span>
+                                <?= htmlspecialchars($sensor["nome"]) ?>
+                            </span>
+
+                            <button
+                                type="button"
+                                title="Excluir sensor"
+                            >
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="sensor-linha">
+
+                            <u>
+                                <?= htmlspecialchars($sensor["km"]) ?>
+                            </u>
+
+                        </div>
+
+
+                        <div class="sensor-linha">
+
+                            <?= htmlspecialchars($sensor["local"]) ?>
+
+                        </div>
+
+
+                        <div class="sensor-linha">
+
+                            <?= htmlspecialchars($sensor["tipo"]) ?>
+
+                        </div>
+
+
+                        <div class="sensor-linha sensor-desc">
+
+                            <?= htmlspecialchars($sensor["descricao"]) ?>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            <?php } ?>
+
+        </div>
+
+    </main>
+
+
     <script src="../script/script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+    </script>
+
 </body>
+
 </html>
-?>
