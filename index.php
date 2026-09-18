@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 require_once "conexao.php";
@@ -11,7 +12,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $senha = $_POST["senha"] ?? "";
 
     if (empty($email) || empty($senha)) {
+
         $erro = "Preencha todos os campos.";
+
     } else {
 
         $sql = "SELECT id_usuario, nome, email, senha 
@@ -19,7 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 WHERE email = ?";
 
         $stmt = $conexao->prepare($sql);
+
         $stmt->bind_param("s", $email);
+
         $stmt->execute();
 
         $resultado = $stmt->get_result();
@@ -35,33 +40,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["email"] = $usuario["email"];
 
                 header("Location: dashboard.php");
+
                 exit;
 
             } else {
+
                 $erro = "E-mail ou senha incorretos.";
             }
 
         } else {
+
             $erro = "E-mail ou senha incorretos.";
         }
 
         $stmt->close();
     }
 }
+
 ?>
 
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Login - Pampa Serra</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+        rel="stylesheet"
+    >
 
     <link rel="stylesheet" href="style/style.css">
+
 </head>
 
 <body>
@@ -69,7 +85,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div id="card-login">
 
         <div id="lado-esquerdo">
-            <img src="assets/img/Logo.png" id="logo" alt="Logo Pampa Serra">
+
+            <img 
+                src="assets/img/Logo.png" 
+                id="logo" 
+                alt="Logo Pampa Serra"
+            >
+
         </div>
 
         <div id="lado-direito">
@@ -79,42 +101,63 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <h2 id="titulo">LOGIN</h2>
 
                 <?php if (!empty($erro)): ?>
+
                     <div class="alert alert-danger">
+
                         <?= htmlspecialchars($erro) ?>
+
                     </div>
+
                 <?php endif; ?>
 
-                <form id="formLogin" method="POST" action="">
+                <form 
+                    id="formLogin" 
+                    method="POST" 
+                    action=""
+                >
 
                     <div class="mb-3">
-                        <label class="form-label" for="email">
+
+                        <label 
+                            class="form-label" 
+                            for="email"
+                        >
                             Email
                         </label>
 
-                        <input
-                            type="email"
-                            name="email"
-                            id="email"
-                            class="form-control"
+                        <input 
+                            type="email" 
+                            name="email" 
+                            id="email" 
+                            class="form-control" 
                             required
                         >
+
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="senha">
+
+                        <label 
+                            class="form-label" 
+                            for="senha"
+                        >
                             Senha
                         </label>
 
-                        <input
-                            type="password"
-                            name="senha"
-                            id="senha"
-                            class="form-control"
+                        <input 
+                            type="password" 
+                            name="senha" 
+                            id="senha" 
+                            class="form-control" 
                             required
                         >
+
                     </div>
 
-                    <button type="submit" id="btn-entrar">
+                    <button 
+                        type="submit" 
+                        id="btn-entrar"
+                    >
                         Entrar
                     </button>
 
@@ -128,7 +171,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <script src="script/script.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    ></script>
 
 </body>
 
