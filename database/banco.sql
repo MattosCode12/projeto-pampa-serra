@@ -1,4 +1,4 @@
-CREATE DATABASE pampa_serra;
+CREATE DATABASE pampa-serra;
 
 USE pampa-serra;
 
@@ -14,4 +14,4 @@ VALUES (
     'admin',
     'admin@pampaserra.com',
     '123456'
-);
+);S
