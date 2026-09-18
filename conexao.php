@@ -3,7 +3,7 @@
 $servidor = "localhost";
 $usuario = "root";
 $senha = "";
-$banco = "projeto-pampa-serra";
+$banco = "pampa-serra";
 $porta = 3306;
 
 $conexao = new mysqli(
