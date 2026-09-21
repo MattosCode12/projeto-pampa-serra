@@ -1,8 +1,7 @@
 <?php
 
 session_start();
-
-require_once "conexao.php";
+require_once __DIR__ . "/conexao.php";
 
 $erro = "";
 
@@ -11,20 +10,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"] ?? "");
     $senha = $_POST["senha"] ?? "";
 
-    if (empty($email) || empty($senha)) {
+    if ($email === "" || $senha === "") {
 
         $erro = "Preencha todos os campos.";
 
     } else {
 
-        $sql = "SELECT id_usuario, nome, email, senha 
-                FROM usuario 
+        $sql = "SELECT id, nome, email, senha
+                FROM usuarios
                 WHERE email = ?";
 
         $stmt = $conexao->prepare($sql);
 
-        $stmt->bind_param("s", $email);
+        if (!$stmt) {
+            die("Erro SQL: " . $conexao->error);
+        }
 
+        $stmt->bind_param("s", $email);
         $stmt->execute();
 
         $resultado = $stmt->get_result();
@@ -33,14 +35,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $usuario = $resultado->fetch_assoc();
 
-            if (password_verify($senha, $usuario["senha"])) {
+            if ($senha === $usuario["senha"]) {
 
-                $_SESSION["id_usuario"] = $usuario["id_usuario"];
+                $_SESSION["id_usuario"] = $usuario["id"];
                 $_SESSION["nome"] = $usuario["nome"];
                 $_SESSION["email"] = $usuario["email"];
 
-                header("Location: home.php");
-
+                header(
+                    "Location: /rafael_melchioretto/projeto-pampa-serra/public/home.php"
+                );
                 exit;
 
             } else {
@@ -60,120 +63,117 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 ?>
 
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Login - Pampa Serra</title>
 
-    <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
-    <link rel="stylesheet" href="style/style.css">
+    <link
+        rel="stylesheet"
+        href="style/style.css"
+    >
 
 </head>
 
 <body>
 
-    <div id="card-login">
+<div id="card-login">
 
-        <div id="lado-esquerdo">
+    <div id="lado-esquerdo">
 
-            <img 
-                src="assets/img/Logo.png" 
-                id="logo" 
-                alt="Logo Pampa Serra"
-            >
+        <img
+            src="assets/img/Logo.png"
+            id="logo"
+            alt="Logo Pampa Serra"
+        >
 
-        </div>
+    </div>
 
-        <div id="lado-direito">
+    <div id="lado-direito">
 
-            <div id="form-area">
+        <div id="form-area">
 
-                <h2 id="titulo">LOGIN</h2>
+            <h2 id="titulo">
+                LOGIN
+            </h2>
 
-                <?php if (!empty($erro)): ?>
+            <?php if ($erro !== ""): ?>
 
-                    <div class="alert alert-danger">
+                <div class="alert alert-danger">
 
-                        <?= htmlspecialchars($erro) ?>
+                    <?= htmlspecialchars($erro) ?>
 
-                    </div>
+                </div>
 
-                <?php endif; ?>
+            <?php endif; ?>
 
-                <form 
-                    id="formLogin" 
-                    method="POST" 
-                    action=""
-                >
+            <form method="POST" action="">
 
-                    <div class="mb-3">
+                <div class="mb-3">
 
-                        <label 
-                            class="form-label" 
-                            for="email"
-                        >
-                            Email
-                        </label>
-
-                        <input 
-                            type="email" 
-                            name="email" 
-                            id="email" 
-                            class="form-control" 
-                            required
-                        >
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label 
-                            class="form-label" 
-                            for="senha"
-                        >
-                            Senha
-                        </label>
-
-                        <input 
-                            type="password" 
-                            name="senha" 
-                            id="senha" 
-                            class="form-control" 
-                            required
-                        >
-
-                    </div>
-
-                    <button 
-                        type="submit" 
-                        id="btn-entrar"
+                    <label
+                        for="email"
+                        class="form-label"
                     >
-                        Entrar
-                    </button>
+                        Email
+                    </label>
 
-                </form>
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        class="form-control"
+                        required
+                    >
 
-            </div>
+                </div>
+
+                <div class="mb-3">
+
+                    <label
+                        for="senha"
+                        class="form-label"
+                    >
+                        Senha
+                    </label>
+
+                    <input
+                        type="password"
+                        name="senha"
+                        id="senha"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="btn-entrar"
+                >
+                    Entrar
+                </button>
+
+            </form>
 
         </div>
 
     </div>
 
-    <script src="script/script.js"></script>
-
-    <script 
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    ></script>
+</div>
 
 </body>
 
