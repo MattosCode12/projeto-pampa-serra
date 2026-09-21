@@ -3,10 +3,6 @@
 session_start();
 
 if (!isset($_SESSION["id_usuario"])) {
-<<<<<<< HEAD
-
-=======
->>>>>>> 0d22a4786086076a6c78ad8aff64c09cbe073f94
     header("Location: ../index.php");
     exit;
 }
@@ -32,14 +28,7 @@ if (!isset($_SESSION["id_usuario"])) {
         rel="stylesheet"
     >
 
-<<<<<<< HEAD
-    <link
-        rel="stylesheet"
-        href="../style/style.css"
-    >
-=======
     <link rel="stylesheet" href="../style/style.css">
->>>>>>> 0d22a4786086076a6c78ad8aff64c09cbe073f94
 
 </head>
 
