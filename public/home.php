@@ -3,7 +3,7 @@
 session_start();
 
 if (!isset($_SESSION["id_usuario"])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 
@@ -25,7 +25,7 @@ if (!isset($_SESSION["id_usuario"])) {
         rel="stylesheet"
     >
 
-    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="../style/style.css">
 
 </head>
 
@@ -137,7 +137,7 @@ if (!isset($_SESSION["id_usuario"])) {
 
     </main>
 
-    <script src="script/script.js"></script>
+    <script src="../script/script.js"></script>
 
     <script 
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

@@ -1,5 +1,6 @@
 <?php
 
+
 session_start();
 
 require_once "conexao.php";
@@ -39,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["nome"] = $usuario["nome"];
                 $_SESSION["email"] = $usuario["email"];
 
-                header("Location: home.php");
+                  header("Location: /projeto-pampa-serra/public/home.php");
 
                 exit;
 
