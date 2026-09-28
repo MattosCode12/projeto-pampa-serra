@@ -1,5 +1,12 @@
 <?php
+session_start();
 
+require_once "../conexao.php";
+
+if (!isset($_SESSION['id'])) {
+    header("Location: ../index.php");
+    exit;
+}
 
 
 
