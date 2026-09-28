@@ -35,7 +35,69 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
     } else {
+        
+    $stmt = $conexao->prepare(
+            "SELECT id FROM usuarios WHERE email = ?"
+        );
 
+
+        $stmt->bind_param("s", $email);
+
+
+        $stmt->execute();
+
+
+        $resultado = $stmt->get_result();
+
+
+        if ($resultado->num_rows > 0) {
+
+
+            $erro = "Este e-mail já está cadastrado.";
+
+
+        } else {
+
+
+            $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+
+            $perfil = "usuario";
+
+
+            $stmt = $conexao->prepare(
+                "INSERT INTO usuarios (nome, email, senha, perfil)
+                 VALUES (?, ?, ?, ?)"
+            );
+
+
+            $stmt->bind_param(
+                "ssss",
+                $nome,
+                $email,
+                $senhaHash,
+                $perfil
+            );
+
+
+            if ($stmt->execute()) {
+
+
+                $sucesso = "Usuário cadastrado com sucesso.";
+
+
+                $nome = "";
+                $email = "";
+
+
+            } else {
+
+
+                $erro = "Erro ao cadastrar usuário.";
+            }
+        }
+    }
+}
 
 
 ?>
