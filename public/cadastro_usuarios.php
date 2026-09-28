@@ -8,7 +8,33 @@ if (!isset($_SESSION['id'])) {
     exit;
 }
 
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+
+    $nome = trim($_POST['nome']);
+    $email = trim($_POST['email']);
+    $senha = $_POST['senha'];
+
+
+    if ($nome === "" || $email === "" || $senha === "") {
+
+
+        $erro = "Preencha todos os campos.";
+
+
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+
+        $erro = "Digite um e-mail válido.";
+
+
+    } elseif (strlen($senha) < 6) {
+
+
+        $erro = "A senha deve ter pelo menos 6 caracteres.";
+
+
+    } else {
 
 
 
