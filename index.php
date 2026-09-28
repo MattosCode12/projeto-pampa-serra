@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["email"] = $usuario["email"];
 
                 header(
-                    "Location: /rafael_melchioretto/projeto-pampa-serra/public/home.php"
+                    "Location: projeto-pampa-serra/public/home.php"
                 );
                 exit;
 
