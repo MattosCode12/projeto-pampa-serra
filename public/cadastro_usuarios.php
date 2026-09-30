@@ -1,21 +1,37 @@
 <?php
 session_start();
+
 require_once "../conexao.php";
 
+<<<<<<< HEAD
 if (!isset($_SESSION["id_usuario"])) {
     header("Location: ../index.php");
     exit;
 }
+=======
+if (!isset($_SESSION['id'])) {
+    header("Location: ../index.php");
+    exit;
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+>>>>>>> 92acdd56b836ce8ec1f71c985ce26aae061e1754
 
 $mensagem = "";
 $erro = "";
 
+<<<<<<< HEAD
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nome = trim($_POST["nome"] ?? "");
     $email = trim($_POST["email"] ?? "");
     $telefone = trim($_POST["telefone"] ?? "");
     $tipo_usuario = $_POST["tipo_usuario"] ?? "usuario";
     $senha = trim($_POST["senha"] ?? "");
+=======
+    $nome = trim($_POST['nome']);
+    $email = trim($_POST['email']);
+    $senha = $_POST['senha'];
+>>>>>>> 92acdd56b836ce8ec1f71c985ce26aae061e1754
 
     if ($nome === "" || $email === "" || $senha === "") {
         $erro = "Preencha os campos obrigatórios.";
@@ -30,6 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute();
         $resultado = $stmt->get_result();
 
+<<<<<<< HEAD
         if ($resultado->num_rows > 0) {
             $erro = "Já existe um usuário com este email.";
         } else {
@@ -40,11 +57,95 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if ($stmt->execute()) {
                 $mensagem = "Usuário cadastrado com sucesso.";
             } else {
+=======
+    if ($nome === "" || $email === "" || $senha === "") {
+
+
+        $erro = "Preencha todos os campos.";
+
+
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+
+        $erro = "Digite um e-mail válido.";
+
+
+    } elseif (strlen($senha) < 6) {
+
+
+        $erro = "A senha deve ter pelo menos 6 caracteres.";
+
+
+    } else {
+        
+    $stmt = $conexao->prepare(
+            "SELECT id FROM usuarios WHERE email = ?"
+        );
+
+
+        $stmt->bind_param("s", $email);
+
+
+        $stmt->execute();
+
+
+        $resultado = $stmt->get_result();
+
+
+        if ($resultado->num_rows > 0) {
+
+
+            $erro = "Este e-mail já está cadastrado.";
+
+
+        } else {
+
+
+            $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+
+            $perfil = "usuario";
+
+
+            $stmt = $conexao->prepare(
+                "INSERT INTO usuarios (nome, email, senha, perfil)
+                 VALUES (?, ?, ?, ?)"
+            );
+
+
+            $stmt->bind_param(
+                "ssss",
+                $nome,
+                $email,
+                $senhaHash,
+                $perfil
+            );
+
+
+            if ($stmt->execute()) {
+
+
+                $sucesso = "Usuário cadastrado com sucesso.";
+
+
+                $nome = "";
+                $email = "";
+
+
+            } else {
+
+
+>>>>>>> 92acdd56b836ce8ec1f71c985ce26aae061e1754
                 $erro = "Erro ao cadastrar usuário.";
             }
         }
     }
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 92acdd56b836ce8ec1f71c985ce26aae061e1754
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
