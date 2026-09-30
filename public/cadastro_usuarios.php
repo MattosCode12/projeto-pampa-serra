@@ -14,14 +14,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nome = trim($_POST["nome"] ?? "");
     $email = trim($_POST["email"] ?? "");
     $telefone = trim($_POST["telefone"] ?? "");
-    $tipo_usuario = $_POST["tipo_usuario"] ?? "usuario";
+    $tipo_usuario = $_POST["tipo_usuario"] ?? 0 ;
     $senha = trim($_POST["senha"] ?? "");
 
     if ($nome === "" || $email === "" || $senha === "") {
         $erro = "Preencha os campos obrigatórios.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erro = "Informe um email válido.";
-    } elseif (!in_array($tipo_usuario, ["admin", "usuario"])) {
+    } elseif (!in_array($tipo_usuario, [1, 0])) {
         $erro = "Tipo de usuário inválido.";
     } else {
         $sql = "SELECT id FROM usuarios WHERE email = ?";
@@ -33,9 +33,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($resultado->num_rows > 0) {
             $erro = "Já existe um usuário com este email.";
         } else {
-            $sql = "INSERT INTO usuarios (nome, email, senha, telefone, tipo_usuario) VALUES (?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO usuarios (nome, email, senha, telefone, tipo_usuario) VALUES (?, ?, ?, ?,? )";
             $stmt = $conexao->prepare($sql);
-            $stmt->bind_param("sssss", $nome, $email, $senha, $telefone, $tipo_usuario);
+            $stmt->bind_param("ssssi", $nome, $email, $senha, $telefone, $tipo_usuario);
 
             if ($stmt->execute()) {
                 $mensagem = "Usuário cadastrado com sucesso.";
@@ -102,8 +102,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="mb-3">
                 <label class="form-label">Tipo de Usuário</label>
                 <select name="tipo_usuario" class="form-select">
-                    <option value="usuario">Usuário</option>
-                    <option value="admin">Administrador</option>
+                    <option value="0">Usuário</option>
+                    <option value="1">Administrador</option>
                 </select>
             </div>
 

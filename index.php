@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["id_usuario"] = $usuario["id"];
                 $_SESSION["nome"] = $usuario["nome"];
                 $_SESSION["email"] = $usuario["email"];
-                
+                $_SESSION["nivel_acesso"] =$usuario["nivel_acesso"]; //1=comum, 2= admin 
 
                 header(
                     "Location: public/home.php"

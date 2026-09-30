@@ -8,7 +8,8 @@ CREATE TABLE usuarios (
     email VARCHAR(100) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     telefone VARCHAR(20),
-    tipo_usuario ENUM('admin', 'usuario') NOT NULL DEFAULT 'usuario'
+    -- tipo_usuario ENUM('admin', 'usuario') NOT NULL DEFAULT 'usuario',
+    tipo_usuario TINYINT UNSIGNED NOT NULL CHECK (tipo_usuario IN (0, 1))
 );
 
 INSERT INTO usuarios (nome, email, senha, telefone, tipo_usuario)
@@ -17,5 +18,5 @@ VALUES (
     'admin@pampaserra.com',
     '123456',
     NULL,
-    'admin'
+    1
 );
