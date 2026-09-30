@@ -100,11 +100,12 @@ body {
 
 #card-login {
   width: 820px;
-  max-width: 95vw;
+  max-width: 200px;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
   display: flex;
+ 
 }
 
 #lado-esquerdo {
