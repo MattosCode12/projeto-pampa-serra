@@ -87,7 +87,7 @@ if (!isset($_SESSION["id_usuario"])) {
                 <div class="d-flex align-items-center gap-4">
 
                     <a
-                        href="../logout.php"
+                        href=" logout.php"
                         class="btn btn-sair"
                     >
                         Sair

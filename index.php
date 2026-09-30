@@ -40,9 +40,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["id_usuario"] = $usuario["id"];
                 $_SESSION["nome"] = $usuario["nome"];
                 $_SESSION["email"] = $usuario["email"];
+                
 
                 header(
-                    "Location: rafael_melchioretto/projeto-pampa-serra/public/home.php"
+                    "Location: public/home.php"
                 );
                 exit;
 
