@@ -14,7 +14,7 @@ exit;
 
 }
 if ($nivel_acesso === '1' && $_SESSION['tipo_usuario'] !== '1'){
-header("location:cadastro_usuarios.php");
+header("location:cadastro_usuarios.php?erro=sem_permissao");
 
 }
 
