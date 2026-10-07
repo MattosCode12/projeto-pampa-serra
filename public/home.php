@@ -1,11 +1,8 @@
 <?php
 
-session_start();
+require_once "auth.php";
 
-if (!isset($_SESSION["id_usuario"])) {
-    header("Location: ../index.php");
-    exit;
-}
+exigirLogin();
 
 ?>
 
