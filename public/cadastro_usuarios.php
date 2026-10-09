@@ -35,10 +35,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             $sql = "INSERT INTO usuarios (nome, email, senha, telefone, tipo_usuario) VALUES (?, ?, ?, ?,? )";
             $stmt = $conexao->prepare($sql);
+            $senHash = password_hash ($senha, PASSWORD_DEFAULT);
             $stmt->bind_param("ssssi", $nome, $email, $senha, $telefone, $tipo_usuario);
 
             if ($stmt->execute()) {
-                $mensagem = "Usuário cadastrado com sucesso.";
+                $mensagem = "Usuário cadastrado 
+                com sucesso.";
             } else {
                 $erro = "Erro ao cadastrar usuário.";
             }
