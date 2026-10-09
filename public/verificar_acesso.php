@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Exige que o usuário esteja logado
+
 function exigir_login() {
     if (!isset($_SESSION['usuario_id'])) {
         header('Location: ../index.php'); // sua tela de login
@@ -11,7 +11,7 @@ function exigir_login() {
     }
 }
 
-// Exige que o usuário seja admin
+
 function exigir_admin() {
     exigir_login
     ();
