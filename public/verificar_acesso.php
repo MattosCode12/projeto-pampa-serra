@@ -1,25 +1,23 @@
 <?php
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-
-}
-
-function protegerPagina($nivel_acesso){
-
-if (!isset($_SESSION['usuario_id'])) {
-header("location: index.php?erro=nao_logado");
-exit;
-}
-
-}
-if ($nivel_acesso === '1' && $_SESSION['tipo_usuario'] !== '1'){
-header("location:cadastro_usuarios.php?erro=sem_permissao");
-
 }
 
 
+function exigir_login() {
+    if (!isset($_SESSION['usuario_id'])) {
+        header('Location: ../index.php'); // sua tela de login
+        exit;
+    }
+}
 
 
-
+function exigir_admin() {
+    exigir_login
+    ();
+    if ($_SESSION['tipo_usuario'] != 1) {
+        header('Location: home.php');
+        exit;
+    }
+}
 ?>
