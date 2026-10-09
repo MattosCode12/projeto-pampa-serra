@@ -100,22 +100,22 @@ body {
 
 #card-login {
   width: 820px;
-  max-width: 200px;
+  max-width: 95%;
+  margin: 50px auto;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
   display: flex;
- 
+  box-sizing: border-box;
 }
 
 #lado-esquerdo {
   background-color: #1a5fcc;
-  width: 45%;
+  flex: 0 0 35%;
   min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20px 0 0 20px;
 }
 
 #logo {
