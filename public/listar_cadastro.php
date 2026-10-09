@@ -1,4 +1,7 @@
 <?php
+require_once 'verificar_acesso.php';
+exigir_admin();
+
 session_start();
 require_once "../conexao.php";
 

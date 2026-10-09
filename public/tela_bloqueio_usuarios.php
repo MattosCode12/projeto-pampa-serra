@@ -1,4 +1,6 @@
 <?php
+require_once 'verificar_acesso.php';
+exigir_admin();
 
 
 
