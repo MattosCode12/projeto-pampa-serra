@@ -7,6 +7,10 @@ if (!isset($_SESSION["id_usuario"])) {
     exit;
 }
 
+<?php
+require_once 'verificar_acesso.php';
+exigir_login();
+
 $busca = trim($_GET["busca"] ?? "");
 
 if ($busca != "") {

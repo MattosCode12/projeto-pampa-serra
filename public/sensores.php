@@ -1,3 +1,7 @@
+<?php
+require_once 'verificar_acesso.php';
+exigir_login();
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>

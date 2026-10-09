@@ -1,4 +1,10 @@
 <?php
+require_once 'verificar_acesso.php';
+exigir_login();
+
+
+
+<?php
 
 $rota = "Rota 3207";
 $origem = "Porto Alegre";
@@ -8,6 +14,8 @@ $velocidade = "39 Km/h";
 $consumo = "3 L/km";
 
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
