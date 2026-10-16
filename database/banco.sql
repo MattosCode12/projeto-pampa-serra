@@ -19,4 +19,16 @@ VALUES (
     '123456',
     NULL,
     1
+
+CREATE TABLE trens (
+    id_trem INT AUTO_INCREMENT PRIMARY KEY,
+    codigo VARCHAR(50) NOT NULL UNIQUE,
+    modelo VARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Normal',
+    id_usuario INT NOT NULL,
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES usuarios(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
 );
