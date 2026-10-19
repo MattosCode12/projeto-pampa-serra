@@ -8,23 +8,17 @@ CREATE TABLE usuarios (
     email VARCHAR(100) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     telefone VARCHAR(20),
+    -- tipo_usuario ENUM('admin', 'usuario') NOT NULL DEFAULT 'usuario',
     tipo_usuario TINYINT UNSIGNED NOT NULL CHECK (tipo_usuario IN (0, 1))
 );
 
-INSERT INTO usuarios (
-    nome,
-    email,
-    senha,
-    telefone,
-    tipo_usuario
-)
+INSERT INTO usuarios (nome, email, senha, telefone, tipo_usuario)
 VALUES (
     'admin',
     'admin@pampaserra.com',
     '123456',
     NULL,
     1
-);
 
 CREATE TABLE trens (
     id_trem INT AUTO_INCREMENT PRIMARY KEY,
@@ -32,6 +26,7 @@ CREATE TABLE trens (
     modelo VARCHAR(100) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'Normal',
     id_usuario INT NOT NULL,
+
     FOREIGN KEY (id_usuario)
         REFERENCES usuarios(id)
         ON UPDATE CASCADE
