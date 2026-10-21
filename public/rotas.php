@@ -1,9 +1,10 @@
 <?php
-require_once "verificar_acesso.php";
+require_once __DIR__ . "/verificar_acesso.php";
+require_once __DIR__ . "/../conexao.php";
 exigir_login();
-require_once "../conexao.php";
 $erro = "";
 $sucesso = "";
+$admin = (int)($_SESSION["tipo_usuario"] ?? 0) === 1;
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exigir_admin();
     validar_csrf();
@@ -14,15 +15,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             "id",
             FILTER_VALIDATE_INT
         );
-        if ($id) {
-            $stmt = $conexao->prepare(
-                "DELETE FROM rota WHERE id_rota = ?"
-            );
-            $stmt->bind_param("i", $id);
-            $stmt->execute();
+        if (!$id) {
+            $erro = "Rota inválida.";
+        } else {
+            try {
+                $stmt = $conexao->prepare(
+                    "DELETE FROM rota WHERE id_rota = ?"
+                );
+                $stmt->bind_param("i", $id);
+                $stmt->execute();
+                $stmt->close();
+                header("Location: rotas.php?sucesso=excluido");
+                exit;
+            } catch (mysqli_sql_exception $e) {
+                error_log($e->getMessage());
+                $erro = "Não foi possível excluir a rota.";
+            }
         }
-        header("Location: rotas.php");
-        exit;
     }
     if ($acao === "cadastrar") {
         $codigo = trim($_POST["codigo"] ?? "");
@@ -64,9 +73,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt = $conexao->prepare(
                     "INSERT INTO rota
                     (codigo, origem, destino, parada,
-                     velocidade_min, velocidade_max,
-                     consumo_min, consumo_max, ativa)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)"
+                    velocidade_min, velocidade_max,
+                    consumo_min, consumo_max, ativa)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)"
                 );
                 $stmt->bind_param(
                     "ssssdddd",
@@ -80,251 +89,247 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $cmax
                 );
                 $stmt->execute();
-                header("Location: rotas.php?sucesso=1");
+                $stmt->close();
+                header("Location: rotas.php?sucesso=cadastrado");
                 exit;
             } catch (mysqli_sql_exception $e) {
                 error_log($e->getMessage());
-                $erro = "Não foi possível cadastrar. Verifique se o código já existe.";
+                $erro = "Não foi possível cadastrar a rota.";
             }
         }
     }
 }
+if (isset($_GET["sucesso"])) {
+    if ($_GET["sucesso"] === "cadastrado" || $_GET["sucesso"] === "1") {
+        $sucesso = "Rota cadastrada com sucesso!";
+    } elseif ($_GET["sucesso"] === "excluido") {
+        $sucesso = "Rota excluída com sucesso!";
+    }
+}
 $busca = trim($_GET["busca"] ?? "");
 $termo = "%" . $busca . "%";
-$stmt = $conexao->prepare(
-    "SELECT * FROM rota
-     WHERE codigo LIKE ?
-        OR origem LIKE ?
-        OR destino LIKE ?
-     ORDER BY id_rota DESC"
-);
-$stmt->bind_param(
-    "sss",
-    $termo,
-    $termo,
-    $termo
-);
-$stmt->execute();
-$resultado = $stmt->get_result();
+$resultado = null;
+try {
+    $stmt = $conexao->prepare(
+        "SELECT * FROM rota
+         WHERE codigo LIKE ?
+            OR origem LIKE ?
+            OR destino LIKE ?
+         ORDER BY id_rota DESC"
+    );
+    $stmt->bind_param("sss", $termo, $termo, $termo);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+} catch (mysqli_sql_exception $e) {
+    error_log($e->getMessage());
+    $erro = "Não foi possível carregar as rotas. Verifique o banco de dados.";
+}
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rotas - Pampa Serra</title>
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-    <link rel="stylesheet"
-          href="../style/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style/style.css">
 </head>
 <body class="bg-light">
 <div class="container mt-5">
     <div class="d-flex justify-content-between mb-4">
-        <h2>Gerenciamento de Rotas</h2>
-        <a href="home.php"
-           class="btn btn-dark">
-            Voltar
-        </a>
+        <h2>Rotas</h2>
+        <a href="home.php" class="btn btn-dark">Voltar</a>
     </div>
-    <?php if ($erro): ?>
-        <div class="alert alert-danger">
-            <?= h($erro) ?>
-        </div>
-    <?php endif; ?>
-    <?php if (isset($_GET["sucesso"])): ?>
-        <div class="alert alert-success">
-            Rota cadastrada com sucesso.
-        </div>
-    <?php endif; ?>
-    <?php if (eh_admin()): ?>
-        <div class="card shadow-sm p-4 mb-4">
-            <h3>Cadastrar rota</h3>
-            <form method="POST" class="row g-3">
-                <?= campo_csrf() ?>
-                <input
-                    type="hidden"
-                    name="acao"
-                    value="cadastrar">
-                <div class="col-md-4">
-                    <label class="form-label">Código</label>
-                    <input
-                        class="form-control"
-                        name="codigo"
-                        maxlength="30"
-                        required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Origem</label>
-                    <input
-                        class="form-control"
-                        name="origem"
-                        maxlength="100"
-                        required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Destino</label>
-                    <input
-                        class="form-control"
-                        name="destino"
-                        maxlength="100"
-                        required>
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label">
-                        Parada obrigatória
-                    </label>
-                    <input
-                        class="form-control"
-                        name="parada"
-                        maxlength="100">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">
-                        Velocidade mínima
-                    </label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        class="form-control"
-                        name="velocidade_min"
-                        required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">
-                        Velocidade máxima
-                    </label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        class="form-control"
-                        name="velocidade_max"
-                        required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">
-                        Consumo mínimo
-                    </label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        class="form-control"
-                        name="consumo_min"
-                        required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">
-                        Consumo máximo
-                    </label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        class="form-control"
-                        name="consumo_max"
-                        required>
-                </div>
-                <div class="col-12">
-                    <button
-                        type="submit"
-                        class="btn btn-primary">
-                        Cadastrar Rota
-                    </button>
-                </div>
-            </form>
-        </div>
-    <?php endif; ?>
-    <form method="GET" class="mb-3">
-        <div class="input-group">
+    <div class="card p-4 shadow-sm mb-4">
+        <img
+            src="../assets/img/logo.png"
+            class="mx-auto d-block mb-4"
+            alt="Pampa Serra"
+            style="width:120px;"
+        >
+        <?php if ($erro): ?>
+            <div class="alert alert-danger">
+                <?= h($erro) ?>
+            </div>
+        <?php endif; ?>
+        <?php if ($sucesso): ?>
+            <div class="alert alert-success">
+                <?= h($sucesso) ?>
+            </div>
+        <?php endif; ?>
+        <form method="GET" class="input-group mb-4">
             <input
                 type="text"
                 name="busca"
                 class="form-control"
                 placeholder="Buscar rota"
-                value="<?= h($busca) ?>">
-            <button
-                type="submit"
-                class="btn btn-dark">
+                value="<?= h($busca) ?>"
+            >
+            <button type="submit" class="btn btn-dark">
                 Buscar
             </button>
-        </div>
-    </form>
-    <div class="card shadow-sm p-4">
+        </form>
+        <?php if ($admin): ?>
+            <h4 class="mb-3">Cadastrar Rota</h4>
+            <form method="POST" class="row g-3 mb-4">
+                <?= campo_csrf() ?>
+                <input type="hidden" name="acao" value="cadastrar">
+                <div class="col-md-6">
+                    <label class="form-label">Código</label>
+                    <input
+                        type="text"
+                        name="codigo"
+                        class="form-control"
+                        required
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Parada</label>
+                    <input
+                        type="text"
+                        name="parada"
+                        class="form-control"
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Origem</label>
+                    <input
+                        type="text"
+                        name="origem"
+                        class="form-control"
+                        required
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Destino</label>
+                    <input
+                        type="text"
+                        name="destino"
+                        class="form-control"
+                        required
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Velocidade mínima</label>
+                    <input
+                        type="number"
+                        name="velocidade_min"
+                        step="any"
+                        min="0"
+                        class="form-control"
+                        required
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Velocidade máxima</label>
+                    <input
+                        type="number"
+                        name="velocidade_max"
+                        step="any"
+                        min="0"
+                        class="form-control"
+                        required
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Consumo mínimo</label>
+                    <input
+                        type="number"
+                        name="consumo_min"
+                        step="any"
+                        min="0"
+                        class="form-control"
+                        required
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Consumo máximo</label>
+                    <input
+                        type="number"
+                        name="consumo_max"
+                        step="any"
+                        min="0"
+                        class="form-control"
+                        required
+                    >
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        Cadastrar Rota
+                    </button>
+                </div>
+            </form>
+        <?php endif; ?>
+        <h4 class="mb-3">Rotas Cadastradas</h4>
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Código</th>
                         <th>Origem</th>
                         <th>Destino</th>
-                        <th>Velocidade</th>
-                        <th>Consumo</th>
+                        <th>Parada</th>
+                        <th>Vel. Mín.</th>
+                        <th>Vel. Máx.</th>
+                        <th>Cons. Mín.</th>
+                        <th>Cons. Máx.</th>
                         <th>Status</th>
-                        <th>Ações</th>
+                        <?php if ($admin): ?>
+                            <th>Ações</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                <?php while ($rota = $resultado->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= h($rota["codigo"]) ?></td>
-                        <td><?= h($rota["origem"]) ?></td>
-                        <td><?= h($rota["destino"]) ?></td>
-                        <td>
-                            <?= h($rota["velocidade_min"]) ?>
-                            -
-                            <?= h($rota["velocidade_max"]) ?>
-                            km/h
-                        </td>
-                        <td>
-                            <?= h($rota["consumo_min"]) ?>
-                            -
-                            <?= h($rota["consumo_max"]) ?>
-                            L/km
-                        </td>
-                        <td>
-                            <?= $rota["ativa"]
-                                ? "Ativa"
-                                : "Inativa" ?>
-                        </td>
-                        <td>
-                            <a
-                                href="tela_rotas.php?id=<?= (int) $rota["id_rota"] ?>"
-                                class="btn btn-primary btn-sm">
-                                Ver
-                            </a>
-                            <?php if (eh_admin()): ?>
-                                <form
-                                    method="POST"
-                                    class="d-inline"
-                                    data-confirm="Excluir esta rota?">
-                                    <?= campo_csrf() ?>
-                                    <input
-                                        type="hidden"
-                                        name="acao"
-                                        value="excluir">
-                                    <input
-                                        type="hidden"
-                                        name="id"
-                                        value="<?= (int) $rota["id_rota"] ?>">
-                                    <button
-                                        type="submit"
-                                        class="btn btn-danger btn-sm">
-                                        Excluir
-                                    </button>
-                                </form>
+                <?php if ($resultado && $resultado->num_rows > 0): ?>
+                    <?php while ($rota = $resultado->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= h($rota["id_rota"]) ?></td>
+                            <td><?= h($rota["codigo"]) ?></td>
+                            <td><?= h($rota["origem"]) ?></td>
+                            <td><?= h($rota["destino"]) ?></td>
+                            <td><?= h($rota["parada"] ?? "") ?></td>
+                            <td><?= h($rota["velocidade_min"]) ?></td>
+                            <td><?= h($rota["velocidade_max"]) ?></td>
+                            <td><?= h($rota["consumo_min"]) ?></td>
+                            <td><?= h($rota["consumo_max"]) ?></td>
+                            <td>
+                                <?= (int)$rota["ativa"] === 1 ? "Ativa" : "Inativa" ?>
+                            </td>
+                            <?php if ($admin): ?>
+                                <td>
+                                    <form
+                                        method="POST"
+                                        onsubmit="return confirm('Deseja excluir esta rota?');"
+                                    >
+                                        <?= campo_csrf() ?>
+                                        <input
+                                            type="hidden"
+                                            name="acao"
+                                            value="excluir"
+                                        >
+                                        <input
+                                            type="hidden"
+                                            name="id"
+                                            value="<?= h($rota["id_rota"]) ?>"
+                                        >
+                                        <button
+                                            type="submit"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            Excluir
+                                        </button>
+                                    </form>
+                                </td>
                             <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-                <?php if ($resultado->num_rows === 0): ?>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
                     <tr>
-                        <td colspan="7"
-                            class="text-center">
+                        <td
+                            colspan="<?= $admin ? 11 : 10 ?>"
+                            class="text-center"
+                        >
                             Nenhuma rota encontrada.
                         </td>
                     </tr>
@@ -334,6 +339,6 @@ $resultado = $stmt->get_result();
         </div>
     </div>
 </div>
-<script src="../script/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

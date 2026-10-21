@@ -1,13 +1,15 @@
 
 <?php
-require_once "o_arquivo_com_exigir_admin.php";
-
-var_dump($_SESSION);
-exit;
-
+require_once __DIR__ . "/verificar_acesso.php";
+require_once __DIR__ . "/../conexao.php";
 exigir_admin();
+$erro = "";
+$mensagem = "";
+$nome = "";
+$email = "";
+$telefone = "";
+$tipo_usuario = "0";
 
-<?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
 
