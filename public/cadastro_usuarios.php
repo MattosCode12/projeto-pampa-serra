@@ -1,3 +1,12 @@
+
+<?php
+require_once "o_arquivo_com_exigir_admin.php";
+
+var_dump($_SESSION);
+exit;
+
+exigir_admin();
+
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
