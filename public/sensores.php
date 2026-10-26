@@ -1,121 +1,97 @@
+
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+
 exigir_login();
+
 $admin = (int)($_SESSION["tipo_usuario"] ?? 0) === 1;
 $erro = "";
 $mensagem = "";
-$busca = trim($_GET["busca"] ?? "");
+
+$busca = $_GET["busca"] ?? "";
+$busca = is_string($busca) ? trim($busca) : "";
+
 if (isset($_GET["sucesso"])) {
-    if ($_GET["sucesso"] === "cadastro") {
-        $mensagem = "Sensor cadastrado com sucesso!";
-    }
-    if ($_GET["sucesso"] === "exclusao") {
-        $mensagem = "Sensor excluído com sucesso!";
-    }
+    $mensagens = [
+        "cadastro" => "Sensor cadastrado com sucesso!",
+        "edicao" => "Sensor atualizado com sucesso!",
+        "exclusao" => "Sensor excluído com sucesso!"
+    ];
+
+    $mensagem = $mensagens[$_GET["sucesso"]] ?? "";
 }
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exigir_admin();
     validar_csrf();
-    $acao = $_POST["acao"] ?? "";
-    if ($acao === "cadastrar") {
-        $nome = trim($_POST["nome"] ?? "");
-        $localizacao = trim($_POST["localizacao"] ?? "");
-        $tipo_dado = trim($_POST["tipo_dado"] ?? "");
-        if (
-            $nome === "" ||
-            $localizacao === "" ||
-            $tipo_dado === ""
-        ) {
-            $erro = "Preencha todos os campos.";
-        } else {
-            try {
-                $stmt = $conexao->prepare(
-                    "INSERT INTO sensores
-                    (nome, localizacao, tipo_dado)
-                    VALUES (?, ?, ?)"
-                );
-                $stmt->bind_param(
-                    "sss",
-                    $nome,
-                    $localizacao,
-                    $tipo_dado
-                );
-                $stmt->execute();
-                $stmt->close();
-                header("Location: sensores.php?sucesso=cadastro");
-                exit;
-            } catch (mysqli_sql_exception $e) {
-                error_log($e->getMessage());
-                $erro = "Erro ao cadastrar sensor.";
-            }
-        }
-    }
-    if ($acao === "excluir") {
-        $id = filter_input(
-            INPUT_POST,
-            "id_sensor",
-            FILTER_VALIDATE_INT
-        );
-        if (!$id || $id < 1) {
-            $erro = "Sensor inválido.";
-        } else {
-            try {
-                $stmt = $conexao->prepare(
-                    "DELETE FROM sensores
-                     WHERE id_sensor = ?"
-                );
-                $stmt->bind_param("i", $id);
-                $stmt->execute();
-                $stmt->close();
-                header("Location: sensores.php?sucesso=exclusao");
-                exit;
-            } catch (mysqli_sql_exception $e) {
-                error_log($e->getMessage());
-                $erro = "Erro ao excluir sensor.";
-            }
+
+    $id = filter_input(
+        INPUT_POST,
+        "id_sensor",
+        FILTER_VALIDATE_INT
+    );
+
+    if (($_POST["acao"] ?? "") !== "excluir" || !$id || $id < 1) {
+        $erro = "Sensor inválido.";
+    } else {
+        try {
+            $stmt = $conexao->prepare(
+                "DELETE FROM sensores WHERE id_sensor = ?"
+            );
+
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $stmt->close();
+
+            header("Location: sensores.php?sucesso=exclusao");
+            exit;
+        } catch (mysqli_sql_exception $e) {
+            error_log($e->getMessage());
+            $erro = "Não foi possível excluir o sensor.";
         }
     }
 }
+
 $sensores = [];
+
 try {
     $termo = "%" . $busca . "%";
+
     $stmt = $conexao->prepare(
-        "SELECT * FROM sensores
+        "SELECT id_sensor, nome, localizacao,
+                tipo_dado, descricao, criado_em
+         FROM sensores
          WHERE nome LIKE ?
             OR localizacao LIKE ?
             OR tipo_dado LIKE ?
          ORDER BY id_sensor ASC"
     );
-    $stmt->bind_param(
-        "sss",
-        $termo,
-        $termo,
-        $termo
-    );
+
+    $stmt->bind_param("sss", $termo, $termo, $termo);
     $stmt->execute();
-    $resultado = $stmt->get_result();
-    while ($sensor = $resultado->fetch_assoc()) {
-        $sensores[] = $sensor;
-    }
+
+    $sensores = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
+
 } catch (mysqli_sql_exception $e) {
     error_log($e->getMessage());
-    $erro = "Erro ao carregar os sensores.";
+    $erro = "Não foi possível carregar os sensores.";
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sensores - Pampa Serra</title>
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
     <link rel="stylesheet" href="../style/style.css">
+
     <style>
         body {
             margin: 0;
@@ -123,15 +99,17 @@ try {
             background: #f5f5f5;
             font-family: Arial, sans-serif;
         }
+
         .pagina-sensores {
             width: 95%;
             max-width: 1200px;
             min-height: 600px;
             margin: 32px auto;
-            padding: 20px 35px 35px;
+            padding: 25px 35px 35px;
             background: #064eb1;
             border-radius: 25px;
         }
+
         .topo-sensores {
             display: flex;
             align-items: center;
@@ -139,161 +117,145 @@ try {
             gap: 20px;
             margin-bottom: 28px;
         }
+
         .logo-sensores {
             width: 100px;
             height: auto;
         }
+
         .busca-sensores {
             display: flex;
-            width: 245px;
-            height: 38px;
+            width: 300px;
+            max-width: 100%;
         }
+
         .busca-sensores input {
-            width: 100%;
-            border: none;
-            outline: none;
             border-radius: 12px 0 0 12px;
-            background: #ddd;
-            padding: 0 12px;
+            background: #e5e7eb;
+            border: none;
+            padding: 10px;
+            min-width: 0;
+            flex: 1;
         }
+
         .busca-sensores button {
             border: none;
             border-radius: 0 12px 12px 0;
-            background: #ddd;
-            padding: 0 12px;
-            font-size: 20px;
+            padding: 10px 15px;
+            background: white;
+            font-weight: bold;
         }
+
         .botoes-topo {
             display: flex;
-            gap: 15px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
+
         .btn-topo {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             background: #113a82;
             color: white;
-            border: none;
-            border-radius: 25px;
-            padding: 10px 23px;
-            font-size: 17px;
-            font-weight: bold;
             text-decoration: none;
-            cursor: pointer;
+            padding: 11px 20px;
+            border-radius: 20px;
+            font-weight: bold;
         }
+
         .btn-topo:hover {
             background: #092a65;
             color: white;
         }
+
         .grade-sensores {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 24px;
-            max-width: 1050px;
-            margin: 0 auto;
         }
+
         .cartao-sensor {
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             background: white;
-            border-radius: 10px;
             color: black;
+            border-radius: 12px;
+            overflow: hidden;
             text-align: center;
-            font-weight: 800;
             min-width: 0;
         }
+
         .linha-sensor {
-            padding: 12px 8px;
-            border-bottom: 2px solid black;
+            padding: 13px;
+            border-bottom: 1px solid #ddd;
             overflow-wrap: anywhere;
         }
-        .linha-sensor:last-child {
-            border-bottom: none;
-        }
-        .cabecalho-sensor {
-            display: flex;
-            align-items: stretch;
-            padding: 0;
-            min-height: 43px;
-        }
+
         .nome-sensor {
+            background: #eaf1fc;
+            color: #174eae;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .descricao-sensor {
+            color: #555;
             flex: 1;
-            padding: 11px 6px;
-            align-content: center;
         }
-        .form-excluir {
-            border-left: 2px solid black;
+
+        .acoes-sensor {
             display: flex;
-            align-items: stretch;
+            gap: 8px;
+            padding: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        .btn-excluir {
-            background: white;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 22px;
+
+        .acoes-sensor form {
+            margin: 0;
         }
-        .btn-excluir:hover {
-            background: #ffdddd;
-        }
-        .linha-localizacao {
-            text-decoration: underline;
-        }
+
         .mensagem-vazia {
             grid-column: 1 / -1;
-            text-align: center;
             color: white;
-            padding: 30px;
+            text-align: center;
+            padding: 35px;
             font-size: 20px;
             font-weight: bold;
         }
-        .area-voltar {
-            margin-top: 25px;
-        }
-        .btn-voltar {
-            background: #113a82;
-            color: white;
-            padding: 10px 22px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .btn-voltar:hover {
-            background: #092a65;
-            color: white;
-        }
+
         @media (max-width: 900px) {
             .grade-sensores {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
+
         @media (max-width: 600px) {
             .pagina-sensores {
-                width: 96%;
                 padding: 20px 15px;
             }
+
             .topo-sensores {
                 flex-wrap: wrap;
                 justify-content: center;
             }
+
+            .busca-sensores {
+                order: 3;
+                width: 100%;
+            }
+
             .grade-sensores {
                 grid-template-columns: 1fr;
-            }
-            .busca-sensores {
-                width: 100%;
-                order: 3;
-            }
-            .botoes-topo {
-                flex-wrap: wrap;
-                justify-content: center;
             }
         }
     </style>
 </head>
+
 <body>
+
 <div class="pagina-sensores">
+
     <header class="topo-sensores">
+
         <a href="home.php">
             <img
                 src="../assets/img/logo.png"
@@ -301,199 +263,130 @@ try {
                 alt="Pampa Serra"
             >
         </a>
-        <form
-            method="GET"
-            action="sensores.php"
-            class="busca-sensores"
-        >
+
+        <form method="GET" action="sensores.php" class="busca-sensores">
             <input
-                type="text"
+                type="search"
                 name="busca"
-                placeholder="Buscar"
+                placeholder="Buscar sensor"
                 value="<?= h($busca) ?>"
             >
-            <button type="submit" aria-label="Buscar">
-                &#128269;
-            </button>
+
+            <button type="submit">Buscar</button>
         </form>
+
         <div class="botoes-topo">
+
             <a href="home.php" class="btn-topo">
-                Mais
+                Voltar
             </a>
+
             <?php if ($admin): ?>
-                <button
-                    type="button"
-                    class="btn-topo"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalCriar"
-                >
-                    Criar
-                </button>
+                <a href="criar_sensor.php" class="btn-topo">
+                    + Criar Sensor
+                </a>
             <?php endif; ?>
+
         </div>
+
     </header>
-    <?php if ($erro): ?>
+
+    <?php if ($erro !== ""): ?>
         <div class="alert alert-danger">
             <?= h($erro) ?>
         </div>
     <?php endif; ?>
-    <?php if ($mensagem): ?>
+
+    <?php if ($mensagem !== ""): ?>
         <div class="alert alert-success">
             <?= h($mensagem) ?>
         </div>
     <?php endif; ?>
+
     <main class="grade-sensores">
-        <?php if (count($sensores) > 0): ?>
-            <?php foreach ($sensores as $sensor): ?>
-                <article class="cartao-sensor">
-                    <div class="linha-sensor cabecalho-sensor">
-                        <div class="nome-sensor">
-                            <?= h($sensor["nome"]) ?>
-                        </div>
-                        <?php if ($admin): ?>
-                            <form
-                                method="POST"
-                                class="form-excluir"
-                                onsubmit="return confirm('Deseja excluir este sensor?');"
-                            >
-                                <?= campo_csrf() ?>
-                                <input
-                                    type="hidden"
-                                    name="acao"
-                                    value="excluir"
-                                >
-                                <input
-                                    type="hidden"
-                                    name="id_sensor"
-                                    value="<?= h($sensor["id_sensor"]) ?>"
-                                >
-                                <button
-                                    type="submit"
-                                    class="btn-excluir"
-                                    aria-label="Excluir sensor"
-                                    title="Excluir sensor"
-                                >
-                                    &#128465;
-                                </button>
-                            </form>
-                        <?php endif; ?>
-                    </div>
-                    <div class="linha-sensor linha-localizacao">
+
+        <?php foreach ($sensores as $sensor): ?>
+
+            <article class="cartao-sensor">
+
+                <div class="linha-sensor nome-sensor">
+                    <?= h($sensor["nome"]) ?>
+                </div>
+
+                <div class="linha-sensor">
+                    <strong>Localização</strong>
+                    <p class="mb-0">
                         <?= h($sensor["localizacao"]) ?>
-                    </div>
-                    <div class="linha-sensor">
+                    </p>
+                </div>
+
+                <div class="linha-sensor">
+                    <strong>Tipo de dado</strong>
+                    <p class="mb-0">
                         <?= h($sensor["tipo_dado"]) ?>
-                    </div>
-                    <?php if (
-                        isset($sensor["descricao"]) &&
-                        $sensor["descricao"] !== ""
-                    ): ?>
-                        <div class="linha-sensor">
-                            <?= h($sensor["descricao"]) ?>
-                        </div>
+                    </p>
+                </div>
+
+                <div class="linha-sensor descricao-sensor">
+                    <?= h($sensor["descricao"] ?: "Sem descrição") ?>
+                </div>
+
+                <div class="acoes-sensor">
+
+                    <a
+                        href="tela_sensores.php?id=<?= (int)$sensor["id_sensor"] ?>"
+                        class="btn btn-primary btn-sm">
+                        Ver
+                    </a>
+
+                    <?php if ($admin): ?>
+
+                        <a
+                            href="editar_sensor.php?id=<?= (int)$sensor["id_sensor"] ?>"
+                            class="btn btn-warning btn-sm">
+                            Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            onsubmit="return confirm('Deseja excluir este sensor?');"
+                        >
+                            <?= campo_csrf() ?>
+
+                            <input
+                                type="hidden"
+                                name="acao"
+                                value="excluir"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="id_sensor"
+                                value="<?= (int)$sensor["id_sensor"] ?>"
+                            >
+
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Excluir
+                            </button>
+                        </form>
+
                     <?php endif; ?>
-                </article>
-            <?php endforeach; ?>
-        <?php else: ?>
+
+                </div>
+
+            </article>
+
+        <?php endforeach; ?>
+
+        <?php if (!$sensores): ?>
             <div class="mensagem-vazia">
                 Nenhum sensor encontrado.
             </div>
         <?php endif; ?>
+
     </main>
-    <div class="area-voltar">
-        <a href="home.php" class="btn-voltar">
-            Voltar
-        </a>
-    </div>
+
 </div>
-<?php if ($admin): ?>
-<div
-    class="modal fade"
-    id="modalCriar"
-    tabindex="-1"
-    aria-labelledby="tituloModal"
-    aria-hidden="true"
->
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tituloModal">
-                    Cadastrar Sensor
-                </h5>
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Fechar"
-                ></button>
-            </div>
-            <form method="POST" action="sensores.php">
-                <div class="modal-body">
-                    <?= campo_csrf() ?>
-                    <input
-                        type="hidden"
-                        name="acao"
-                        value="cadastrar"
-                    >
-                    <div class="mb-3">
-                        <label class="form-label" for="nome">
-                            Nome do Sensor
-                        </label>
-                        <input
-                            type="text"
-                            name="nome"
-                            id="nome"
-                            class="form-control"
-                            required
-                        >
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="localizacao">
-                            Localização
-                        </label>
-                        <input
-                            type="text"
-                            name="localizacao"
-                            id="localizacao"
-                            class="form-control"
-                            placeholder="Ex.: KM 22 - Aeroporto"
-                            required
-                        >
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="tipo_dado">
-                            Tipo de Dado
-                        </label>
-                        <input
-                            type="text"
-                            name="tipo_dado"
-                            id="tipo_dado"
-                            class="form-control"
-                            placeholder="Ex.: Sensor de temperatura"
-                            required
-                        >
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        Cadastrar Sensor
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
