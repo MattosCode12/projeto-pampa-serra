@@ -1,22 +1,27 @@
+
 <?php
-require_once "verificar_acesso.php";
+require_once __DIR__ . "/verificar_acesso.php";
+require_once __DIR__ . "/../conexao.php";
+
 exigir_login();
-require_once "../conexao.php";
-$id = filter_input(
-    INPUT_GET,
-    "id",
-    FILTER_VALIDATE_INT
-);
-if (!$id) {
+
+$admin = (int)($_SESSION["tipo_usuario"] ?? 0) === 1;
+
+$id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
+
+if (!$id || $id < 1) {
     header("Location: rotas.php");
     exit;
 }
+
 $stmt = $conexao->prepare(
     "SELECT * FROM rota WHERE id_rota = ?"
 );
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $rota = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
 if (!$rota) {
     http_response_code(404);
     exit("Rota não encontrada.");
@@ -26,138 +31,176 @@ if (!$rota) {
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-    <title>Monitoramento de Rotas</title>
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-        rel="stylesheet">
-    <link rel="stylesheet"
-          href="../style/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Rota - Pampa Serra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style/style.css">
+    <style>
+        body {
+            margin: 0;
+            background: #f3f3f3;
+        }
+
+        .topo {
+            background: #174eae;
+            padding: 25px;
+            color: white;
+        }
+
+        .painel {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.08);
+        }
+
+        .dados {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .dado {
+            background: #f1f4f8;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .dado span {
+            display: block;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .dado strong {
+            color: #174eae;
+            font-size: 22px;
+            overflow-wrap: anywhere;
+        }
+
+        .indicadores {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .indicador {
+            background: #0755bc;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .indicador strong {
+            display: block;
+            font-size: 26px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .dados, .indicadores {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom px-4">
-    <a class="navbar-brand"
-       href="home.php">
-        <img
-            src="../assets/img/logo.png"
-            alt="Pampa Serra"
-            class="logo"
-            style="width:90px">
-    </a>
-    <div class="mx-auto search-container">
-        <a href="rotas.php"
-           class="btn btn-light">
-            Voltar para rotas
+
+<body>
+
+<header class="topo">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <h1>Detalhes da Rota</h1>
+        <a href="rotas.php" class="btn btn-light">
+            Voltar
         </a>
     </div>
-</nav>
-<div class="container-fluid mt-4">
-    <div class="row justify-content-center g-4">
-        <div class="col-lg-3">
-            <div class="info-card text-center">
-                <div class="alert-line danger">
-                    Atenção Máxima
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <div class="alert-line warning">
-                    Atenção
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <div class="alert-line success">
-                    Esperado
-                    <i class="bi bi-check-circle-fill"></i>
-                </div>
-                <small>
-                    Legenda de alertas.
-                    Sem leituras em tempo real.
-                </small>
+</header>
+
+<main class="container">
+
+    <section class="painel">
+
+        <h2 class="mb-4">
+            Rota <?= h($rota["codigo"]) ?>
+        </h2>
+
+        <div class="dados">
+
+            <div class="dado">
+                <span>Código</span>
+                <strong><?= h($rota["codigo"]) ?></strong>
             </div>
-        </div>
-        <div class="col-lg-2">
-            <div class="info-card text-center">
-                <h2>Referência:</h2>
-                <p>
-                    <?= h($rota["velocidade_min"]) ?>
-                    -
-                    <?= h($rota["velocidade_max"]) ?>
-                    km/h
-                </p>
-                <p>Consumo:</p>
-                <p>
-                    <?= h($rota["consumo_min"]) ?>
-                    -
-                    <?= h($rota["consumo_max"]) ?>
-                    L/km
-                </p>
+
+            <div class="dado">
+                <span>Status</span>
+                <strong>
+                    <?= (int)$rota["ativa"] === 1 ? "Ativa" : "Inativa" ?>
+                </strong>
             </div>
+
+            <div class="dado">
+                <span>Origem</span>
+                <strong><?= h($rota["origem"]) ?></strong>
+            </div>
+
+            <div class="dado">
+                <span>Destino</span>
+                <strong><?= h($rota["destino"]) ?></strong>
+            </div>
+
+            <div class="dado">
+                <span>Parada obrigatória</span>
+                <strong><?= h($rota["parada"] ?: "Não informada") ?></strong>
+            </div>
+
+            <div class="dado">
+                <span>ID da rota</span>
+                <strong><?= (int)$rota["id_rota"] ?></strong>
+            </div>
+
         </div>
-        <div class="col-lg-4">
-            <div class="info-card text-center rotas-card">
+
+        <div class="indicadores">
+
+            <div class="indicador">
+                <h3>Velocidade cadastrada</h3>
+                <strong>
+                    <?= h($rota["velocidade_min"]) ?> -
+                    <?= h($rota["velocidade_max"]) ?> km/h
+                </strong>
+            </div>
+
+            <div class="indicador">
+                <h3>Consumo cadastrado</h3>
+                <strong>
+                    <?= h($rota["consumo_min"]) ?> -
+                    <?= h($rota["consumo_max"]) ?> L/km
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap mt-4">
+
+            <a href="rotas.php" class="btn btn-secondary">
+                Voltar à lista
+            </a>
+
+            <?php if ($admin): ?>
                 <a
-                    href="rotas.php"
-                    class="btn btn-light w-100 mb-3">
-                    Rota <?= h($rota["codigo"]) ?>
-                    -
-                    <?= h($rota["origem"]) ?>
-                    a
-                    <?= h($rota["destino"]) ?>
+                    href="editar_rota.php?id=<?= (int)$rota["id_rota"] ?>"
+                    class="btn btn-warning">
+                    Editar Rota
                 </a>
-                <p>
-                    Parada Obrigatória:
-                    <?= h(
-                        $rota["parada"] ?: "Não informada"
-                    ) ?>
-                </p>
-                <p>
-                    Status:
-                    <?= $rota["ativa"]
-                        ? "Ativa"
-                        : "Inativa" ?>
-                </p>
-            </div>
+            <?php endif; ?>
+
         </div>
-    </div>
-    <div class="mapa-container mt-4">
-        <a
-            href="rotas.php"
-            class="btn-mapa btn-left"
-            aria-label="Voltar para as rotas">
-            <i class="bi bi-arrow-left-circle"></i>
-        </a>
-        <div class="mapa-box">
-            <img
-                id="mapImage"
-                src="../assets/img/image.png"
-                alt="Ilustração da rota Porto Alegre e Serra Gaúcha">
-        </div>
-        <div class="info-mapa">
-            <i
-                class="bi bi-info-circle-fill text-success fs-1">
-            </i>
-            <h3>Velocidade cadastrada</h3>
-            <h2>
-                <?= h($rota["velocidade_min"]) ?>
-                -
-                <?= h($rota["velocidade_max"]) ?>
-                km/h
-            </h2>
-            <h3>Consumo cadastrado</h3>
-            <h2>
-                <?= h($rota["consumo_min"]) ?>
-                -
-                <?= h($rota["consumo_max"]) ?>
-                L/km
-            </h2>
-        </div>
-    </div>
-</div>
-<script src="../script/script.js"></script>
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
-</script>
+
+    </section>
+
+</main>
 </body>
 </html>
