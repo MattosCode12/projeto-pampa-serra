@@ -17,3 +17,5 @@ try {
     http_response_code(500);
     exit("Erro ao conectar com o banco de dados.");
 }
+
+....
