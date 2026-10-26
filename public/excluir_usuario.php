@@ -1,59 +1,101 @@
+
 <?php
-require_once 'verificar_acesso.php';
+require_once __DIR__ . "/verificar_acesso.php";
+require_once __DIR__ . "/../conexao.php";
+
 exigir_admin();
-
-session_start();
-require_once "../conexao.php";
-
-if (!isset($_SESSION["id_usuario"])) {
-    header("Location: ../index.php");
-    exit;
-}
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: listar_cadastro.php");
     exit;
 }
 
+validar_csrf();
+
 $id = filter_input(INPUT_POST, "id", FILTER_VALIDATE_INT);
+$idLogado = (int)($_SESSION["usuario_id"] ?? 0);
 
-if (!$id) {
-    header("Location: listar_cadastro.php?erro=ID inválido");
+if (!$id || $id < 1) {
+    $_SESSION["mensagem_erro"] = "Usuário inválido.";
+    header("Location: listar_cadastro.php");
     exit;
 }
 
-if ($id == $_SESSION["id_usuario"]) {
-    header("Location: listar_cadastro.php?erro=Você não pode excluir seu próprio usuário");
+if ($id === $idLogado) {
+    $_SESSION["mensagem_erro"] =
+        "Você não pode excluir sua própria conta.";
+    header("Location: listar_cadastro.php");
     exit;
 }
 
-$sql = "SELECT id, tipo_usuario FROM usuarios WHERE id = ?";
-$stmt = $conexao->prepare($sql);
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$resultado = $stmt->get_result();
+try {
+    $stmt = $conexao->prepare(
+        "SELECT id, nome, tipo_usuario
+         FROM usuarios
+         WHERE id = ?"
+    );
 
-if ($resultado->num_rows === 0) {
-    header("Location: listar_cadastro.php?erro=Usuário não encontrado");
-    exit;
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $usuario = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$usuario) {
+        $_SESSION["mensagem_erro"] =
+            "Usuário não encontrado.";
+        header("Location: listar_cadastro.php");
+        exit;
+    }
+
+    if ((int)$usuario["tipo_usuario"] === 1) {
+        $_SESSION["mensagem_erro"] =
+            "Contas de administradores não podem ser excluídas por esta tela.";
+        header("Location: listar_cadastro.php");
+        exit;
+    }
+
+    $stmt = $conexao->prepare(
+        "SELECT COUNT(*) AS total
+         FROM trens
+         WHERE id_usuario = ?"
+    );
+
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $resultado = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if ((int)$resultado["total"] > 0) {
+        $_SESSION["mensagem_erro"] =
+            "Este usuário é responsável por um ou mais trens. Altere o responsável antes de excluir.";
+        header("Location: listar_cadastro.php");
+        exit;
+    }
+
+    $stmt = $conexao->prepare(
+        "DELETE FROM usuarios
+         WHERE id = ? AND tipo_usuario = 0"
+    );
+
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $excluidos = $stmt->affected_rows;
+    $stmt->close();
+
+    if ($excluidos === 1) {
+        $_SESSION["mensagem_sucesso"] =
+            "Usuário excluído com sucesso!";
+    } else {
+        $_SESSION["mensagem_erro"] =
+            "Não foi possível excluir o usuário.";
+    }
+
+} catch (mysqli_sql_exception $e) {
+    error_log($e->getMessage());
+
+    $_SESSION["mensagem_erro"] =
+        "Não foi possível excluir o usuário. Verifique se existem registros vinculados.";
 }
 
-$usuario = $resultado->fetch_assoc();
-
-if ($usuario["tipo_usuario"] === "admin") {
-    header("Location: listar_cadastro.php?erro=Administradores não podem ser excluídos");
-    exit;
-}
-
-$sql = "DELETE FROM usuarios WHERE id = ?";
-$stmt = $conexao->prepare($sql);
-$stmt->bind_param("i", $id);
-
-if ($stmt->execute()) {
-    header("Location: listar_cadastro.php?sucesso=1");
-    exit;
-}
-
-header("Location: listar_cadastro.php?erro=Erro ao excluir usuário");
+header("Location: listar_cadastro.php");
 exit;
-?>
