@@ -1,76 +1,80 @@
-
 <?php
-session_start();
-require_once "conexao.php";
+require_once __DIR__ . "/../includes/bootstrap.php";
 
-if (!isset($_SESSION["id_usuario"])) {
-    header("Location: index.php");
-    exit;
-}
+exigir_login();
 
 $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
 
 if (!$id || $id < 1) {
-    http_response_code(400);
-    exit("Identificador inválido.");
+    redirecionar("public/trens.php");
 }
 
 $stmt = $conexao->prepare(
     "SELECT t.id_trem, t.codigo, t.modelo, t.status,
             u.nome AS responsavel
      FROM trens t
-     INNER JOIN usuarios u ON t.id_usuario = u.id
+     INNER JOIN usuarios u ON u.id = t.id_usuario
      WHERE t.id_trem = ?"
 );
-
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $trem = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$trem) {
-    http_response_code(404);
-    exit("Trem não encontrado.");
+    definir_aviso("erro", "Trem não encontrado.");
+    redirecionar("public/trens.php");
 }
+
+$acoes = eh_admin()
+    ? '<a class="btn btn-claro" href="editar_trem.php?id=' . (int)$trem["id_trem"] . '">' .
+      icone("editar") . " Editar</a>"
+    : "";
+
+pagina_inicio("Trem " . $trem["codigo"], [
+    "ativo" => "trens",
+    "subtitulo" => $trem["modelo"],
+    "voltar" => "trens.php",
+    "acoes" => $acoes,
+]);
 ?>
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes do Trem - Pampa Serra</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-</head>
-<body class="bg-light">
+<section class="faixa-azul">
+    <div class="grade-paineis">
+        <div class="painel">
+            <h2>Dados do trem</h2>
+            <span class="legenda">Informações cadastrais</span>
 
-<div class="container py-5">
-    <h1>Detalhes do trem</h1>
+            <div class="detalhes">
+                <div class="detalhe">
+                    <span>Código</span>
+                    <strong><?= h($trem["codigo"]) ?></strong>
+                </div>
+                <div class="detalhe">
+                    <span>Modelo</span>
+                    <strong><?= h($trem["modelo"]) ?></strong>
+                </div>
+                <div class="detalhe">
+                    <span>Status</span>
+                    <strong><?= selo($trem["status"], tom_status_trem($trem["status"])) ?></strong>
+                </div>
+                <div class="detalhe">
+                    <span>Responsável</span>
+                    <strong><?= h($trem["responsavel"]) ?></strong>
+                </div>
+            </div>
+        </div>
 
-    <div class="card mt-3">
-        <div class="card-body">
-            <p><strong>Código:</strong>
-                <?= htmlspecialchars($trem["codigo"]) ?></p>
+        <div class="painel">
+            <h2>Localização atual</h2>
+            <span class="legenda">Monitoramento em tempo real</span>
 
-            <p><strong>Modelo:</strong>
-                <?= htmlspecialchars($trem["modelo"]) ?></p>
-
-            <p><strong>Status:</strong>
-                <?= htmlspecialchars($trem["status"]) ?></p>
-
-            <p><strong>Usuário responsável:</strong>
-                <?= htmlspecialchars($trem["responsavel"]) ?></p>
+            <div class="sem-dados">
+                <b>Sem posição disponível</b>
+                O trem ainda não está enviando dados de GPS ao sistema.
+            </div>
         </div>
     </div>
+</section>
 
-    <a href="trens.php" class="btn btn-secondary mt-3">Voltar</a>
-
-    <?php if (($_SESSION["nivel_acesso"] ?? "") === "Administrador"): ?>
-        <a href="editar_trem.php?id=<?= (int)$trem["id_trem"] ?>"
-           class="btn btn-warning mt-3">Editar</a>
-    <?php endif; ?>
-</div>
-
-</body>
-</html>
+<?php pagina_fim(); ?>
