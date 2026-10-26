@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS trens (
     CONSTRAINT fk_trens_usuario FOREIGN KEY (id_usuario)
         REFERENCES usuarios (id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
--- Tentativas de login com erro (bloqueio após várias falhas seguidas).
+
 CREATE TABLE IF NOT EXISTS tentativas_login (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL,
