@@ -14,101 +14,116 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     validar_csrf();
 
-    $email = trim($_POST["email"] ?? "");
+    $email = $_POST["email"] ?? "";
     $senha = $_POST["senha"] ?? "";
 
-    if ($email === "" || $senha === "") {
+    if (!is_string($email) || !is_string($senha)) {
         $erro = "Preencha todos os campos.";
     } else {
 
-        $sql = "SELECT id, nome, email, senha, tipo_usuario
-                FROM usuarios WHERE email = ? LIMIT 1";
+        $email = trim(mb_strtolower($email, "UTF-8"));
 
-        $stmt = $conexao->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
+        if (
+            !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+            $senha === ""
+        ) {
+            $erro = "Preencha todos os campos corretamente.";
+        } else {
 
-        $usuario = $stmt->get_result()->fetch_assoc();
+            $stmt = $conexao->prepare(
+                "SELECT id, nome, email, senha, tipo_usuario
+                 FROM usuarios
+                 WHERE email = ?
+                 LIMIT 1"
+            );
 
-        $autenticado = false;
-        $senhaAntiga = false;
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
 
-        if ($usuario) {
+            $usuario = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
 
-            if (password_verify($senha, $usuario["senha"])) {
-                $autenticado = true;
-            } else {
+            $autenticado = false;
+            $senhaAntiga = false;
 
-                $info = password_get_info($usuario["senha"]);
+            if ($usuario) {
 
-                // Compatibilidade com as senhas antigas
-                // cadastradas em texto puro.
-                if (
-                    $info["algoName"] === "unknown" &&
+                if (password_verify($senha, $usuario["senha"])) {
+                    $autenticado = true;
+                } elseif (
+                    password_get_info($usuario["senha"])["algoName"] === "unknown" &&
                     hash_equals($usuario["senha"], $senha)
                 ) {
                     $autenticado = true;
                     $senhaAntiga = true;
                 }
-            }
-        }
 
-        if ($autenticado) {
-
-            if (
-                $senhaAntiga ||
-                password_needs_rehash(
-                    $usuario["senha"],
-                    PASSWORD_DEFAULT
-                )
-            ) {
-                $hash = password_hash(
+            } else {
+                password_verify(
                     $senha,
-                    PASSWORD_DEFAULT
+                    '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG'
                 );
-
-                $id = (int)$usuario["id"];
-
-                $update = $conexao->prepare(
-                    "UPDATE usuarios SET senha = ? WHERE id = ?"
-                );
-
-                $update->bind_param("si", $hash, $id);
-                $update->execute();
             }
 
-            session_regenerate_id(true);
+            if ($autenticado) {
 
-            $_SESSION["usuario_id"] = (int)$usuario["id"];
-            $_SESSION["nome"] = $usuario["nome"];
-            $_SESSION["email"] = $usuario["email"];
-            $_SESSION["tipo_usuario"] =
-                (int)$usuario["tipo_usuario"];
+                if (
+                    $senhaAntiga ||
+                    password_needs_rehash(
+                        $usuario["senha"],
+                        PASSWORD_DEFAULT
+                    )
+                ) {
 
-            unset($_SESSION["csrf"]);
+                    $hash = password_hash(
+                        $senha,
+                        PASSWORD_DEFAULT
+                    );
 
-            header("Location: public/home.php");
-            exit;
+                    $id = (int)$usuario["id"];
 
-        } else {
-            $erro = "E-mail ou senha incorretos.";
+                    $update = $conexao->prepare(
+                        "UPDATE usuarios
+                         SET senha = ?
+                         WHERE id = ?"
+                    );
+
+                    $update->bind_param("si", $hash, $id);
+                    $update->execute();
+                    $update->close();
+                }
+
+                session_regenerate_id(true);
+
+                $_SESSION["usuario_id"] = (int)$usuario["id"];
+                $_SESSION["nome"] = $usuario["nome"];
+                $_SESSION["email"] = $usuario["email"];
+                $_SESSION["tipo_usuario"] = (int)$usuario["tipo_usuario"];
+
+                unset($_SESSION["csrf"]);
+
+                header("Location: public/home.php");
+                exit;
+
+            } else {
+                $erro = "E-mail ou senha incorretos.";
+            }
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Login - Pampa Serra</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+        rel="stylesheet"
+    >
 
     <link rel="stylesheet" href="style/style.css">
 
@@ -184,7 +199,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #144ea8;
         }
 
-        @media(max-width:768px) {
+        @media (max-width: 768px) {
+
             #card-login {
                 flex-direction: column;
             }
@@ -214,7 +230,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <img
             src="assets/img/Logo.png"
             id="logo"
-            alt="Logo Pampa Serra">
+            alt="Logo Pampa Serra"
+        >
     </div>
 
     <div id="lado-direito">
@@ -223,8 +240,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <h2 id="titulo">LOGIN</h2>
 
-            <?php if ($erro): ?>
-                <div class="alert alert-danger">
+            <?php if ($erro !== ""): ?>
+                <div class="alert alert-danger" role="alert">
                     <?= h($erro) ?>
                 </div>
             <?php endif; ?>
@@ -243,7 +260,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         name="email"
                         id="email"
                         class="form-control"
-                        required>
+                        maxlength="100"
+                        autocomplete="username"
+                        required
+                    >
                 </div>
 
                 <div class="mb-3">
@@ -256,7 +276,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         name="senha"
                         id="senha"
                         class="form-control"
-                        required>
+                        autocomplete="current-password"
+                        required
+                    >
                 </div>
 
                 <button type="submit" id="btn-entrar">
@@ -266,7 +288,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </form>
 
         </div>
+
     </div>
+
 </div>
 
 </body>

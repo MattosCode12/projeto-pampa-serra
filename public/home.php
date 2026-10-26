@@ -180,6 +180,10 @@ $tipo_usuario = (int)($_SESSION["tipo_usuario"] ?? 0);
         Sensores
     </a>
 
+    <a href="trens.php" class="botao-menu">
+        Trens
+    </a>
+
     <a href="relatorios.php" class="botao-menu">
         Relatórios
     </a>

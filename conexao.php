@@ -3,7 +3,7 @@
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $config = [
-    "db_servidor" => "localhost",
+    "db_servidor" => "127.0.0.1",
     "db_usuario" => "root",
     "db_senha" => "",
     "db_nome" => "pampa_serra",
