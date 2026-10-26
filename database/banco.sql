@@ -31,6 +31,26 @@ CREATE TABLE IF NOT EXISTS rota (
     consumo_max DECIMAL(10,2) NOT NULL,
     ativa TINYINT(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS trens (
+    id_trem INT AUTO_INCREMENT PRIMARY KEY,
+    codigo VARCHAR(50) NOT NULL UNIQUE,
+    modelo VARCHAR(100) NOT NULL,
+    status VARCHAR(10) NOT NULL DEFAULT 'Normal',
+    id_usuario INT NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_status_trem CHECK (status IN ('Normal', 'Alerta', 'Falha')),
+    CONSTRAINT fk_trens_usuario FOREIGN KEY (id_usuario)
+        REFERENCES usuarios (id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Tentativas de login com erro (bloqueio após várias falhas seguidas).
+CREATE TABLE IF NOT EXISTS tentativas_login (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    ip VARCHAR(45) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_tentativas_email (email, criado_em),
+    INDEX idx_tentativas_ip (ip, criado_em)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 INSERT INTO sensores
 (nome, localizacao, tipo_dado, descricao)
 SELECT
