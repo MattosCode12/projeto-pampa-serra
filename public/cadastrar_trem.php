@@ -1,60 +1,62 @@
-<?php
-session_start();
-require_once "conexao.php";
 
-if (!isset($_SESSION["id_usuario"])) {
-    header("Location: index.php");
-    exit;
+<?php
+require_once __DIR__ . "/verificar_acesso.php";
+require_once __DIR__ . "/../conexao.php";
+
+exigir_login();
+
+if ((int)($_SESSION["tipo_usuario"] ?? 0) !== 1) {
+    http_response_code(403);
+    exit("Acesso negado. Somente administradores.");
 }
 
-if (($_SESSION["nivel_acesso"] ?? "") !== "Administrador") {
-    http_response_code(403);
-    exit("Acesso negado. Somente administradores podem cadastrar trens.");
+if (empty($_SESSION["csrf_trens"])) {
+    $_SESSION["csrf_trens"] = bin2hex(random_bytes(32));
 }
 
 $erro = "";
 $codigo = "";
 $modelo = "";
 $status = "Normal";
-$id_usuario = "";
+$id_usuario = 0;
 
 $usuarios = $conexao->query(
     "SELECT id, nome FROM usuarios ORDER BY nome"
-);
-
-if (!$usuarios) {
-    die("Erro ao carregar usuários.");
-}
+)->fetch_all(MYSQLI_ASSOC);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $codigo = trim($_POST["codigo"] ?? "");
-    $modelo = trim($_POST["modelo"] ?? "");
+
+    $token = $_POST["csrf_trens"] ?? "";
+
+    if (!is_string($token) ||
+        !hash_equals($_SESSION["csrf_trens"], $token)) {
+        http_response_code(403);
+        exit("Solicitação inválida.");
+    }
+
+    $codigo = trim((string)($_POST["codigo"] ?? ""));
+    $modelo = trim((string)($_POST["modelo"] ?? ""));
     $status = $_POST["status"] ?? "";
-    $id_usuario = filter_var(
-        $_POST["id_usuario"] ?? "",
-        FILTER_VALIDATE_INT
+    $id_usuario = filter_input(
+        INPUT_POST, "id_usuario", FILTER_VALIDATE_INT
+    );
+
+    $idsValidos = array_map(
+        "intval",
+        array_column($usuarios, "id")
     );
 
     if (
         $codigo === "" ||
+        mb_strlen($codigo) > 50 ||
         $modelo === "" ||
+        mb_strlen($modelo) > 100 ||
         !in_array($status, ["Normal", "Alerta", "Falha"], true) ||
-        !$id_usuario ||
-        $id_usuario < 1
+        !in_array($id_usuario, $idsValidos, true)
     ) {
-        $erro = "Preencha os campos corretamente.";
+        $erro = "Preencha todos os campos corretamente.";
     } else {
-        $stmtUsuario = $conexao->prepare(
-            "SELECT id FROM usuarios WHERE id = ?"
-        );
-        $stmtUsuario->bind_param("i", $id_usuario);
-        $stmtUsuario->execute();
-        $usuarioValido = $stmtUsuario->get_result()->num_rows > 0;
-        $stmtUsuario->close();
-
-        if (!$usuarioValido) {
-            $erro = "Selecione um usuário válido.";
-        } else {
+        try {
             $stmt = $conexao->prepare(
                 "INSERT INTO trens (codigo, modelo, status, id_usuario)
                  VALUES (?, ?, ?, ?)"
@@ -68,94 +70,114 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $id_usuario
             );
 
-            try {
-                if ($stmt->execute()) {
-                    $stmt->close();
-                    header("Location: trens.php?sucesso=1");
-                    exit;
-                }
+            $stmt->execute();
+            $stmt->close();
 
-                $erro = "Não foi possível cadastrar o trem.";
-            } catch (mysqli_sql_exception $e) {
-                $erro = "Erro ao cadastrar. Verifique se o código já existe.";
-            }
+            header("Location: trens.php?sucesso=cadastrado");
+            exit;
 
-            if ($stmt->errno === 0 || $stmt->errno !== 0) {
-                $stmt->close();
-            }
+        } catch (mysqli_sql_exception $e) {
+            error_log($e->getMessage());
+            $erro = "Não foi possível cadastrar. Verifique se o código já existe.";
         }
     }
 }
-?>
 
+function trem_h($valor) {
+    return htmlspecialchars((string)$valor, ENT_QUOTES, "UTF-8");
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cadastrar Trem - Pampa Serra</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style/style.css">
+    <style>
+        body { background: #f3f3f3; }
+        .topo { background: #174eae; color: white; padding: 25px; }
+        .painel { background: white; border-radius: 15px; padding: 30px; }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container py-5">
-    <h1>Cadastrar trem</h1>
+<header class="topo">
+    <div class="container">
+        <h1>Cadastrar Trem</h1>
+    </div>
+</header>
 
-    <?php if ($erro !== ""): ?>
-        <div class="alert alert-danger">
-            <?= htmlspecialchars($erro) ?>
-        </div>
-    <?php endif; ?>
+<main class="container py-4">
+    <div class="painel mx-auto" style="max-width: 700px;">
 
-    <form method="POST">
-        <div class="mb-3">
-            <label for="codigo" class="form-label">Código do trem</label>
-            <input type="text" id="codigo" name="codigo"
-                   class="form-control" maxlength="50" required
-                   value="<?= htmlspecialchars($codigo) ?>">
-        </div>
+        <?php if ($erro !== ""): ?>
+            <div class="alert alert-danger">
+                <?= trem_h($erro) ?>
+            </div>
+        <?php endif; ?>
 
-        <div class="mb-3">
-            <label for="modelo" class="form-label">Modelo</label>
-            <input type="text" id="modelo" name="modelo"
-                   class="form-control" maxlength="100" required
-                   value="<?= htmlspecialchars($modelo) ?>">
-        </div>
+        <form method="POST">
 
-        <div class="mb-3">
-            <label for="status" class="form-label">Status</label>
-            <select id="status" name="status" class="form-select" required>
-                <?php foreach (["Normal", "Alerta", "Falha"] as $opcao): ?>
-                    <option value="<?= $opcao ?>"
-                        <?= $status === $opcao ? "selected" : "" ?>>
-                        <?= $opcao ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+            <input type="hidden"
+                   name="csrf_trens"
+                   value="<?= trem_h($_SESSION["csrf_trens"]) ?>">
 
-        <div class="mb-3">
-            <label for="id_usuario" class="form-label">
-                Usuário responsável
-            </label>
-            <select id="id_usuario" name="id_usuario"
-                    class="form-select" required>
-                <option value="">Selecione um usuário</option>
-                <?php while ($usuario = $usuarios->fetch_assoc()): ?>
-                    <option value="<?= (int)$usuario["id"] ?>"
-                        <?= (string)$id_usuario === (string)$usuario["id"]
-                            ? "selected" : "" ?>>
-                        <?= htmlspecialchars($usuario["nome"]) ?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
-        </div>
+            <div class="mb-3">
+                <label for="codigo" class="form-label">Código do trem</label>
+                <input type="text" name="codigo" id="codigo"
+                       class="form-control" maxlength="50" required
+                       value="<?= trem_h($codigo) ?>">
+            </div>
 
-        <button type="submit" class="btn btn-primary">Cadastrar</button>
-        <a href="trens.php" class="btn btn-secondary">Cancelar</a>
-    </form>
-</div>
+            <div class="mb-3">
+                <label for="modelo" class="form-label">Modelo</label>
+                <input type="text" name="modelo" id="modelo"
+                       class="form-control" maxlength="100" required
+                       value="<?= trem_h($modelo) ?>">
+            </div>
+
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select name="status" id="status" class="form-select">
+                    <?php foreach (["Normal", "Alerta", "Falha"] as $opcao): ?>
+                        <option value="<?= $opcao ?>"
+                            <?= $status === $opcao ? "selected" : "" ?>>
+                            <?= $opcao ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_usuario" class="form-label">
+                    Responsável
+                </label>
+                <select name="id_usuario" id="id_usuario"
+                        class="form-select" required>
+                    <option value="">Selecione um usuário</option>
+                    <?php foreach ($usuarios as $usuario): ?>
+                        <option value="<?= (int)$usuario["id"] ?>"
+                            <?= $id_usuario == $usuario["id"]
+                                ? "selected" : "" ?>>
+                            <?= trem_h($usuario["nome"]) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Cadastrar Trem
+            </button>
+
+            <a href="trens.php" class="btn btn-secondary">
+                Cancelar
+            </a>
+
+        </form>
+    </div>
+</main>
 
 </body>
 </html>
