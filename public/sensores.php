@@ -1,7 +1,7 @@
-
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+require_once __DIR__ . "/incidentes.php";
 
 exigir_login();
 
@@ -36,6 +36,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $erro = "Sensor inválido.";
     } else {
         try {
+            garantir_tabela_incidentes($conexao);
+
+            $stmt = $conexao->prepare(
+                "DELETE FROM incidentes WHERE id_sensor = ?"
+            );
+
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $stmt->close();
+
             $stmt = $conexao->prepare(
                 "DELETE FROM sensores WHERE id_sensor = ?"
             );
@@ -56,16 +66,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 $sensores = [];
 
 try {
+    garantir_tabela_incidentes($conexao);
+
     $termo = "%" . $busca . "%";
 
     $stmt = $conexao->prepare(
-        "SELECT id_sensor, nome, localizacao,
-                tipo_dado, descricao, criado_em
-         FROM sensores
-         WHERE nome LIKE ?
-            OR localizacao LIKE ?
-            OR tipo_dado LIKE ?
-         ORDER BY id_sensor ASC"
+        "SELECT s.id_sensor, s.nome, s.localizacao,
+                s.tipo_dado, s.descricao, s.criado_em,
+                (SELECT COUNT(*)
+                 FROM incidentes i
+                 WHERE i.id_sensor = s.id_sensor
+                   AND i.resolvido = 0) AS incidentes_abertos
+         FROM sensores s
+         WHERE s.nome LIKE ?
+            OR s.localizacao LIKE ?
+            OR s.tipo_dado LIKE ?
+         ORDER BY s.id_sensor ASC"
     );
 
     $stmt->bind_param("sss", $termo, $termo, $termo);
@@ -181,6 +197,17 @@ try {
             overflow: hidden;
             text-align: center;
             min-width: 0;
+        }
+
+        .cartao-alerta {
+            box-shadow: 0 0 0 4px #dc3545;
+        }
+
+        .alerta-incidente {
+            background: #dc3545;
+            color: white;
+            font-weight: 700;
+            padding: 8px;
         }
 
         .linha-sensor {
@@ -307,7 +334,15 @@ try {
 
         <?php foreach ($sensores as $sensor): ?>
 
-            <article class="cartao-sensor">
+            <?php $abertos = (int)$sensor["incidentes_abertos"]; ?>
+
+            <article class="cartao-sensor <?= $abertos > 0 ? "cartao-alerta" : "" ?>">
+
+                <?php if ($abertos > 0): ?>
+                    <div class="alerta-incidente">
+                        ⚠ <?= $abertos ?> incidente(s) em aberto
+                    </div>
+                <?php endif; ?>
 
                 <div class="linha-sensor nome-sensor">
                     <?= h($sensor["nome"]) ?>
@@ -345,6 +380,12 @@ try {
                             href="editar_sensor.php?id=<?= (int)$sensor["id_sensor"] ?>"
                             class="btn btn-warning btn-sm">
                             Editar
+                        </a>
+
+                        <a
+                            href="tela_sensores.php?id=<?= (int)$sensor["id_sensor"] ?>#simular"
+                            class="btn btn-outline-danger btn-sm">
+                            ⚠ Incidente
                         </a>
 
                         <form

@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
@@ -246,6 +245,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     href="tela_sensores.php?id=<?= (int)$id ?>"
                     class="btn btn-secondary">
                     Cancelar
+                </a>
+
+                <a
+                    href="tela_sensores.php?id=<?= (int)$id ?>#simular"
+                    class="btn btn-outline-danger ms-auto">
+                    ⚠ Simular incidente
                 </a>
 
             </div>

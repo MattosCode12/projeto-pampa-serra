@@ -1,14 +1,22 @@
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+require_once __DIR__ . "/incidentes.php";
+
 exigir_login();
+
 $erro = "";
+$erroInc = "";
 $totalRotas = 0;
 $rotasAtivas = 0;
 $totalSensores = 0;
 $totalUsuarios = 0;
+$incAbertos = 0;
+$incTotal = 0;
 $rotas = [];
 $sensores = [];
+$incidentes = [];
+
 function seguro_csv($valor) {
     $texto = (string)$valor;
     if (preg_match('/^\s*[=+\-@]/u', $texto)) {
@@ -16,26 +24,32 @@ function seguro_csv($valor) {
     }
     return $texto;
 }
+
 try {
     $totalRotas = (int)$conexao->query(
         "SELECT COUNT(*) AS total FROM rota"
     )->fetch_assoc()["total"];
+
     $rotasAtivas = (int)$conexao->query(
         "SELECT COUNT(*) AS total
          FROM rota WHERE ativa = 1"
     )->fetch_assoc()["total"];
+
     $totalSensores = (int)$conexao->query(
         "SELECT COUNT(*) AS total FROM sensores"
     )->fetch_assoc()["total"];
+
     $totalUsuarios = (int)$conexao->query(
         "SELECT COUNT(*) AS total FROM usuarios"
     )->fetch_assoc()["total"];
+
     $rotas = $conexao->query(
         "SELECT codigo, origem, destino,
                 velocidade_min, velocidade_max,
                 consumo_min, consumo_max, ativa
          FROM rota ORDER BY codigo"
     )->fetch_all(MYSQLI_ASSOC);
+
     $sensores = $conexao->query(
         "SELECT nome, localizacao, tipo_dado
          FROM sensores ORDER BY nome"
@@ -44,23 +58,57 @@ try {
     error_log($e->getMessage());
     $erro = "Não foi possível carregar todos os relatórios. Verifique o banco de dados.";
 }
+
+try {
+    garantir_tabela_incidentes($conexao);
+
+    $incAbertos = (int)$conexao->query(
+        "SELECT COUNT(*) AS total
+         FROM incidentes WHERE resolvido = 0"
+    )->fetch_assoc()["total"];
+
+    $incTotal = (int)$conexao->query(
+        "SELECT COUNT(*) AS total FROM incidentes"
+    )->fetch_assoc()["total"];
+
+    $incidentes = $conexao->query(
+        "SELECT i.id_incidente, i.id_sensor,
+                s.nome AS sensor, i.tipo, i.gravidade,
+                i.descricao, i.resolvido,
+                i.criado_em, i.resolvido_em
+         FROM incidentes i
+         LEFT JOIN sensores s ON s.id_sensor = i.id_sensor
+         ORDER BY i.criado_em DESC, i.id_incidente DESC"
+    )->fetch_all(MYSQLI_ASSOC);
+} catch (mysqli_sql_exception $e) {
+    error_log($e->getMessage());
+    $erroInc = "Não foi possível carregar os incidentes.";
+}
+
 if (isset($_GET["exportar"])) {
     $tipo = $_GET["exportar"];
-    if (!in_array($tipo, ["rotas", "sensores"], true)) {
+
+    if (!in_array($tipo, ["rotas", "sensores", "incidentes"], true)) {
         http_response_code(400);
         exit("Exportação inválida.");
     }
-    if ($erro !== "") {
+
+    $erroExport = $tipo === "incidentes" ? $erroInc : $erro;
+
+    if ($erroExport !== "") {
         http_response_code(500);
-        exit($erro);
+        exit($erroExport);
     }
+
     header("Content-Type: text/csv; charset=utf-8");
     header(
         'Content-Disposition: attachment; filename="' .
         $tipo . '.csv"'
     );
+
     $saida = fopen("php://output", "w");
     fwrite($saida, "\xEF\xBB\xBF");
+
     if ($tipo === "rotas") {
         fputcsv($saida, [
             "Código",
@@ -72,6 +120,7 @@ if (isset($_GET["exportar"])) {
             "Consumo máximo",
             "Status"
         ], ";");
+
         foreach ($rotas as $r) {
             fputcsv(
                 $saida,
@@ -91,13 +140,14 @@ if (isset($_GET["exportar"])) {
                 ";"
             );
         }
-    } else {
+    } elseif ($tipo === "sensores") {
         fputcsv($saida, [
             "Nome",
             "Localização",
             "Tipo",
             "Descrição"
         ], ";");
+
         foreach ($sensores as $s) {
             fputcsv(
                 $saida,
@@ -113,7 +163,37 @@ if (isset($_GET["exportar"])) {
                 ";"
             );
         }
+    } else {
+        fputcsv($saida, [
+            "Sensor",
+            "Tipo",
+            "Gravidade",
+            "Observação",
+            "Status",
+            "Registrado em",
+            "Resolvido em"
+        ], ";");
+
+        foreach ($incidentes as $inc) {
+            fputcsv(
+                $saida,
+                array_map(
+                    "seguro_csv",
+                    [
+                        $inc["sensor"] ?? "Sensor removido",
+                        $inc["tipo"],
+                        $inc["gravidade"],
+                        $inc["descricao"],
+                        $inc["resolvido"] ? "Resolvido" : "Em aberto",
+                        incidente_data($inc["criado_em"]),
+                        incidente_data($inc["resolvido_em"])
+                    ]
+                ),
+                ";"
+            );
+        }
     }
+
     fclose($saida);
     exit;
 }
@@ -127,11 +207,13 @@ if (isset($_GET["exportar"])) {
         content="width=device-width, initial-scale=1.0"
     >
     <title>Relatórios - Pampa Serra</title>
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
     <link rel="stylesheet" href="../style/style.css">
+
     <style>
         .relatorios-page {
             background: #f4f8ff;
@@ -139,6 +221,7 @@ if (isset($_GET["exportar"])) {
             font-family: Arial, sans-serif;
             min-height: 100vh;
         }
+
         .relatorios-app {
             max-width: 1100px;
             margin: 0 auto;
@@ -147,6 +230,7 @@ if (isset($_GET["exportar"])) {
             flex-direction: column;
             gap: 18px;
         }
+
         .faixa-azul {
             display: flex;
             align-items: center;
@@ -160,6 +244,7 @@ if (isset($_GET["exportar"])) {
             );
             box-shadow: 0 10px 24px rgba(13,63,143,.18);
         }
+
         .btn-voltar-rel {
             padding: 10px 18px;
             border-radius: 12px;
@@ -168,10 +253,12 @@ if (isset($_GET["exportar"])) {
             font-weight: 700;
             text-decoration: none;
         }
+
         .btn-voltar-rel:hover {
             background: #e9eef8;
             color: #0e2340;
         }
+
         .busca-rel {
             flex: 1;
             max-width: 420px;
@@ -183,18 +270,21 @@ if (isset($_GET["exportar"])) {
             border-radius: 999px;
             padding: 10px 16px;
         }
+
         .busca-rel input {
             width: 100%;
             border: none;
             outline: none;
             background: transparent;
         }
+
         .lista-cards {
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 12px;
         }
+
         .rel-card {
             display: flex;
             flex-direction: column;
@@ -208,33 +298,52 @@ if (isset($_GET["exportar"])) {
             padding: 12px;
             text-align: center;
         }
+
+        .rel-card.card-incidente {
+            border: 2px solid #dc3545;
+        }
+
+        .rel-card.card-incidente strong {
+            color: #dc3545;
+        }
+
         .rel-card b {
             font-size: 13px;
         }
+
         .rel-card strong {
             font-size: 26px;
             color: #1457c2;
         }
+
         .grade-paineis {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
             width: 100%;
         }
+
         .painel {
             background: white;
             border-radius: 16px;
             padding: 16px;
             min-height: 190px;
         }
+
+        .painel-largo {
+            grid-column: 1 / -1;
+        }
+
         .painel h3 {
             font-size: 17px;
             font-weight: 700;
         }
+
         .painel .legenda {
             font-size: 12px;
             color: #5d738f;
         }
+
         .sem-dados {
             border: 1.5px dashed #c9d8ee;
             border-radius: 12px;
@@ -243,11 +352,31 @@ if (isset($_GET["exportar"])) {
             text-align: center;
             color: #5d738f;
         }
+
+        .tabela-incidentes {
+            margin-top: 12px;
+            max-height: 360px;
+            overflow: auto;
+        }
+
+        .tabela-incidentes table {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .tabela-incidentes th {
+            position: sticky;
+            top: 0;
+            background: #eaf1fc;
+            white-space: nowrap;
+        }
+
         .botoes-exportar {
             display: flex;
             gap: 8px;
             margin-top: 14px;
         }
+
         .botoes-exportar a {
             padding: 8px 13px;
             background: #1457c2;
@@ -256,15 +385,18 @@ if (isset($_GET["exportar"])) {
             border-radius: 8px;
             font-size: 13px;
         }
+
         .botoes-exportar a:hover {
             background: #0d3f8f;
         }
+
         .rodape-rel {
             display: flex;
             justify-content: center;
             gap: 12px;
             flex-wrap: wrap;
         }
+
         .btn-principal-rel {
             border-radius: 999px;
             background: #1457c2;
@@ -273,20 +405,25 @@ if (isset($_GET["exportar"])) {
             padding: 12px 22px;
             text-decoration: none;
         }
+
         .btn-principal-rel:hover {
             background: #0d3f8f;
             color: white;
         }
+
         @media (max-width: 640px) {
             .lista-cards {
                 grid-template-columns: repeat(2, 1fr);
             }
+
             .grade-paineis {
                 grid-template-columns: 1fr;
             }
+
             .faixa-azul {
                 flex-wrap: wrap;
             }
+
             .busca-rel {
                 width: 100%;
                 max-width: 100%;
@@ -294,17 +431,29 @@ if (isset($_GET["exportar"])) {
         }
     </style>
 </head>
+
 <body class="relatorios-page">
+
 <div class="relatorios-app">
+
     <?php if ($erro !== ""): ?>
         <div class="alert alert-danger">
             <?= h($erro) ?>
         </div>
     <?php endif; ?>
+
+    <?php if ($erroInc !== ""): ?>
+        <div class="alert alert-danger">
+            <?= h($erroInc) ?>
+        </div>
+    <?php endif; ?>
+
     <div class="faixa-azul">
+
         <a href="home.php" class="btn-voltar-rel">
             ← Voltar
         </a>
+
         <div class="busca-rel">
             🔍
             <input
@@ -313,9 +462,12 @@ if (isset($_GET["exportar"])) {
                 placeholder="Buscar relatório..."
             >
         </div>
+
     </div>
+
     <div class="faixa-azul">
         <div class="lista-cards">
+
             <div class="rel-card">
                 <b>Rotas</b>
                 <strong>
@@ -323,6 +475,7 @@ if (isset($_GET["exportar"])) {
                 </strong>
                 <small>Cadastradas</small>
             </div>
+
             <div class="rel-card">
                 <b>Ativas</b>
                 <strong>
@@ -330,6 +483,7 @@ if (isset($_GET["exportar"])) {
                 </strong>
                 <small>Em operação cadastrada</small>
             </div>
+
             <div class="rel-card">
                 <b>Sensores</b>
                 <strong>
@@ -337,6 +491,7 @@ if (isset($_GET["exportar"])) {
                 </strong>
                 <small>Cadastrados</small>
             </div>
+
             <div class="rel-card">
                 <b>Usuários</b>
                 <strong>
@@ -344,10 +499,101 @@ if (isset($_GET["exportar"])) {
                 </strong>
                 <small>Contas</small>
             </div>
+
+            <div class="rel-card card-incidente">
+                <b>Incidentes</b>
+                <strong>
+                    <?= $incAbertos ?>
+                </strong>
+                <small>Em aberto (<?= $incTotal ?> no total)</small>
+            </div>
+
         </div>
     </div>
+
     <div class="faixa-azul">
         <div class="grade-paineis">
+
+            <div
+                class="painel painel-largo"
+                data-relatorio="incidentes panes acidentes falhas ocorrências"
+            >
+                <h3>Incidentes e ocorrências</h3>
+                <span class="legenda">
+                    Panes e acidentes registrados nos sensores
+                </span>
+
+                <?php if (!$incidentes): ?>
+                    <div class="sem-dados">
+                        <b>Nenhum incidente registrado</b>
+                        <p class="mb-0">
+                            Use "Simular incidente" na tela de um sensor
+                            para registrar uma pane ou acidente.
+                        </p>
+                    </div>
+                <?php else: ?>
+                    <div class="tabela-incidentes">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Registrado em</th>
+                                    <th>Sensor</th>
+                                    <th>Tipo</th>
+                                    <th>Gravidade</th>
+                                    <th>Observação</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($incidentes as $inc): ?>
+                                    <tr>
+                                        <td class="text-nowrap">
+                                            <?= h(incidente_data($inc["criado_em"])) ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($inc["sensor"] !== null): ?>
+                                                <a href="tela_sensores.php?id=<?= (int)$inc["id_sensor"] ?>">
+                                                    <?= h($inc["sensor"]) ?>
+                                                </a>
+                                            <?php else: ?>
+                                                Sensor removido
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?= h($inc["tipo"]) ?></td>
+                                        <td>
+                                            <span class="badge <?= incidente_classe($inc["gravidade"]) ?>">
+                                                <?= h($inc["gravidade"]) ?>
+                                            </span>
+                                        </td>
+                                        <td><?= h($inc["descricao"] ?: "-") ?></td>
+                                        <td>
+                                            <?php if ($inc["resolvido"]): ?>
+                                                <span class="badge text-bg-success">
+                                                    Resolvido
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge text-bg-danger">
+                                                    Em aberto
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+
+                <div class="botoes-exportar">
+                    <a href="relatorios.php?exportar=incidentes">
+                        CSV
+                    </a>
+                    <a href="sensores.php">
+                        Ver sensores
+                    </a>
+                </div>
+            </div>
+
             <div
                 class="painel"
                 data-relatorio="velocidade rotas"
@@ -356,6 +602,7 @@ if (isset($_GET["exportar"])) {
                 <span class="legenda">
                     Intervalos cadastrados
                 </span>
+
                 <div class="sem-dados">
                     <b>
                         <?= $totalRotas ?> rotas cadastradas
@@ -365,12 +612,14 @@ if (isset($_GET["exportar"])) {
                         está conectada ao sistema.
                     </p>
                 </div>
+
                 <div class="botoes-exportar">
                     <a href="relatorios.php?exportar=rotas">
                         CSV
                     </a>
                 </div>
             </div>
+
             <div
                 class="painel"
                 data-relatorio="pontualidade padrões"
@@ -379,6 +628,7 @@ if (isset($_GET["exportar"])) {
                 <span class="legenda">
                     Histórico operacional
                 </span>
+
                 <div class="sem-dados">
                     <b>Sem medições disponíveis</b>
                     <p>
@@ -387,6 +637,7 @@ if (isset($_GET["exportar"])) {
                     </p>
                 </div>
             </div>
+
             <div
                 class="painel"
                 data-relatorio="status operacional"
@@ -395,21 +646,27 @@ if (isset($_GET["exportar"])) {
                 <span class="legenda">
                     Resumo cadastral
                 </span>
+
                 <div class="sem-dados">
                     <b>
                         <?= $rotasAtivas ?> rotas ativas
                     </b>
-                    <p>
+                    <p class="mb-1">
                         <?= $totalSensores ?>
                         sensores cadastrados.
                     </p>
+                    <p class="mb-0">
+                        <?= $incAbertos ?> incidente(s) em aberto.
+                    </p>
                 </div>
+
                 <div class="botoes-exportar">
                     <a href="relatorios.php?exportar=sensores">
                         CSV
                     </a>
                 </div>
             </div>
+
             <div
                 class="painel"
                 data-relatorio="relatório rotas"
@@ -418,6 +675,7 @@ if (isset($_GET["exportar"])) {
                 <span class="legenda">
                     Todas as rotas
                 </span>
+
                 <div class="sem-dados">
                     <b>
                         <?= $totalRotas ?> rotas registradas
@@ -427,6 +685,7 @@ if (isset($_GET["exportar"])) {
                         para visualizar os detalhes.
                     </p>
                 </div>
+
                 <div class="botoes-exportar">
                     <a href="relatorios.php?exportar=rotas">
                         CSV
@@ -436,8 +695,10 @@ if (isset($_GET["exportar"])) {
                     </a>
                 </div>
             </div>
+
         </div>
     </div>
+
     <div class="rodape-rel">
         <a
             class="btn-principal-rel"
@@ -445,18 +706,30 @@ if (isset($_GET["exportar"])) {
         >
             ↓ Exportar rotas em CSV
         </a>
+
         <a
             class="btn-principal-rel"
             href="relatorios.php?exportar=sensores"
         >
             ↓ Exportar sensores em CSV
         </a>
+
+        <a
+            class="btn-principal-rel"
+            href="relatorios.php?exportar=incidentes"
+        >
+            ↓ Exportar incidentes em CSV
+        </a>
     </div>
+
 </div>
+
 <script>
 const busca = document.getElementById("campo-busca-rel");
+
 busca.addEventListener("input", function () {
     const termo = busca.value.toLowerCase().trim();
+
     document.querySelectorAll("[data-relatorio]").forEach(
         function (painel) {
             painel.style.display =
@@ -467,5 +740,6 @@ busca.addEventListener("input", function () {
     );
 });
 </script>
+
 </body>
 </html>

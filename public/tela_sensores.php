@@ -1,7 +1,7 @@
-
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+require_once __DIR__ . "/incidentes.php";
 
 exigir_login();
 
@@ -29,6 +29,123 @@ $stmt->close();
 if (!$sensor) {
     http_response_code(404);
     exit("Sensor não encontrado.");
+}
+
+$erro = "";
+$mensagem = "";
+
+try {
+    garantir_tabela_incidentes($conexao);
+} catch (mysqli_sql_exception $e) {
+    error_log($e->getMessage());
+    $erro = "Não foi possível preparar a tabela de incidentes.";
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && $erro === "") {
+    exigir_admin();
+    validar_csrf();
+
+    $acao = $_POST["acao"] ?? "";
+
+    try {
+        if ($acao === "simular") {
+            $tipo = $_POST["tipo"] ?? "";
+            $gravidade = $_POST["gravidade"] ?? "";
+            $descricaoInc = trim((string)($_POST["descricao_incidente"] ?? ""));
+
+            if (
+                !in_array($tipo, INCIDENTE_TIPOS, true) ||
+                !in_array($gravidade, INCIDENTE_GRAVIDADES, true) ||
+                mb_strlen($descricaoInc) > 255
+            ) {
+                $erro = "Dados do incidente inválidos.";
+            } else {
+                $stmt = $conexao->prepare(
+                    "INSERT INTO incidentes
+                        (id_sensor, tipo, gravidade, descricao)
+                     VALUES (?, ?, ?, ?)"
+                );
+
+                $stmt->bind_param(
+                    "isss",
+                    $id,
+                    $tipo,
+                    $gravidade,
+                    $descricaoInc
+                );
+
+                $stmt->execute();
+                $stmt->close();
+
+                header("Location: tela_sensores.php?id=" . $id . "&sucesso=simulado");
+                exit;
+            }
+        } elseif ($acao === "resolver") {
+            $idIncidente = filter_input(
+                INPUT_POST,
+                "id_incidente",
+                FILTER_VALIDATE_INT
+            );
+
+            if (!$idIncidente || $idIncidente < 1) {
+                $erro = "Incidente inválido.";
+            } else {
+                $stmt = $conexao->prepare(
+                    "UPDATE incidentes
+                     SET resolvido = 1, resolvido_em = NOW()
+                     WHERE id_incidente = ? AND id_sensor = ?"
+                );
+
+                $stmt->bind_param("ii", $idIncidente, $id);
+                $stmt->execute();
+                $stmt->close();
+
+                header("Location: tela_sensores.php?id=" . $id . "&sucesso=resolvido");
+                exit;
+            }
+        } else {
+            $erro = "Ação inválida.";
+        }
+    } catch (mysqli_sql_exception $e) {
+        error_log($e->getMessage());
+        $erro = "Não foi possível salvar o incidente.";
+    }
+}
+
+if (isset($_GET["sucesso"])) {
+    $mensagens = [
+        "simulado" => "Incidente simulado e registrado no relatório!",
+        "resolvido" => "Incidente marcado como resolvido."
+    ];
+
+    $mensagem = $mensagens[$_GET["sucesso"]] ?? "";
+}
+
+$incidentes = [];
+
+try {
+    $stmt = $conexao->prepare(
+        "SELECT id_incidente, tipo, gravidade, descricao,
+                resolvido, criado_em, resolvido_em
+         FROM incidentes
+         WHERE id_sensor = ?
+         ORDER BY criado_em DESC, id_incidente DESC"
+    );
+
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $incidentes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+} catch (mysqli_sql_exception $e) {
+    error_log($e->getMessage());
+}
+
+$abertos = 0;
+
+foreach ($incidentes as $inc) {
+    if (!(int)$inc["resolvido"]) {
+        $abertos++;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -104,6 +221,32 @@ if (!$sensor) {
             margin-top: 25px;
         }
 
+        .bloco-incidente {
+            border: 2px solid #dc3545;
+            background: #fff5f5;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 25px;
+        }
+
+        .bloco-incidente h3 {
+            color: #b02a37;
+        }
+
+        .item-incidente {
+            background: white;
+            border: 1px solid #eee;
+            border-left: 5px solid #dc3545;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 12px;
+        }
+
+        .item-incidente.resolvido {
+            border-left-color: #198754;
+            opacity: .8;
+        }
+
         .btn-azul {
             background: #0755bc;
             color: white;
@@ -145,8 +288,26 @@ if (!$sensor) {
 
     <section class="painel-sensor">
 
+        <?php if ($erro !== ""): ?>
+            <div class="alert alert-danger">
+                <?= h($erro) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($mensagem !== ""): ?>
+            <div class="alert alert-success">
+                <?= h($mensagem) ?>
+            </div>
+        <?php endif; ?>
+
         <h2 class="titulo-sensor">
             <?= h($sensor["nome"]) ?>
+
+            <?php if ($abertos > 0): ?>
+                <span class="badge text-bg-danger fs-6 align-middle">
+                    ⚠ <?= $abertos ?> incidente(s) em aberto
+                </span>
+            <?php endif; ?>
         </h2>
 
         <div class="grade-dados">
@@ -198,6 +359,136 @@ if (!$sensor) {
 
         </div>
 
+        <?php if ($admin): ?>
+            <div class="bloco-incidente" id="simular">
+
+                <h3>Simular incidente</h3>
+                <p class="text-muted">
+                    Registra uma pane ou acidente neste sensor. O incidente
+                    aparece automaticamente em Relatórios.
+                </p>
+
+                <form method="POST">
+
+                    <?= campo_csrf() ?>
+
+                    <input type="hidden" name="acao" value="simular">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label for="tipo" class="form-label">
+                                Tipo de incidente
+                            </label>
+                            <select name="tipo" id="tipo" class="form-select" required>
+                                <?php foreach (INCIDENTE_TIPOS as $tipoOpcao): ?>
+                                    <option value="<?= h($tipoOpcao) ?>">
+                                        <?= h($tipoOpcao) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="gravidade" class="form-label">
+                                Gravidade
+                            </label>
+                            <select name="gravidade" id="gravidade" class="form-select" required>
+                                <?php foreach (INCIDENTE_GRAVIDADES as $grav): ?>
+                                    <option value="<?= h($grav) ?>">
+                                        <?= h($grav) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="descricao_incidente" class="form-label">
+                                Observação (opcional)
+                            </label>
+                            <input
+                                type="text"
+                                name="descricao_incidente"
+                                id="descricao_incidente"
+                                class="form-control"
+                                maxlength="255"
+                            >
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-danger mt-3">
+                        ⚠ Simular incidente
+                    </button>
+
+                </form>
+
+            </div>
+        <?php endif; ?>
+
+        <div class="mt-4">
+
+            <h3>Histórico de incidentes</h3>
+
+            <?php if (!$incidentes): ?>
+                <p class="text-muted mb-0">
+                    Nenhum incidente registrado para este sensor.
+                </p>
+            <?php endif; ?>
+
+            <?php foreach ($incidentes as $inc): ?>
+                <?php $resolvido = (bool)(int)$inc["resolvido"]; ?>
+
+                <div class="item-incidente <?= $resolvido ? "resolvido" : "" ?>">
+
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+
+                        <div>
+                            <strong><?= h($inc["tipo"]) ?></strong>
+                            <span class="badge <?= incidente_classe($inc["gravidade"]) ?>">
+                                <?= h($inc["gravidade"]) ?>
+                            </span>
+                            <span class="badge <?= $resolvido ? "text-bg-success" : "text-bg-danger" ?>">
+                                <?= $resolvido ? "Resolvido" : "Em aberto" ?>
+                            </span>
+                        </div>
+
+                        <small class="text-muted">
+                            <?= h(incidente_data($inc["criado_em"])) ?>
+                        </small>
+
+                    </div>
+
+                    <?php if ($inc["descricao"]): ?>
+                        <p class="mb-0 mt-2">
+                            <?= h($inc["descricao"]) ?>
+                        </p>
+                    <?php endif; ?>
+
+                    <?php if ($resolvido): ?>
+                        <small class="text-muted">
+                            Resolvido em <?= h(incidente_data($inc["resolvido_em"])) ?>
+                        </small>
+                    <?php elseif ($admin): ?>
+                        <form method="POST" class="mt-2">
+                            <?= campo_csrf() ?>
+                            <input type="hidden" name="acao" value="resolver">
+                            <input
+                                type="hidden"
+                                name="id_incidente"
+                                value="<?= (int)$inc["id_incidente"] ?>"
+                            >
+                            <button type="submit" class="btn btn-success btn-sm">
+                                Marcar como resolvido
+                            </button>
+                        </form>
+                    <?php endif; ?>
+
+                </div>
+            <?php endforeach; ?>
+
+        </div>
+
         <div class="d-flex gap-2 flex-wrap mt-4">
 
             <a href="sensores.php" class="btn btn-secondary">
@@ -211,6 +502,10 @@ if (!$sensor) {
                     Editar Sensor
                 </a>
             <?php endif; ?>
+
+            <a href="relatorios.php" class="btn btn-azul">
+                Ver relatórios
+            </a>
 
         </div>
 
