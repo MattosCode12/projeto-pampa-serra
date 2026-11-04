@@ -108,53 +108,6 @@ projeto-pampa-serra/
 
 Repositório: `https://github.com/MattosCode12/projeto-pampa-serra`
 
-## Banco de dados
-
-O banco **`pampa_serra`** é criado pelo arquivo [`database/banco.sql`](database/banco.sql) e possui as seguintes tabelas:
-
-| Tabela | Finalidade |
-|--------|-----------|
-| `usuarios` | Usuários do sistema, com e-mail único, senha criptografada e tipo de usuário (0 = comum, 1 = administrador) |
-| `sensores` | Sensores instalados ao longo da linha, com localização, tipo de dado e descrição |
-| `rota` | Rotas cadastradas, com origem, destino, parada, velocidade e consumo mínimos e máximos |
-| `trens` | Trens cadastrados, com modelo, status (`Normal`, `Alerta`, `Falha`) e usuário responsável |
-| `incidentes` | Ocorrências registradas, com tipo e gravidade (criada automaticamente pelo sistema) |
-| `tentativas_login` | Registro de tentativas de login por e-mail e IP |
-
-O script já insere um usuário administrador e os **11 sensores** da linha Porto Alegre → Gramado.
-
-## Como executar o projeto
-
-**Pré-requisitos:** [XAMPP](https://www.apachefriends.org/) (Apache + MySQL/MariaDB com PHP) e Git.
-
-1. Clone o repositório dentro da pasta `htdocs` do XAMPP:
-
-   ```bash
-   git clone https://github.com/MattosCode12/projeto-pampa-serra.git
-   ```
-
-2. Abra o **XAMPP Control Panel** e inicie os módulos **Apache** e **MySQL**.
-
-3. Acesse o **phpMyAdmin** (`http://localhost/phpmyadmin`) e importe o arquivo `database/banco.sql`.
-
-4. Confira os dados de conexão em `conexao.php` e ajuste se necessário:
-
-   ```php
-   "db_servidor" => "127.0.0.1",
-   "db_usuario"  => "root",
-   "db_senha"    => "",
-   "db_nome"     => "pampa_serra",
-   "db_porta"    => 3306
-   ```
-
-5. Abra o sistema no navegador:
-
-   ```
-   http://localhost/projeto-pampa-serra/
-   ```
-
-> Para o primeiro acesso, utilize o usuário administrador criado pelo `banco.sql`. Altere a senha padrão antes de publicar o sistema em qualquer ambiente real.
-
 ## Segurança
 
 - Senhas armazenadas com hash (`password_hash` / `password_verify`);
