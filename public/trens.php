@@ -114,11 +114,17 @@ function trem_h($valor) {
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
             <h2>Trens cadastrados</h2>
 
-            <?php if ($admin): ?>
-                <a href="cadastrar_trem.php" class="btn btn-azul">
-                    + Cadastrar trem
+            <div class="d-flex gap-2">
+                <a href="mapa_trens.php" class="btn btn-success">
+                    🗺️ Mapa
                 </a>
-            <?php endif; ?>
+
+                <?php if ($admin): ?>
+                    <a href="cadastrar_trem.php" class="btn btn-azul">
+                        + Cadastrar trem
+                    </a>
+                <?php endif; ?>
+            </div>
         </div>
 
         <form method="GET" class="d-flex gap-2 mb-4">
