@@ -82,16 +82,15 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
             margin: 0;
             background: #f3f3f3;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         .cabecalho {
             width: 100%;
             min-height: 138px;
             background: #174eae;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
             padding: 20px 35px;
             gap: 20px;
@@ -106,8 +105,11 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
         .busca-home {
             display: flex;
             width: 415px;
-            max-width: 100%;
-            justify-self: center;
+            max-width: calc(100% - 520px);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             margin: 0;
         }
 
@@ -150,15 +152,9 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
         }
 
         .conteudo-home {
-            flex: 1;
-            width: 100%;
             max-width: 535px;
-            margin: 0 auto;
-            padding: 37px 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: stretch;
+            margin: 37px auto;
+            padding: 0 15px;
         }
 
         .menu-home {
@@ -228,19 +224,16 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
 
         @media (max-width: 768px) {
             .cabecalho {
-                grid-template-columns: 1fr;
-                justify-items: center;
+                flex-direction: column;
+                justify-content: center;
                 padding: 18px;
             }
 
-            .logo-home,
-            .busca-home,
-            .usuario-home {
-                justify-self: center;
-            }
-
             .busca-home {
+                position: static;
+                transform: none;
                 width: 100%;
+                max-width: 100%;
             }
 
             .usuario-home {
