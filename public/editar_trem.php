@@ -145,7 +145,7 @@ function trem_h($valor) {
         <div class="row align-items-center g-4">
 
             <div class="col-md-5 text-center">
-                <img src="../assets/img/trem.png"
+                <img src="../assets/img/trem.png.jpeg"
                      alt="Trem"
                      class="imagem-trem">
             </div>
