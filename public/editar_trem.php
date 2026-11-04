@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
@@ -119,6 +118,11 @@ function trem_h($valor) {
         body { background: #f3f3f3; }
         .topo { background: #174eae; color: white; padding: 25px; }
         .painel { background: white; padding: 30px; border-radius: 15px; }
+        .imagem-trem {
+            width: 100%;
+            max-height: 320px;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
@@ -130,7 +134,7 @@ function trem_h($valor) {
 </header>
 
 <main class="container py-4">
-    <div class="painel mx-auto" style="max-width: 700px;">
+    <div class="painel mx-auto" style="max-width: 950px;">
 
         <?php if ($erro !== ""): ?>
             <div class="alert alert-danger">
@@ -138,64 +142,76 @@ function trem_h($valor) {
             </div>
         <?php endif; ?>
 
-        <form method="POST">
+        <div class="row align-items-center g-4">
 
-            <input type="hidden"
-                   name="csrf_trens"
-                   value="<?= trem_h($_SESSION["csrf_trens"]) ?>">
-
-            <div class="mb-3">
-                <label for="codigo" class="form-label">Código</label>
-                <input type="text" name="codigo" id="codigo"
-                       class="form-control" maxlength="50" required
-                       value="<?= trem_h($trem["codigo"]) ?>">
+            <div class="col-md-5 text-center">
+                <img src="../assets/img/trem.png"
+                     alt="Trem"
+                     class="imagem-trem">
             </div>
 
-            <div class="mb-3">
-                <label for="modelo" class="form-label">Modelo</label>
-                <input type="text" name="modelo" id="modelo"
-                       class="form-control" maxlength="100" required
-                       value="<?= trem_h($trem["modelo"]) ?>">
+            <div class="col-md-7">
+                <form method="POST">
+
+                    <input type="hidden"
+                           name="csrf_trens"
+                           value="<?= trem_h($_SESSION["csrf_trens"]) ?>">
+
+                    <div class="mb-3">
+                        <label for="codigo" class="form-label">Código</label>
+                        <input type="text" name="codigo" id="codigo"
+                               class="form-control" maxlength="50" required
+                               value="<?= trem_h($trem["codigo"]) ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modelo" class="form-label">Modelo</label>
+                        <input type="text" name="modelo" id="modelo"
+                               class="form-control" maxlength="100" required
+                               value="<?= trem_h($trem["modelo"]) ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <?php foreach (["Normal", "Alerta", "Falha"] as $opcao): ?>
+                                <option value="<?= $opcao ?>"
+                                    <?= $trem["status"] === $opcao ? "selected" : "" ?>>
+                                    <?= $opcao ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_usuario" class="form-label">
+                            Responsável
+                        </label>
+                        <select name="id_usuario" id="id_usuario"
+                                class="form-select" required>
+                            <?php foreach ($usuarios as $usuario): ?>
+                                <option value="<?= (int)$usuario["id"] ?>"
+                                    <?= (int)$trem["id_usuario"] === (int)$usuario["id"]
+                                        ? "selected" : "" ?>>
+                                    <?= trem_h($usuario["nome"]) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Salvar alterações
+                    </button>
+
+                    <a href="visualizar_trem.php?id=<?= (int)$id ?>"
+                       class="btn btn-secondary">
+                        Cancelar
+                    </a>
+
+                </form>
             </div>
 
-            <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
-                <select name="status" id="status" class="form-select">
-                    <?php foreach (["Normal", "Alerta", "Falha"] as $opcao): ?>
-                        <option value="<?= $opcao ?>"
-                            <?= $trem["status"] === $opcao ? "selected" : "" ?>>
-                            <?= $opcao ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="id_usuario" class="form-label">
-                    Responsável
-                </label>
-                <select name="id_usuario" id="id_usuario"
-                        class="form-select" required>
-                    <?php foreach ($usuarios as $usuario): ?>
-                        <option value="<?= (int)$usuario["id"] ?>"
-                            <?= (int)$trem["id_usuario"] === (int)$usuario["id"]
-                                ? "selected" : "" ?>>
-                            <?= trem_h($usuario["nome"]) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">
-                Salvar alterações
-            </button>
-
-            <a href="visualizar_trem.php?id=<?= (int)$id ?>"
-               class="btn btn-secondary">
-                Cancelar
-            </a>
-
-        </form>
+        </div>
     </div>
 </main>
 </body>

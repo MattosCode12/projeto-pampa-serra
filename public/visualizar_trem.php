@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
@@ -52,6 +51,11 @@ function trem_h($valor) {
             border-radius: 15px;
             padding: 30px;
         }
+        .imagem-trem {
+            width: 100%;
+            max-height: 260px;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
@@ -65,26 +69,38 @@ function trem_h($valor) {
 
 <main class="container py-4">
 
-    <section class="painel mx-auto" style="max-width: 750px;">
+    <section class="painel mx-auto" style="max-width: 950px;">
 
         <h2><?= trem_h($trem["codigo"]) ?></h2>
         <p class="text-muted">Informações do trem cadastrado</p>
 
         <hr>
 
-        <dl class="row">
-            <dt class="col-sm-4">Código</dt>
-            <dd class="col-sm-8"><?= trem_h($trem["codigo"]) ?></dd>
+        <div class="row align-items-center g-4">
 
-            <dt class="col-sm-4">Modelo</dt>
-            <dd class="col-sm-8"><?= trem_h($trem["modelo"]) ?></dd>
+            <div class="col-md-5 text-center">
+                <img src="../assets/img/trem.png.jpeg"
+                     alt="Trem"
+                     class="imagem-trem">
+            </div>
 
-            <dt class="col-sm-4">Status</dt>
-            <dd class="col-sm-8"><?= trem_h($trem["status"]) ?></dd>
+            <div class="col-md-7">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Código</dt>
+                    <dd class="col-sm-8"><?= trem_h($trem["codigo"]) ?></dd>
 
-            <dt class="col-sm-4">Responsável</dt>
-            <dd class="col-sm-8"><?= trem_h($trem["responsavel"]) ?></dd>
-        </dl>
+                    <dt class="col-sm-4">Modelo</dt>
+                    <dd class="col-sm-8"><?= trem_h($trem["modelo"]) ?></dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8"><?= trem_h($trem["status"]) ?></dd>
+
+                    <dt class="col-sm-4">Responsável</dt>
+                    <dd class="col-sm-8"><?= trem_h($trem["responsavel"]) ?></dd>
+                </dl>
+            </div>
+
+        </div>
 
         <div class="d-flex gap-2 mt-4">
 
