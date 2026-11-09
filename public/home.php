@@ -274,12 +274,25 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
     </form>
 
     <div class="usuario-home">
-        <a href="logout.php" class="btn-sair">
-            Sair
-        </a>
+    <a href="logout.php" class="btn-sair">Sair</a>
 
-        <span><?= h($nome) ?></span>
-    </div>
+    <span class="divisor-usuario"></span>
+
+    <svg class="icone-usuario" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="12" cy="7.5" r="4.5"/>
+        <path d="M3 21c0-5 4-8 9-8s9 3 9 8z"/>
+    </svg>
+
+    <div class="usuario-info" style="display:flex; flex-direction:column; align-items:center; gap:3px; white-space:nowrap;">
+    <span class="nome-usuario" style="font-size:20px; font-weight:bold; line-height:1.1;">
+        <?= h($nome) ?>
+    </span>
+    <span class="tipo-usuario" style="font-size:13px; font-weight:600; background:#123a85; padding:2px 14px; border-radius:12px; line-height:1.3;">
+        <?= $tipo_usuario === 1 ? "Administrador" : "Usuário" ?>
+    </span>
+</div>
+</div>
+</div>
 
 </header>
 
