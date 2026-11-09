@@ -1,0 +1,174 @@
+body.ps-pagina {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: #f3f3f3;
+}
+
+.ps-cabecalho {
+    width: 100%;
+    min-height: 138px;
+    background: #174eae;
+    color: #fff;
+    padding: 20px 35px;
+    display: flex;
+    align-items: center;
+}
+
+.ps-cabecalho-conteudo {
+    width: 100%;
+    margin: 0 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 120px;
+    align-items: center;
+    gap: 20px;
+}
+
+.ps-logo {
+    width: 90px;
+    height: auto;
+    object-fit: contain;
+}
+
+.ps-titulo {
+    margin: 0;
+    text-align: center;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.2;
+    text-shadow: none;
+    filter: none;
+}
+
+.ps-voltar {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #15376b;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ps-voltar:hover {
+    background: #102b57;
+    color: #fff;
+}
+
+.ps-voltar:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+}
+
+.ps-conteudo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 16px;
+}
+
+.ps-moldura {
+    width: 700px;
+    max-width: 100%;
+    min-width: 0;
+    background: #0c53b8;
+    border-radius: 21px;
+    padding: 24px 12px;
+}
+
+.ps-painel {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.ps-moldura-cadastro {
+    padding: 80px 12px;
+}
+
+.ps-moldura-cadastro .ps-painel {
+    padding: 30px;
+}
+
+.ps-painel h2 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.ps-painel .acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ps-painel .acoes form {
+    margin: 0;
+}
+
+.ps-painel .table {
+    min-width: 775px;
+}
+
+@media (max-width: 540px) {
+    .ps-cabecalho {
+        padding: 16px 12px;
+    }
+
+    .ps-cabecalho-conteudo {
+        grid-template-columns: 88px minmax(0, 1fr) 88px;
+        gap: 8px;
+    }
+
+    .ps-logo {
+        width: 88px;
+        height: 88px;
+    }
+
+    .ps-titulo {
+        font-size: 24px;
+    }
+
+    .ps-voltar {
+        padding: 10px;
+        font-size: 14px;
+        gap: 4px;
+    }
+
+    .ps-conteudo {
+        padding: 24px 12px;
+    }
+
+    .ps-moldura-cadastro {
+        padding: 30px 12px;
+    }
+
+    .ps-painel,
+    .ps-moldura-cadastro .ps-painel {
+        padding: 20px;
+    }
+
+    .ps-painel h2 {
+        font-size: 26px;
+    }
+}
+
+/* Contornos dos campos do cadastro de rotas. */
+.ps-moldura-cadastro .form-control,
+.ps-moldura-cadastro .form-select {
+    border: 1px solid #8796ab;
+}
+
+.ps-moldura-cadastro .form-control:focus,
+.ps-moldura-cadastro .form-select:focus {
+    border-color: #1a5fcc;
+    box-shadow: 0 0 0 3px rgba(26, 95, 204, 0.2);
+}
