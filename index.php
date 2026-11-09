@@ -1,112 +1,153 @@
 <?php
+// Pampa-Serra — Landing page + Login
 
-require_once __DIR__ . "/public/verificar_acesso.php";
-require_once __DIR__ . "/conexao.php";
+
+$pagina = (
+    isset($_GET["pagina"]) &&
+    $_GET["pagina"] === "login"
+) ? "login" : "landing";
+
 
 $erro = "";
 
-if (isset($_SESSION["usuario_id"])) {
-    header("Location: public/home.php");
-    exit;
-}
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+// A landing page não exige autenticação.
+// Carrega sessão, segurança e banco somente no login.
+if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 
-    validar_csrf();
 
-    $email = $_POST["email"] ?? "";
-    $senha = $_POST["senha"] ?? "";
+    $pagina = "login";
 
-    if (!is_string($email) || !is_string($senha)) {
-        $erro = "Preencha todos os campos.";
-    } else {
 
-        $email = trim(mb_strtolower($email, "UTF-8"));
+    require_once __DIR__ . "/public/verificar_acesso.php";
+    require_once __DIR__ . "/conexao.php";
 
-        if (
-            !filter_var($email, FILTER_VALIDATE_EMAIL) ||
-            $senha === ""
-        ) {
-            $erro = "Preencha todos os campos corretamente.";
+
+    if (isset($_SESSION["usuario_id"])) {
+        header("Location: public/home.php");
+        exit;
+    }
+
+
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+
+        validar_csrf();
+
+
+        $email = $_POST["email"] ?? "";
+        $senha = $_POST["senha"] ?? "";
+
+
+        if (!is_string($email) || !is_string($senha)) {
+            $erro = "Preencha todos os campos.";
         } else {
 
-            $stmt = $conexao->prepare(
-                "SELECT id, nome, email, senha, tipo_usuario
-                 FROM usuarios
-                 WHERE email = ?
-                 LIMIT 1"
-            );
 
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
+            $email = trim(mb_strtolower($email, "UTF-8"));
 
-            $usuario = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
 
-            $autenticado = false;
-            $senhaAntiga = false;
-
-            if ($usuario) {
-
-                if (password_verify($senha, $usuario["senha"])) {
-                    $autenticado = true;
-                } elseif (
-                    password_get_info($usuario["senha"])["algoName"] === "unknown" &&
-                    hash_equals($usuario["senha"], $senha)
-                ) {
-                    $autenticado = true;
-                    $senhaAntiga = true;
-                }
-
+            if (
+                !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+                $senha === ""
+            ) {
+                $erro = "Preencha todos os campos corretamente.";
             } else {
-                password_verify(
-                    $senha,
-                    '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG'
+
+
+                $stmt = $conexao->prepare(
+                    "SELECT id, nome, email, senha, tipo_usuario
+                     FROM usuarios
+                     WHERE email = ?
+                     LIMIT 1"
                 );
-            }
 
-            if ($autenticado) {
 
-                if (
-                    $senhaAntiga ||
-                    password_needs_rehash(
-                        $usuario["senha"],
-                        PASSWORD_DEFAULT
-                    )
-                ) {
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $usuario = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
 
-                    $hash = password_hash(
+
+                $autenticado = false;
+                $senhaAntiga = false;
+
+
+                if ($usuario) {
+
+
+                    if (password_verify($senha, $usuario["senha"])) {
+                        $autenticado = true;
+                    } elseif (
+                        password_get_info($usuario["senha"])["algoName"] === "unknown" &&
+                        hash_equals($usuario["senha"], $senha)
+                    ) {
+                        $autenticado = true;
+                        $senhaAntiga = true;
+                    }
+
+
+                } else {
+
+
+                    password_verify(
                         $senha,
-                        PASSWORD_DEFAULT
+                        '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG'
                     );
-
-                    $id = (int)$usuario["id"];
-
-                    $update = $conexao->prepare(
-                        "UPDATE usuarios
-                         SET senha = ?
-                         WHERE id = ?"
-                    );
-
-                    $update->bind_param("si", $hash, $id);
-                    $update->execute();
-                    $update->close();
                 }
 
-                session_regenerate_id(true);
 
-                $_SESSION["usuario_id"] = (int)$usuario["id"];
-                $_SESSION["nome"] = $usuario["nome"];
-                $_SESSION["email"] = $usuario["email"];
-                $_SESSION["tipo_usuario"] = (int)$usuario["tipo_usuario"];
+                if ($autenticado) {
 
-                unset($_SESSION["csrf"]);
 
-                header("Location: public/home.php");
-                exit;
+                    if (
+                        $senhaAntiga ||
+                        password_needs_rehash(
+                            $usuario["senha"],
+                            PASSWORD_DEFAULT
+                        )
+                    ) {
 
-            } else {
-                $erro = "E-mail ou senha incorretos.";
+
+                        $hash = password_hash(
+                            $senha,
+                            PASSWORD_DEFAULT
+                        );
+
+
+                        $id = (int)$usuario["id"];
+
+
+                        $update = $conexao->prepare(
+                            "UPDATE usuarios SET senha = ? WHERE id = ?"
+                        );
+
+
+                        $update->bind_param("si", $hash, $id);
+                        $update->execute();
+                        $update->close();
+                    }
+
+
+                    session_regenerate_id(true);
+
+
+                    $_SESSION["usuario_id"] = (int)$usuario["id"];
+                    $_SESSION["nome"] = $usuario["nome"];
+                    $_SESSION["email"] = $usuario["email"];
+                    $_SESSION["tipo_usuario"] = (int)$usuario["tipo_usuario"];
+
+
+                    unset($_SESSION["csrf"]);
+
+
+                    header("Location: public/home.php");
+                    exit;
+
+
+                } else {
+                    $erro = "E-mail ou senha incorretos.";
+                }
             }
         }
     }
@@ -114,184 +155,192 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login - Pampa Serra</title>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet"
+    <title>
+        <?= $pagina === "login"
+            ? "Login | Pampa-Serra"
+            : "Pampa-Serra | Monitoramento Ferroviário" ?>
+    </title>
+
+
+    <meta
+        name="description"
+        content="Pampa-Serra: tecnologia IoT para monitoramento ferroviário inteligente."
     >
 
-    <link rel="stylesheet" href="style/style.css">
 
     <style>
-        .login-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #d0d4db;
+        :root {
+            --azul: #1a5fcc;
+            --azul-escuro: #071b38;
+            --azul-claro: #60a5fa;
+            --texto: #152c4b;
+            --cinza: #64748b;
         }
 
-        #card-login {
-            display: flex;
-            width: 820px;
-            max-width: 95%;
-            margin: 30px auto;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 12px 40px rgba(0,0,0,.18);
+
+        * {
+            box-sizing: border-box;
         }
 
-        #lado-esquerdo {
-            flex: 0 0 35%;
-            min-height: 400px;
-            background: #1a5fcc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        html {
+            scroll-behavior: smooth;
         }
 
-        #logo {
-            width: 80%;
-            max-width: 230px;
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--texto);
         }
 
-        #lado-direito {
-            flex: 1;
-            width: auto;
-            background: #f3f3f3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        a {
+            text-decoration: none;
         }
 
-        #form-area {
-            width: 100%;
-            padding: 40px 45px;
+
+        .container {
+            width: 90%;
+            max-width: 1180px;
+            margin: auto;
         }
 
-        #titulo {
-            text-align: center;
-            font-size: 2.2rem;
-            font-weight: 900;
-            margin-bottom: 35px;
-        }
 
-        #btn-entrar {
-            display: block;
-            width: 100%;
-            margin: 25px auto 0;
-            padding: 12px;
-            border: none;
-            border-radius: 12px;
-            background: #1a5fcc;
+        /* CABEÇALHO */
+
+
+        .header {
+            background: #071b38;
             color: white;
-            font-size: 20px;
+        }
+
+
+        .navbar {
+            min-height: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-size: 22px;
             font-weight: 800;
-            cursor: pointer;
         }
 
-        #btn-entrar:hover {
-            background: #144ea8;
+
+        .logo img {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
         }
 
-        @media (max-width: 768px) {
 
-            #card-login {
-                flex-direction: column;
-            }
-
-            #lado-esquerdo {
-                flex: none;
-                min-height: 170px;
-                padding: 20px;
-            }
-
-            #lado-direito {
-                width: 100%;
-            }
-
-            #form-area {
-                padding: 30px 25px;
-            }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
         }
-    </style>
-</head>
 
-<body class="login-page">
 
-<div id="card-login">
+        .nav-links a {
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 14px;
+        }
 
-    <div id="lado-esquerdo">
-        <img
-            src="assets/img/Logo.png"
-            id="logo"
-            alt="Logo Pampa Serra"
-        >
-    </div>
 
-    <div id="lado-direito">
+        .nav-links .btn-nav {
+            background: var(--azul);
+            padding: 13px 24px;
+            border-radius: 10px;
+            color: white;
+        }
 
-        <div id="form-area">
 
-            <h2 id="titulo">LOGIN</h2>
+        .nav-links a:hover {
+            color: #8bbcff;
+        }
 
-            <?php if ($erro !== ""): ?>
-                <div class="alert alert-danger" role="alert">
-                    <?= h($erro) ?>
-                </div>
-            <?php endif; ?>
 
-            <form method="POST">
+        /* HERO */
 
-                <?= campo_csrf() ?>
 
-                <div class="mb-3">
-                    <label class="form-label" for="email">
-                        Email
-                    </label>
+        .hero {
+            background:
+                radial-gradient(
+                    circle at 85% 20%,
+                    #21529b 0%,
+                    transparent 42%
+                ),
+                linear-gradient(
+                    130deg,
+                    #06182f,
+                    #0b2a56
+                );
 
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        class="form-control"
-                        maxlength="100"
-                        autocomplete="username"
-                        required
-                    >
-                </div>
 
-                <div class="mb-3">
-                    <label class="form-label" for="senha">
-                        Senha
-                    </label>
+            color: white;
+            padding: 100px 0;
+        }
 
-                    <input
-                        type="password"
-                        name="senha"
-                        id="senha"
-                        class="form-control"
-                        autocomplete="current-password"
-                        required
-                    >
-                </div>
 
-                <button type="submit" id="btn-entrar">
-                    Entrar
-                </button>
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            align-items: center;
+            gap: 60px;
+        }
 
-            </form>
 
-        </div>
+        .tag {
+            display: inline-block;
+            border: 1px solid #6592d0;
+            color: #b4d2ff;
+            padding: 9px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
 
-    </div>
 
-</div>
+        .hero h1 {
+            font-size: clamp(38px, 5vw, 65px);
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin: 28px 0;
+        }
 
-</body>
-</html>
+
+        .hero h1 span {
+            color: #60a5fa;
+        }
+
+
+        .hero p {
+            color: #cbdaf1;
+            font-size: 17px;
+            line-height: 1.9;
+            margin-bottom: 32px;
+        }
+
+
+        .buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
