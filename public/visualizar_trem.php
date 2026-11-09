@@ -43,14 +43,8 @@ function trem_h($valor) {
     <title>Visualizar Trem - Pampa Serra</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
     <style>
-        body { background: #f3f3f3; }
-        .topo { background: #174eae; color: white; padding: 25px; }
-        .painel {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-        }
         .imagem-trem {
             width: 100%;
             max-height: 260px;
@@ -58,18 +52,22 @@ function trem_h($valor) {
         }
     </style>
 </head>
-<body>
+<body class="ps-pagina">
 
-<header class="topo">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1>Detalhes do Trem</h1>
-        <a href="trens.php" class="btn btn-light">Voltar</a>
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <h1 class="ps-titulo">Detalhes do Trem</h1>
+        <a href="trens.php" class="ps-voltar" aria-label="Voltar à lista de trens">
+            <span aria-hidden="true">←</span> Voltar
+        </a>
     </div>
 </header>
 
-<main class="container py-4">
+<main class="ps-conteudo">
+    <div class="ps-moldura">
 
-    <section class="painel mx-auto" style="max-width: 950px;">
+    <section class="ps-painel">
 
         <h2><?= trem_h($trem["codigo"]) ?></h2>
         <p class="text-muted">Informações do trem cadastrado</p>
@@ -119,6 +117,7 @@ function trem_h($valor) {
 
     </section>
 
+    </div>
 </main>
 </body>
 </html>
