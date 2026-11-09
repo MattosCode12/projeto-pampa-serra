@@ -913,7 +913,7 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 
 
                     <div class="image-badge">
-                        🚆 Tecnologia ferroviária
+                        Tecnologia ferroviária
                     </div>
 
 
@@ -993,7 +993,7 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="sobre-card">
 
 
-                        <div style="font-size:45px">🚆</div>
+                        
 
 
                         <h3>Nossa missão</h3>
