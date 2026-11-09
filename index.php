@@ -1,5 +1,4 @@
 <?php
-// Pampa-Serra — Landing page + Login
 
 
 $pagina = (
@@ -11,8 +10,7 @@ $pagina = (
 $erro = "";
 
 
-// A landing page não exige autenticação.
-// Carrega sessão, segurança e banco somente no login.
+
 if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 
 
@@ -344,3 +342,485 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
             gap: 14px;
             flex-wrap: wrap;
         }
+
+                .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 27px;
+            border-radius: 11px;
+            font-size: 15px;
+            font-weight: 800;
+            transition: .2s;
+        }
+
+
+        .btn-primary {
+            color: white;
+            background: #2876f0;
+        }
+
+
+        .btn-primary:hover {
+            background: #4b91ff;
+            transform: translateY(-2px);
+        }
+
+
+        .btn-outline {
+            border: 1px solid #8ba9d2;
+            color: white;
+        }
+
+
+        .btn-outline:hover {
+            background: #193f73;
+        }
+
+
+        .hero-image {
+            position: relative;
+            padding: 12px;
+            border-radius: 23px;
+            border: 1px solid #5578a5;
+            background: rgba(255,255,255,.08);
+            box-shadow: 0 25px 55px rgba(0,0,0,.3);
+        }
+
+
+        .hero-image img {
+            display: block;
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+
+
+        .image-badge {
+            position: absolute;
+            left: 27px;
+            bottom: 27px;
+            padding: 12px 18px;
+            background: #071b38;
+            border-radius: 10px;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+
+        /* SEÇÕES */
+
+
+        .section {
+            padding: 95px 0;
+        }
+
+
+        .section-heading {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 50px;
+        }
+
+
+        .section-heading span {
+            color: #2366db;
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+
+        .section-heading h2 {
+            font-size: clamp(30px, 4vw, 44px);
+            margin: 15px 0;
+        }
+
+
+        .section-heading p {
+            color: var(--cinza);
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+
+        .sobre {
+            background: white;
+        }
+
+
+        .sobre-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+
+        .sobre-text h3 {
+            font-size: 29px;
+            margin: 0 0 22px;
+        }
+
+
+        .sobre-text p {
+            color: #52647e;
+            line-height: 1.9;
+            margin-bottom: 18px;
+        }
+
+
+        .sobre-card {
+            background: linear-gradient(140deg,#0b2e60,#164c9c);
+            color: white;
+            padding: 42px;
+            border-radius: 22px;
+        }
+
+
+        .sobre-card h3 {
+            font-size: 25px;
+        }
+
+
+        .sobre-card p {
+            line-height: 1.8;
+            color: #d7e5ff;
+        }
+
+
+        .funcionalidades {
+            background: #f3f7ff;
+        }
+
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 22px;
+        }
+
+
+        .card {
+            background: white;
+            border: 1px solid #e2eaf6;
+            border-radius: 19px;
+            padding: 30px;
+            transition: .2s;
+        }
+
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(12,45,90,.1);
+        }
+
+
+        .card-icon {
+            width: 57px;
+            height: 57px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eaf2ff;
+            border-radius: 14px;
+            font-size: 27px;
+            margin-bottom: 20px;
+        }
+
+
+        .card h3 {
+            margin: 0 0 12px;
+            font-size: 19px;
+        }
+
+
+        .card p {
+            color: var(--cinza);
+            font-size: 14px;
+            line-height: 1.8;
+            margin: 0;
+        }
+
+
+        /* CHAMADA FINAL */
+
+
+        .cta {
+            text-align: center;
+            padding: 90px 20px;
+            background: linear-gradient(130deg,#071b38,#134582);
+            color: white;
+        }
+
+
+        .cta h2 {
+            font-size: clamp(30px,4vw,44px);
+            max-width: 750px;
+            margin: 0 auto 20px;
+        }
+
+
+        .cta p {
+            color: #c8dbf8;
+            margin-bottom: 30px;
+        }
+
+
+        footer {
+            background: #06152c;
+            color: #9eb2cf;
+            text-align: center;
+            padding: 26px 15px;
+            font-size: 13px;
+        }
+
+
+        /* TELA DE LOGIN */
+
+
+        body.login-page {
+            min-height: 100vh;
+            background: #d0d4db;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px 15px;
+        }
+
+
+        .voltar {
+            width: 820px;
+            max-width: 95%;
+            margin-bottom: 18px;
+            color: #123d79;
+            font-weight: 700;
+        }
+
+
+        #card-login {
+            display: flex;
+            width: 820px;
+            max-width: 95%;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0,0,0,.18);
+        }
+
+
+        #lado-esquerdo {
+            width: 35%;
+            min-height: 400px;
+            background: #1a5fcc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        #logo-login {
+            width: 80%;
+            max-width: 230px;
+        }
+
+
+        #lado-direito {
+            width: 65%;
+            background: #f3f3f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        #form-area {
+            width: 100%;
+            padding: 40px 45px;
+        }
+
+
+        #titulo {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin: 0 0 35px;
+            color: black;
+        }
+
+
+        .campo {
+            margin-bottom: 19px;
+        }
+
+
+        .campo label {
+            display: block;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 7px;
+            color: #222;
+        }
+
+
+        .campo input {
+            display: block;
+            width: 100%;
+            height: 38px;
+            border: none;
+            border-radius: 9px;
+            padding: 10px 14px;
+            background: #e5edfc;
+            font: inherit;
+            font-size: 14px;
+        }
+
+
+        .campo input:focus {
+            outline: 2px solid #1a5fcc;
+        }
+
+
+        #btn-entrar {
+            display: block;
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: #1a5fcc;
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+
+        #btn-entrar:hover {
+            background: #144ea8;
+        }
+
+
+        .erro-login {
+            background: #ffe3e3;
+            color: #8b1717;
+            padding: 12px;
+            border-radius: 9px;
+            margin-bottom: 20px;
+        }
+
+
+        /* RESPONSIVIDADE */
+
+
+        @media(max-width:900px) {
+            .hero-grid,
+            .sobre-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .hero-image {
+                max-width: 600px;
+                margin: auto;
+            }
+
+
+            .cards {
+                grid-template-columns: repeat(2,1fr);
+            }
+        }
+
+
+        @media(max-width:650px) {
+            .navbar {
+                flex-direction: column;
+                padding: 15px 0;
+            }
+
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+
+
+            .hero {
+                padding: 65px 0;
+            }
+
+
+            .hero h1 {
+                font-size: 38px;
+            }
+
+
+            .buttons {
+                flex-direction: column;
+            }
+
+
+            .hero-image img {
+                height: 240px;
+            }
+
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+
+            .section {
+                padding: 65px 0;
+            }
+
+
+            #card-login {
+                flex-direction: column;
+            }
+
+
+            #lado-esquerdo {
+                width: 100%;
+                min-height: 170px;
+                padding: 20px;
+            }
+
+
+            #logo-login {
+                max-width: 150px;
+            }
+
+
+            #lado-direito {
+                width: 100%;
+            }
+
+
+            #form-area {
+                padding: 30px 25px;
+            }
+        }
+
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 3px solid #fbbf24;
+            outline-offset: 3px;
+        }
+    </style>
+
+
+</head>
+
+
+<body class="<?= $pagina === "login" ? "login-page" : "landing-page" ?>">
+
+
+<?php if ($pagina === "landing"): ?>
+
+
+    <!-- LANDING PAGE PRINCIPAL -->
