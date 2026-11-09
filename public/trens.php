@@ -19,8 +19,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $token = $_POST["csrf_trens"] ?? "";
 
-    if (!is_string($token) ||
-        !hash_equals($_SESSION["csrf_trens"], $token)) {
+    if (
+        !is_string($token) ||
+        !hash_equals($_SESSION["csrf_trens"], $token)
+    ) {
         http_response_code(403);
         exit("Solicitação inválida.");
     }
@@ -32,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt = $conexao->prepare(
                 "DELETE FROM trens WHERE id_trem = ?"
             );
+
             $stmt->bind_param("i", $id);
             $stmt->execute();
             $stmt->close();
@@ -76,138 +79,170 @@ function trem_h($valor) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Trens - Pampa Serra</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
+
     <style>
-        body { background: #f3f3f3; }
-        .topo { background: #174eae; color: white; padding: 25px; }
-        .painel { background: white; padding: 25px; border-radius: 15px; }
-        .btn-azul { background: #0755bc; color: white; }
-        .btn-azul:hover { background: #08469a; color: white; }
+        .btn-azul {
+            background: #0755bc;
+            color: white;
+        }
+
+        .btn-azul:hover {
+            background: #08469a;
+            color: white;
+        }
+
+        .ps-trens .ps-painel .table {
+            min-width: 0;
+        }
     </style>
 </head>
-<body>
+<body class="ps-pagina ps-trens">
 
-<header class="topo">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1>Trens</h1>
-        <a href="home.php" class="btn btn-light">Voltar à Home</a>
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img
+            src="../assets/img/logo.png"
+            alt="Pampa Serra"
+            class="ps-logo"
+        >
+
+        <h1 class="ps-titulo">Trens</h1>
+
+        <a href="home.php" class="ps-voltar" aria-label="Voltar à Home">
+            <span aria-hidden="true">←</span> Voltar
+        </a>
     </div>
 </header>
 
-<main class="container py-4">
-
-    <?php if ($erro !== ""): ?>
-        <div class="alert alert-danger">
-            <?= trem_h($erro) ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if (isset($_GET["sucesso"])): ?>
-        <div class="alert alert-success">
-            Operação realizada com sucesso.
-        </div>
-    <?php endif; ?>
-
-    <section class="painel">
-
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-            <h2>Trens cadastrados</h2>
-
-            <div class="d-flex gap-2">
-                <a href="mapa_trens.php" class="btn btn-success">
-                    🗺️ Mapa
-                </a>
-
-                <?php if ($admin): ?>
-                    <a href="cadastrar_trem.php" class="btn btn-azul">
-                        + Cadastrar trem
-                    </a>
-                <?php endif; ?>
+<main class="ps-conteudo">
+    <div class="ps-moldura">
+        <?php if ($erro !== ""): ?>
+            <div class="alert alert-danger">
+                <?= trem_h($erro) ?>
             </div>
-        </div>
+        <?php endif; ?>
 
-        <form method="GET" class="d-flex gap-2 mb-4">
-            <input
-                type="search"
-                name="busca"
-                class="form-control"
-                placeholder="Buscar código, modelo ou responsável"
-                value="<?= trem_h($busca) ?>"
-            >
-            <button class="btn btn-azul">Buscar</button>
-        </form>
+        <?php if (isset($_GET["sucesso"])): ?>
+            <div class="alert alert-success">
+                Operação realizada com sucesso.
+            </div>
+        <?php endif; ?>
 
-        <div class="table-responsive">
-            <table class="table table-striped align-middle">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Modelo</th>
-                        <th>Status</th>
-                        <th>Responsável</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($trens as $trem): ?>
-                    <tr>
-                        <td><?= trem_h($trem["codigo"]) ?></td>
-                        <td><?= trem_h($trem["modelo"]) ?></td>
-                        <td><?= trem_h($trem["status"]) ?></td>
-                        <td><?= trem_h($trem["responsavel"]) ?></td>
-                        <td>
-                            <div class="d-flex gap-2 flex-wrap">
+        <section class="ps-painel">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                <h2>Trens cadastrados</h2>
 
-                                <a class="btn btn-sm btn-primary"
-                                   href="visualizar_trem.php?id=<?= (int)$trem["id_trem"] ?>">
-                                    Ver
-                                </a>
+                <div class="d-flex gap-2">
+                    <a href="mapa_trens.php" class="btn btn-success">
+                        🗺️ Mapa
+                    </a>
 
-                                <?php if ($admin): ?>
-                                    <a class="btn btn-sm btn-warning"
-                                       href="editar_trem.php?id=<?= (int)$trem["id_trem"] ?>">
-                                        Editar
-                                    </a>
+                    <?php if ($admin): ?>
+                        <a href="cadastrar_trem.php" class="btn btn-azul">
+                            + Cadastrar trem
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
 
-                                    <form method="POST"
-                                          onsubmit="return confirm('Excluir este trem?');">
+            <form method="GET" class="d-flex gap-2 mb-4">
+                <input
+                    type="search"
+                    name="busca"
+                    class="form-control"
+                    placeholder="Buscar código, modelo ou responsável"
+                    value="<?= trem_h($busca) ?>"
+                >
+                <button class="btn btn-azul">Buscar</button>
+            </form>
 
-                                        <input type="hidden"
-                                               name="csrf_trens"
-                                               value="<?= trem_h($_SESSION["csrf_trens"]) ?>">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Modelo</th>
+                            <th>Status</th>
+                            <th>Responsável</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($trens as $trem): ?>
+                            <tr>
+                                <td><?= trem_h($trem["codigo"]) ?></td>
+                                <td><?= trem_h($trem["modelo"]) ?></td>
+                                <td><?= trem_h($trem["status"]) ?></td>
+                                <td><?= trem_h($trem["responsavel"]) ?></td>
+                                <td>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <a
+                                            class="btn btn-sm btn-primary"
+                                            href="visualizar_trem.php?id=<?= (int)$trem["id_trem"] ?>"
+                                        >
+                                            Ver
+                                        </a>
 
-                                        <input type="hidden" name="acao" value="excluir">
+                                        <?php if ($admin): ?>
+                                            <a
+                                                class="btn btn-sm btn-warning"
+                                                href="editar_trem.php?id=<?= (int)$trem["id_trem"] ?>"
+                                            >
+                                                Editar
+                                            </a>
 
-                                        <input type="hidden"
-                                               name="id"
-                                               value="<?= (int)$trem["id_trem"] ?>">
+                                            <form
+                                                method="POST"
+                                                onsubmit="return confirm('Excluir este trem?');"
+                                            >
+                                                <input
+                                                    type="hidden"
+                                                    name="csrf_trens"
+                                                    value="<?= trem_h($_SESSION["csrf_trens"]) ?>"
+                                                >
 
-                                        <button type="submit"
-                                                class="btn btn-sm btn-danger">
-                                            Excluir
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
+                                                <input
+                                                    type="hidden"
+                                                    name="acao"
+                                                    value="excluir"
+                                                >
 
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
+                                                <input
+                                                    type="hidden"
+                                                    name="id"
+                                                    value="<?= (int)$trem["id_trem"] ?>"
+                                                >
 
-                <?php if (!$trens): ?>
-                    <tr>
-                        <td colspan="5" class="text-center py-4">
-                            Nenhum trem encontrado.
-                        </td>
-                    </tr>
-                <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                >
+                                                    Excluir
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
 
-    </section>
-
+                        <?php if (!$trens): ?>
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    Nenhum trem encontrado.
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
 </main>
+
 </body>
 </html>
