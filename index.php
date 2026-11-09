@@ -1208,3 +1208,123 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 
 
     </footer>
+
+    <?php else: ?>
+
+
+    <!-- LOGIN: SÓ APARECE AO CLICAR NO BOTÃO -->
+
+
+    <a href="index.php" class="voltar">
+        ← Voltar para a página inicial
+    </a>
+
+
+    <main id="card-login">
+
+
+        <div id="lado-esquerdo">
+
+
+            <img
+                src="assets/img/logo.png"
+                id="logo-login"
+                alt="Logo Pampa-Serra"
+            >
+
+
+        </div>
+
+
+        <div id="lado-direito">
+
+
+            <div id="form-area">
+
+
+                <h1 id="titulo">LOGIN</h1>
+
+
+                <?php if ($erro !== ""): ?>
+
+
+                    <div class="erro-login" role="alert">
+                        <?= h($erro) ?>
+                    </div>
+
+
+                <?php endif; ?>
+
+
+                <form
+                    method="POST"
+                    action="index.php?pagina=login"
+                >
+
+
+                    <?= campo_csrf() ?>
+
+
+                    <div class="campo">
+
+
+                        <label for="email">
+                            Email
+                        </label>
+
+
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            maxlength="100"
+                            autocomplete="username"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <div class="campo">
+
+
+                        <label for="senha">
+                            Senha
+                        </label>
+
+
+                        <input
+                            type="password"
+                            name="senha"
+                            id="senha"
+                            autocomplete="current-password"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <button type="submit" id="btn-entrar">
+                        Entrar
+                    </button>
+
+
+                </form>
+
+
+            </div>
+
+
+        </div>
+
+
+    </main>
+
+
+<?php endif; ?>
+
+
+</body>
+</html>
