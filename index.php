@@ -823,4 +823,508 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 <?php if ($pagina === "landing"): ?>
 
 
+
     <!-- LANDING PAGE PRINCIPAL -->
+
+       <header class="header">
+        <nav class="navbar container">
+
+
+            <a href="index.php" class="logo">
+                <img src="assets/img/logo.png" alt="Logo Pampa-Serra">
+                <span>Pampa-Serra</span>
+            </a>
+
+
+            <div class="nav-links">
+                <a href="#inicio">Início</a>
+                <a href="#sobre">Sobre</a>
+                <a href="#funcionalidades">Funcionalidades</a>
+
+
+                <a href="index.php?pagina=login" class="btn-nav">
+                    Acessar sistema
+                </a>
+            </div>
+
+
+        </nav>
+    </header>
+
+
+    <main>
+
+
+        <section class="hero" id="inicio">
+
+
+            <div class="container hero-grid">
+
+
+                <div>
+
+
+                    <span class="tag">
+                        TECNOLOGIA • INOVAÇÃO • IoT
+                    </span>
+
+
+                    <h1>
+                        O futuro do
+                        <span>monitoramento ferroviário</span>
+                        começa aqui.
+                    </h1>
+
+
+                    <p>
+                        Conheça o Pampa-Serra, um projeto que une
+                        sensores, conectividade e uma interface
+                        inteligente para acompanhar informações
+                        ferroviárias com mais clareza e eficiência.
+                    </p>
+
+
+                    <div class="buttons">
+
+
+                        <a href="index.php?pagina=login" class="btn btn-primary">
+                            Acessar sistema →
+                        </a>
+
+
+                        <a href="#sobre" class="btn btn-outline">
+                            Conhecer o projeto
+                        </a>
+
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="hero-image">
+
+
+                    <img
+                        src="assets/img/trem.png.jpeg"
+                        alt="Trem do projeto Pampa-Serra"
+                    >
+
+
+                    <div class="image-badge">
+                        🚆 Tecnologia ferroviária
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- SOBRE -->
+
+
+        <section class="section sobre" id="sobre">
+
+
+            <div class="container">
+
+
+                <div class="section-heading">
+
+
+                    <span>CONHEÇA O PROJETO</span>
+
+
+                    <h2>O que é o Pampa-Serra?</h2>
+
+
+                    <p>
+                        Um projeto de tecnologia que busca transformar
+                        o acompanhamento das operações ferroviárias.
+                    </p>
+
+
+                </div>
+
+
+                <div class="sobre-grid">
+
+
+                    <div class="sobre-text">
+
+
+                        <h3>
+                            Monitoramento inteligente através
+                            da Internet das Coisas.
+                        </h3>
+
+
+                        <p>
+                            O Pampa-Serra é um sistema desenvolvido
+                            com foco em tecnologia, automação e
+                            monitoramento ferroviário.
+                        </p>
+
+
+                        <p>
+                            O projeto utiliza conceitos de IoT
+                            para integrar sensores, conectividade
+                            e ferramentas de visualização de dados.
+                        </p>
+
+
+                        <p>
+                            Nosso objetivo é facilitar o
+                            acompanhamento de informações
+                            sobre trens, rotas, sensores
+                            e condições operacionais.
+                        </p>
+
+
+                    </div>
+
+
+                    <div class="sobre-card">
+
+
+                        <div style="font-size:45px">🚆</div>
+
+
+                        <h3>Nossa missão</h3>
+
+
+                        <p>
+                            Desenvolver uma solução inteligente
+                            para organizar informações ferroviárias
+                            e apoiar o monitoramento das operações
+                            por meio da tecnologia.
+                        </p>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- FUNCIONALIDADES -->
+
+
+        <section class="section funcionalidades" id="funcionalidades">
+
+
+            <div class="container">
+
+
+                <div class="section-heading">
+
+
+                    <span>NOSSA TECNOLOGIA</span>
+
+
+                    <h2>Funcionalidades do sistema</h2>
+
+
+                    <p>
+                        Conheça os recursos que fazem parte
+                        da proposta do Pampa-Serra.
+                    </p>
+
+
+                </div>
+
+
+                <div class="cards">
+
+
+                    <article class="card">
+
+
+                        <div class="card-icon">📡</div>
+
+
+                        <h3>Monitoramento IoT</h3>
+
+
+                        <p>
+                            Integração de sensores para
+                            acompanhamento de informações
+                            ferroviárias.
+                        </p>
+
+
+                    </article>
+
+
+                    <article class="card">
+
+
+                        <div class="card-icon">📍</div>
+
+
+                        <h3>Localização dos trens</h3>
+
+
+                        <p>
+                            Visualização de informações
+                            relacionadas à localização
+                            e ao deslocamento dos trens.
+                        </p>
+
+
+                    </article>
+
+
+                    <article class="card">
+
+
+                        <div class="card-icon">⚠️</div>
+
+
+                        <h3>Alertas operacionais</h3>
+
+
+                        <p>
+                            Identificação de condições
+                            normais, alertas e possíveis
+                            falhas nas operações.
+                        </p>
+
+
+                    </article>
+
+
+                    <article class="card">
+
+
+                        <div class="card-icon">📊</div>
+
+
+                        <h3>Relatórios</h3>
+
+
+                        <p>
+                            Organização de dados para
+                            análise e acompanhamento
+                            do sistema ferroviário.
+                        </p>
+
+
+                    </article>
+
+
+                    <article class="card">
+
+
+                        <div class="card-icon">🛤️</div>
+
+
+                        <h3>Gestão de rotas</h3>
+
+
+                        <p>
+                            Cadastro e gerenciamento
+                            de rotas utilizadas pelo
+                            sistema.
+                        </p>
+
+
+                    </article>
+
+
+                    <article class="card">
+
+
+                        <div class="card-icon">🔒</div>
+
+
+                        <h3>Controle de acesso</h3>
+
+
+                        <p>
+                            Login de usuários cadastrados
+                            com controle de acesso
+                            ao ambiente administrativo.
+                        </p>
+
+
+                    </article>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- BOTÃO FINAL -->
+
+
+        <section class="cta">
+
+
+            <h2>
+                Pronto para conhecer o Pampa-Serra?
+            </h2>
+
+
+            <p>
+                Entre na plataforma e conheça
+                nosso ambiente de monitoramento ferroviário.
+            </p>
+
+
+            <a href="index.php?pagina=login" class="btn btn-primary">
+                Entrar no sistema →
+            </a>
+
+
+        </section>
+
+
+    </main>
+
+
+    <footer>
+
+
+        © <?= date("Y") ?> Pampa-Serra —
+        Monitoramento Ferroviário Inteligente
+
+
+    </footer>
+
+    <?php else: ?>
+
+
+    <!-- LOGIN: SÓ APARECE AO CLICAR NO BOTÃO -->
+
+
+    <a href="index.php" class="voltar">
+        ← Voltar para a página inicial
+    </a>
+
+
+    <main id="card-login">
+
+
+        <div id="lado-esquerdo">
+
+
+            <img
+                src="assets/img/logo.png"
+                id="logo-login"
+                alt="Logo Pampa-Serra"
+            >
+
+
+        </div>
+
+
+        <div id="lado-direito">
+
+
+            <div id="form-area">
+
+
+                <h1 id="titulo">LOGIN</h1>
+
+
+                <?php if ($erro !== ""): ?>
+
+
+                    <div class="erro-login" role="alert">
+                        <?= h($erro) ?>
+                    </div>
+
+
+                <?php endif; ?>
+
+
+                <form
+                    method="POST"
+                    action="index.php?pagina=login"
+                >
+
+
+                    <?= campo_csrf() ?>
+
+
+                    <div class="campo">
+
+
+                        <label for="email">
+                            Email
+                        </label>
+
+
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            maxlength="100"
+                            autocomplete="username"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <div class="campo">
+
+
+                        <label for="senha">
+                            Senha
+                        </label>
+
+
+                        <input
+                            type="password"
+                            name="senha"
+                            id="senha"
+                            autocomplete="current-password"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <button type="submit" id="btn-entrar">
+                        Entrar
+                    </button>
+
+
+                </form>
+
+
+            </div>
+
+
+        </div>
+
+
+    </main>
+
+
+<?php endif; ?>
+
+
+</body>
+</html>
