@@ -810,4 +810,37 @@ border-radius: 10px;
     width: 100%;
     max-width: 345px;
   }
+
+.usuario-home {
+    display: flex;
+    align-items: center;
+    justify-self: end;
+    gap: 22px;
+    color: white;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.usuario-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+.nome-usuario {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    line-height: 1.2;
+}
+
+.tipo-usuario {
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    background: #123a85;
+    padding: 3px 10px;
+    border-radius: 12px;
+    line-height: 1.2;
 }

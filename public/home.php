@@ -278,7 +278,14 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
             Sair
         </a>
 
-        <span><?= h($nome) ?></span>
+        <div class="usuario-info">
+    <span class="nome-usuario">
+        <?= h($nome) ?>
+    </span>
+
+    <span class="tipo-usuario">
+        <?= $tipo_usuario === 1 ? "Administrador" : "Usuário" ?>
+    </span>
     </div>
 
 </header>
