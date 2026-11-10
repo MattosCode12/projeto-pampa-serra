@@ -67,193 +67,96 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Sensor - Pampa Serra</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <title>Cadastrar Sensor - Pampa Serra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
-
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
     <style>
-        body {
-            margin: 0;
-            background: #f3f3f3;
-            min-height: 100vh;
-        }
-
-        .tela-criar-sensor {
-            max-width: 850px;
-            margin: 35px auto;
-            padding: 30px;
-            background: #0755bc;
-            border-radius: 22px;
-        }
-
-        .topo-criar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .topo-criar h1 {
-            color: white;
-            font-weight: 800;
-            font-size: 28px;
-        }
-
-        .btn-voltar-criar {
-            background: #113a82;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-        }
-
-        .btn-voltar-criar:hover {
-            color: white;
-            background: #092a65;
-        }
-
-        .card-criar-sensor {
-            max-width: 650px;
-            margin: auto;
-            padding: 30px;
-            background: white;
-            border-radius: 16px;
-        }
-
-        .logo-criar-sensor {
-            display: block;
-            width: 120px;
-            margin: 0 auto 25px;
-        }
-
-        .card-criar-sensor label {
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
-
-        .input-criar-sensor {
-            margin-bottom: 18px;
-        }
-
-        #btn-criar-sensor {
-            background: #0755bc;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 25px;
-            font-weight: bold;
-        }
-
-        #btn-criar-sensor:hover {
-            background: #08469a;
-        }
-
-        @media (max-width: 600px) {
-            .tela-criar-sensor {
-                margin: 15px;
-                padding: 18px;
-            }
-
-            .card-criar-sensor {
-                padding: 20px;
-            }
+        .ps-criar-sensor .ps-moldura { width: 820px; }
+        .ps-criar-sensor .sensor-introducao { display: flex; align-items: center; gap: 18px; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid #dce4ef; }
+        .ps-criar-sensor .sensor-icone { display: grid; place-items: center; width: 64px; height: 64px; flex-shrink: 0; border-radius: 18px; background: #eaf1fc; color: #174eae; }
+        .ps-criar-sensor .sensor-introducao h2 { color: #15376b; font-weight: 600; }
+        .ps-criar-sensor .sensor-introducao p { color: #586779; margin: 8px 0 0; }
+        .ps-criar-sensor .form-label { font-weight: 600; color: #203655; }
+        .ps-criar-sensor .form-control { min-height: 46px; border-radius: 10px; }
+        .ps-criar-sensor .form-text { color: #586779; line-height: 1.5; }
+        .ps-criar-sensor textarea.form-control { resize: vertical; min-height: 120px; }
+        .ps-criar-sensor .sensor-acoes { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; padding-top: 24px; margin-top: 28px; border-top: 1px solid #dce4ef; }
+        .ps-criar-sensor .sensor-acoes .btn { padding: 11px 22px; border-radius: 10px; font-weight: 600; }
+        .ps-criar-sensor .sensor-acoes .btn-primary { background: #174eae; border-color: #174eae; }
+        .ps-criar-sensor .sensor-acoes .btn-primary:hover { background: #15376b; border-color: #15376b; }
+        @media (max-width: 540px) {
+            .ps-criar-sensor .sensor-introducao { align-items: flex-start; gap: 12px; }
+            .ps-criar-sensor .sensor-icone { width: 48px; height: 48px; border-radius: 12px; }
+            .ps-criar-sensor .sensor-acoes .btn { flex: 1 1 180px; }
         }
     </style>
 </head>
-
-<body>
-
-<main class="tela-criar-sensor">
-
-    <div class="topo-criar">
-        <h1>Cadastrar Sensor</h1>
-
-        <a href="sensores.php" class="btn-voltar-criar">
-            Voltar
+<body class="ps-pagina ps-criar-sensor">
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <h1 class="ps-titulo">Cadastrar Sensor</h1>
+        <a href="sensores.php" class="ps-voltar" aria-label="Voltar aos sensores cadastrados">
+            <span aria-hidden="true">←</span> Voltar
         </a>
     </div>
-
-    <div class="card-criar-sensor">
-
-        <img
-            src="../assets/img/logo.png"
-            class="logo-criar-sensor"
-            alt="Logo Pampa Serra"
-        >
-
-        <?php if ($erro !== ""): ?>
-            <div class="alert alert-danger">
-                <?= h($erro) ?>
-            </div>
-        <?php endif; ?>
-
-        <form method="POST">
-
-            <?= campo_csrf() ?>
-
-            <label for="nome">Sensor:</label>
-            <input
-                type="text"
-                id="nome"
-                name="nome"
-                maxlength="100"
-                class="form-control input-criar-sensor"
-                value="<?= h($nome) ?>"
-                required
-            >
-
-            <label for="localizacao">Localização:</label>
-            <input
-                type="text"
-                id="localizacao"
-                name="localizacao"
-                maxlength="100"
-                class="form-control input-criar-sensor"
-                value="<?= h($localizacao) ?>"
-                required
-            >
-
-            <label for="tipo_dado">Tipo de dado:</label>
-            <input
-                type="text"
-                id="tipo_dado"
-                name="tipo_dado"
-                maxlength="150"
-                class="form-control input-criar-sensor"
-                value="<?= h($tipo_dado) ?>"
-                required
-            >
-
-            <label for="descricao">Descrição:</label>
-            <textarea
-                id="descricao"
-                name="descricao"
-                class="form-control input-criar-sensor"
-                rows="4"
-            ><?= h($descricao) ?></textarea>
-
-            <div class="d-flex gap-2 flex-wrap mt-3">
-
-                <button type="submit" id="btn-criar-sensor">
-                    Criar Sensor
-                </button>
-
-                <a href="sensores.php" class="btn btn-secondary">
-                    Cancelar
-                </a>
-
+</header>
+<main class="ps-conteudo">
+    <div class="ps-moldura ps-moldura-cadastro">
+        <section class="ps-painel" aria-labelledby="titulo-cadastro">
+            <div class="sensor-introducao">
+                <div class="sensor-icone" aria-hidden="true">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <rect x="9" y="9" width="14" height="14" rx="3"/>
+                        <circle cx="16" cy="16" r="3"/>
+                        <path d="M12 3v6m8-6v6M12 23v6m8-6v6M3 12h6m-6 8h6m14-8h6m-6 8h6"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 id="titulo-cadastro">Novo sensor</h2>
+                    <p>Identifique o sensor e informe onde ele será utilizado.</p>
+                </div>
             </div>
 
-        </form>
+            <?php if ($erro !== ""): ?>
+                <div class="alert alert-danger" role="alert"><?= h($erro) ?></div>
+            <?php endif; ?>
 
+            <p class="small text-secondary mb-4">Preencha os campos abaixo. A descrição é opcional.</p>
+            <form method="POST">
+                <?= campo_csrf() ?>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label for="nome" class="form-label">Nome do sensor</label>
+                        <input type="text" id="nome" name="nome" maxlength="100" class="form-control"
+                               placeholder="Ex.: Sensor de temperatura" value="<?= h($nome) ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="tipo_dado" class="form-label">Tipo de dado</label>
+                        <input type="text" id="tipo_dado" name="tipo_dado" maxlength="150" class="form-control"
+                               placeholder="Ex.: Temperatura (°C)" value="<?= h($tipo_dado) ?>" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="localizacao" class="form-label">Localização</label>
+                        <input type="text" id="localizacao" name="localizacao" maxlength="100" class="form-control"
+                               placeholder="Ex.: KM 35 - São Leopoldo" value="<?= h($localizacao) ?>"
+                               aria-describedby="ajuda-localizacao" required>
+                        <div id="ajuda-localizacao" class="form-text">Para identificar a estação no mapa, use o formato KM + número + cidade, como no exemplo.</div>
+                    </div>
+                    <div class="col-12">
+                        <label for="descricao" class="form-label">Descrição <span class="fw-normal text-secondary">(opcional)</span></label>
+                        <textarea id="descricao" name="descricao" class="form-control" rows="4"
+                                  placeholder="Descreva a função do sensor e observações sobre sua instalação."><?= h($descricao) ?></textarea>
+                    </div>
+                </div>
+                <div class="sensor-acoes">
+                    <a href="sensores.php" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" id="btn-criar-sensor" class="btn btn-primary">Cadastrar sensor</button>
+                </div>
+            </form>
+        </section>
     </div>
-
 </main>
-
 </body>
 </html>
