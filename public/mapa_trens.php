@@ -66,6 +66,26 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
                      stroke: #fff; stroke-width: 3px; }
         .legenda span { display: inline-block; width: 12px; height: 12px;
                         border-radius: 50%; margin-right: 4px; }
+        .estacao { cursor: pointer; }
+        .estacao:hover circle:not(.alvo-estacao), .estacao:focus circle:not(.alvo-estacao) { fill: #b9d5ff; stroke-width: 5; }
+        .estacao circle.alvo-estacao { fill: transparent; stroke: none; }
+        #cidadeModal { width: min(620px, calc(100% - 24px)); max-height: 90dvh; padding: 0; border: 0; border-radius: 20px; box-shadow: 0 20px 70px #102b5766; color: #20314c; }
+        #cidadeModal::backdrop { background: #102b57aa; backdrop-filter: blur(4px); }
+        .cidade-cabecalho { display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #174eae; color: white; padding: 22px 24px; }
+        .cidade-cabecalho h2 { font-size: 28px; margin: 4px 0 0; }
+        #cidadeFechar { flex-shrink: 0; width: 44px; height: 44px; border: 1px solid #ffffff88; border-radius: 50%; background: #15376b; color: white; font-size: 28px; }
+        .cidade-conteudo { padding: 24px; }
+        #cidadeFoto { width: 100%; max-height: 320px; object-fit: cover; border-radius: 12px; margin-bottom: 18px; }
+        #cidadeDescricao { line-height: 1.7; }
+        #cidadeEstado { color: #516078; }
+
+        .mapa-rolagem { overflow-x: auto; border-radius: 12px; }
+        #mapa { display: block; min-width: 900px; }
+        .ligacao-estacao { fill: none; stroke: #718ba7; stroke-width: 1.5; stroke-dasharray: 4 4; pointer-events: none; }
+        .rotulo-estacao { fill: #fff; stroke: #a9bdd7; stroke-width: 1.5; }
+        .estacao .nome-estacao { font-size: 13px; font-weight: 600; fill: #15376b; }
+        .estacao .km { font-size: 11px; }
+        .estacao:hover .rotulo-estacao, .estacao:focus .rotulo-estacao { fill: #e9f2ff; stroke: #174eae; stroke-width: 2.5; }
     </style>
 </head>
 <body class="ps-pagina ps-mapa">
@@ -104,7 +124,9 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
 
         <div id="infoRota" class="alert alert-primary py-2"></div>
 
-        <svg id="mapa" viewBox="0 0 1000 420" role="img" aria-label="Mapa da rota">
+        <p class="small text-muted">Clique nas bolinhas das estações para conhecer cada cidade.</p>
+        <div class="mapa-rolagem" tabindex="0" role="region" aria-label="Mapa das estações, com rolagem horizontal em telas pequenas">
+        <svg id="mapa" viewBox="0 -100 1000 600" role="group" aria-label="Mapa interativo da rota. Selecione uma estação para conhecer a cidade.">
             <path id="trilhoBase" class="trilho-base"
                   d="M60,340 C220,340 200,140 400,170 S620,340 780,220 S900,90 950,90"/>
             <path id="trilhoVia" class="trilho-via"
@@ -112,6 +134,7 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
             <g id="camadaEstacoes"></g>
             <g id="camadaTrens"></g>
         </svg>
+        </div>
 
         <div class="legenda mt-3 d-flex gap-4 flex-wrap">
             <div><span style="background:#198754"></span>Normal</div>
@@ -127,6 +150,22 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
     </section>
     </div>
 </main>
+
+<dialog id="cidadeModal" aria-labelledby="cidadeTitulo">
+    <header class="cidade-cabecalho">
+        <div><small id="cidadeKm"></small><h2 id="cidadeTitulo"></h2></div>
+        <button type="button" id="cidadeFechar" aria-label="Fechar detalhes da cidade" autofocus>×</button>
+    </header>
+    <div class="cidade-conteudo">
+        <p id="cidadeEstado" role="status">Carregando informações…</p>
+        <img id="cidadeFoto" hidden alt="">
+        <p id="cidadeDescricao"></p>
+        <div class="d-flex flex-wrap gap-3 small">
+            <a id="cidadeFonte" target="_blank" rel="noopener noreferrer" hidden>Sobre a cidade · Wikipédia</a>
+        </div>
+        <button id="cidadeTentar" type="button" class="btn btn-primary mt-3" hidden>Tentar novamente</button>
+    </div>
+</dialog>
 
 <script>
 const TRENS    = <?= json_encode($trens,    $flags) ?>;
@@ -164,13 +203,118 @@ function pontoNoKm(km) {
     return base.getPointAtLength((km / KM_TOTAL) * compr);
 }
 
+const cidadeModal = document.getElementById('cidadeModal');
+const cidadeFoto = document.getElementById('cidadeFoto');
+const cidadeEstado = document.getElementById('cidadeEstado');
+const cidadeDescricao = document.getElementById('cidadeDescricao');
+const cidadeFonte = document.getElementById('cidadeFonte');
+const cidadeTentar = document.getElementById('cidadeTentar');
+const cidadesCache = new Map();
+// Títulos explícitos evitam confundir cidades com palavras ou outros lugares.
+const cidadesWiki = {
+    'Porto Alegre': 'Porto Alegre', 'Aeroporto': 'Porto Alegre',
+    'São Leopoldo': 'São Leopoldo', 'Novo Hamburgo': 'Novo Hamburgo',
+    'Sapiranga': 'Sapiranga', 'Parobé': 'Parobé', 'Taquara': 'Taquara',
+    'Igrejinha': 'Igrejinha', 'Três Coroas': 'Três Coroas',
+    'Canela': 'Canela (Rio Grande do Sul)', 'Gramado': 'Gramado'
+};
+let cidadePedido = 0;
+let cidadeAtual = null;
+let cidadeGatilho = null;
+let cidadeController = null;
+
+async function abrirCidade(estacao, gatilho) {
+    cidadeAtual = estacao;
+    cidadeGatilho = gatilho;
+    const pedido = ++cidadePedido;
+    cidadeController?.abort();
+    cidadeController = new AbortController();
+    document.getElementById('cidadeTitulo').textContent = estacao.nome;
+    document.getElementById('cidadeKm').textContent = 'Conheça a parada · KM ' + estacao.km;
+    cidadeFoto.hidden = cidadeFonte.hidden = cidadeTentar.hidden = true;
+    cidadeFoto.removeAttribute('src');
+    cidadeDescricao.textContent = '';
+    cidadeEstado.textContent = 'Carregando foto e informações…';
+    cidadeEstado.hidden = false;
+    if (!cidadeModal.open) cidadeModal.showModal();
+    const titulo = cidadesWiki[estacao.nome];
+    if (!titulo) {
+        cidadeEstado.textContent = 'Ainda não há informações turísticas cadastradas para esta parada.';
+        return;
+    }
+    const temporizador = setTimeout(() => cidadeController?.abort(), 12000);
+    try {
+        let pagina = cidadesCache.get(titulo);
+        if (!pagina) {
+            const params = new URLSearchParams({ action: 'query', format: 'json', formatversion: '2',
+                origin: '*', prop: 'extracts|pageimages', titles: titulo, redirects: '1',
+                exintro: '1', explaintext: '1', exsentences: '3', piprop: 'thumbnail', pithumbsize: '900' });
+            const resposta = await fetch('https://pt.wikipedia.org/w/api.php?' + params, { signal: cidadeController.signal });
+            if (!resposta.ok) throw new Error('Consulta indisponível');
+            const dados = await resposta.json();
+            pagina = dados.query?.pages?.[0];
+            if (!pagina || pagina.missing || !pagina.extract) throw new Error('Cidade indisponível');
+            cidadesCache.set(titulo, pagina);
+        }
+        if (pedido !== cidadePedido || !cidadeModal.open) return;
+        cidadeDescricao.textContent = pagina.extract;
+        cidadeFonte.href = 'https://pt.wikipedia.org/wiki/' + encodeURIComponent(pagina.title.replaceAll(' ', '_'));
+        cidadeFonte.hidden = false;
+        const foto = pagina.thumbnail?.source;
+        if (foto && new URL(foto).protocol === 'https:' && ['upload.wikimedia.org', 'thumb.wikimedia.org'].includes(new URL(foto).hostname)) {
+            cidadeFoto.alt = 'Vista de ' + pagina.title;
+            cidadeFoto.onload = () => { if (pedido === cidadePedido) { cidadeFoto.hidden = false; cidadeEstado.hidden = true; } };
+            cidadeFoto.onerror = () => { if (pedido === cidadePedido) { cidadeFoto.hidden = true; cidadeEstado.hidden = false; cidadeEstado.textContent = 'A foto não pôde ser carregada.'; } };
+            cidadeFoto.src = foto;
+            cidadeEstado.textContent = 'Carregando foto…';
+        } else {
+            cidadeEstado.textContent = 'Foto indisponível para esta cidade.';
+        }
+    } catch (erro) {
+        if (pedido !== cidadePedido || !cidadeModal.open) return;
+        cidadeEstado.textContent = 'Não foi possível carregar as informações. Confira sua conexão e tente novamente.';
+        cidadeTentar.hidden = false;
+    } finally { clearTimeout(temporizador); }
+}
+document.getElementById('cidadeFechar').addEventListener('click', () => cidadeModal.close());
+cidadeModal.addEventListener('click', evento => {
+    const r = cidadeModal.getBoundingClientRect();
+    if (evento.target === cidadeModal && (evento.clientX < r.left || evento.clientX > r.right || evento.clientY < r.top || evento.clientY > r.bottom)) cidadeModal.close();
+});
+cidadeModal.addEventListener('close', () => { ++cidadePedido; cidadeController?.abort(); cidadeGatilho?.focus(); });
+cidadeTentar.addEventListener('click', () => abrirCidade(cidadeAtual, cidadeGatilho));
+
+
 ESTACOES.forEach((e, i) => {
     const p = pontoNoKm(e.km);
-    const g = el("g", { class: "estacao" });
-    g.appendChild(el("circle", { cx: p.x, cy: p.y, r: 7 }));
+    const g = el("g", { class: "estacao", role: "button", tabindex: "0", "aria-haspopup": "dialog", "aria-label": "Conhecer " + e.nome + ", KM " + e.km });
+    g.appendChild(el("circle", { cx: p.x, cy: p.y, r: 18, class: "alvo-estacao" }));
+    g.addEventListener("click", () => abrirCidade(e, g));
+    g.addEventListener("keydown", evento => {
+        if (evento.key === "Enter" || evento.key === " ") {
+            evento.preventDefault();
+            abrirCidade(e, g);
+        }
+    });
     const acima = i % 2 === 0;
-    g.appendChild(el("text", { x: p.x, y: p.y + (acima ? -20 : 28), "text-anchor": "middle" }, e.nome));
-    g.appendChild(el("text", { x: p.x, y: p.y + (acima ? -8 : 40), "text-anchor": "middle", class: "km" }, "KM " + e.km));
+    const quantidade = Math.ceil((ESTACOES.length - (acima ? 0 : 1)) / 2);
+    const indice = Math.floor(i / 2);
+    const largura = Math.min(150, 940 / Math.max(quantidade, 1) - 10);
+    const x = quantidade <= 1 ? 500 : 90 + indice * 820 / (quantidade - 1);
+    const y = acima ? -60 : 440;
+    const borda = acima ? y + 24 : y - 24;
+    g.appendChild(el("path", {
+        d: `M${p.x},${p.y} L${p.x},${acima ? 60 : 385} L${x},${borda}`,
+        class: "ligacao-estacao"
+    }));
+    g.appendChild(el("rect", { x: x - largura / 2, y: y - 24,
+        width: largura, height: 48, rx: 10, class: "rotulo-estacao" }));
+    const nome = el("text", { x, y: y - 3, "text-anchor": "middle", class: "nome-estacao" }, e.nome);
+    g.appendChild(nome);
+    g.appendChild(el("text", { x, y: y + 14, "text-anchor": "middle", class: "km" }, "KM " + e.km));
+    // A bolinha fica acima da linha de ligação e continua clicável.
+    g.appendChild(el("circle", { cx: p.x, cy: p.y, r: 7 }));
+
     camadaEst.appendChild(g);
 });
 
