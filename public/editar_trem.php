@@ -114,10 +114,9 @@ function trem_h($valor) {
     <title>Editar Trem - Pampa Serra</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
     <style>
-        body { background: #f3f3f3; }
-        .topo { background: #174eae; color: white; padding: 25px; }
-        .painel { background: white; padding: 30px; border-radius: 15px; }
+        .ps-editar-trem .ps-moldura { width: 950px; }
         .imagem-trem {
             width: 100%;
             max-height: 320px;
@@ -125,19 +124,25 @@ function trem_h($valor) {
         }
     </style>
 </head>
-<body>
+<body class="ps-pagina ps-editar-trem">
 
-<header class="topo">
-    <div class="container">
-        <h1>Editar Trem</h1>
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <h1 class="ps-titulo">Editar Trem</h1>
+        <a href="visualizar_trem.php?id=<?= (int)$id ?>" class="ps-voltar" aria-label="Voltar aos detalhes do trem">
+            <span aria-hidden="true">←</span> Voltar
+        </a>
     </div>
 </header>
 
-<main class="container py-4">
-    <div class="painel mx-auto" style="max-width: 950px;">
+<main class="ps-conteudo">
+    <div class="ps-moldura ps-moldura-cadastro">
+        <section class="ps-painel" aria-labelledby="titulo-edicao">
+        <h2 id="titulo-edicao" class="mb-4">Editar Trem</h2>
 
         <?php if ($erro !== ""): ?>
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" role="alert">
                 <?= trem_h($erro) ?>
             </div>
         <?php endif; ?>
@@ -199,6 +204,7 @@ function trem_h($valor) {
                         </select>
                     </div>
 
+                    <div class="d-flex flex-wrap gap-2">
                     <button type="submit" class="btn btn-primary">
                         Salvar alterações
                     </button>
@@ -207,11 +213,13 @@ function trem_h($valor) {
                        class="btn btn-secondary">
                         Cancelar
                     </a>
+                    </div>
 
                 </form>
             </div>
 
         </div>
+        </section>
     </div>
 </main>
 </body>
