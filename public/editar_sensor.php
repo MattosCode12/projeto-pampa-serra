@@ -99,33 +99,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         rel="stylesheet"
     >
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
 
     <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: #f3f3f3;
-        }
 
-        .topo {
-            padding: 25px;
-            background: #174eae;
-            color: white;
-        }
 
-        .painel {
-            max-width: 750px;
-            margin: 35px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.08);
-        }
 
-        .titulo {
-            color: #174eae;
-            font-weight: 800;
-        }
 
         .btn-azul {
             background: #0755bc;
@@ -140,27 +119,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 
-<body>
+<body class="ps-pagina ps-editar-sensor">
 
-<header class="topo">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-        <h1>Editar Sensor</h1>
-
-        <a
-            href="tela_sensores.php?id=<?= (int)$id ?>"
-            class="btn btn-light">
-            Voltar
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <h1 class="ps-titulo">Editar Sensor</h1>
+        <a href="tela_sensores.php?id=<?= (int)$id ?>" class="ps-voltar" aria-label="Voltar aos detalhes do sensor">
+            <span aria-hidden="true">←</span> Voltar
         </a>
-
     </div>
 </header>
 
-<main class="container">
+<main class="ps-conteudo">
+    <div class="ps-moldura ps-moldura-cadastro">
 
-    <section class="painel">
+    <section class="ps-painel">
 
-        <h2 class="titulo mb-4">
+        <h2 class="mb-4">
             <?= h($sensor["nome"]) ?>
         </h2>
 
@@ -237,7 +213,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="d-flex gap-2 flex-wrap">
 
-                <button type="submit" class="btn btn-azul">
+                <button type="submit" class="btn btn-primary">
                     Salvar alterações
                 </button>
 
@@ -259,6 +235,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     </section>
 
+    </div>
 </main>
 
 </body>

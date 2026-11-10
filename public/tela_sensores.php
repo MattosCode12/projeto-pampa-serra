@@ -160,28 +160,12 @@ foreach ($incidentes as $inc) {
         rel="stylesheet"
     >
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
 
     <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: #f3f3f3;
-        }
+        .ps-detalhes-sensor .ps-moldura { width: 950px; }
 
-        .topo-sensor {
-            background: #174eae;
-            color: white;
-            padding: 25px;
-        }
 
-        .painel-sensor {
-            max-width: 950px;
-            background: white;
-            border-radius: 18px;
-            margin: 35px auto;
-            padding: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.08);
-        }
 
         .titulo-sensor {
             color: #174eae;
@@ -262,34 +246,29 @@ foreach ($incidentes as $inc) {
                 grid-template-columns: 1fr;
             }
 
-            .painel-sensor {
-                margin: 20px 10px;
-                padding: 20px;
-            }
         }
     </style>
 </head>
 
-<body>
+<body class="ps-pagina ps-detalhes-sensor">
 
-<header class="topo-sensor">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-        <h1>Detalhes do Sensor</h1>
-
-        <a href="sensores.php" class="btn btn-light">
-            Voltar
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <h1 class="ps-titulo">Detalhes do Sensor</h1>
+        <a href="sensores.php" class="ps-voltar" aria-label="Voltar aos sensores cadastrados">
+            <span aria-hidden="true">←</span> Voltar
         </a>
-
     </div>
 </header>
 
-<main class="container">
+<main class="ps-conteudo">
+    <div class="ps-moldura">
 
-    <section class="painel-sensor">
+    <section class="ps-painel">
 
         <?php if ($erro !== ""): ?>
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" role="alert">
                 <?= h($erro) ?>
             </div>
         <?php endif; ?>
@@ -300,7 +279,7 @@ foreach ($incidentes as $inc) {
             </div>
         <?php endif; ?>
 
-        <h2 class="titulo-sensor">
+        <h2 class="titulo-sensor mb-4">
             <?= h($sensor["nome"]) ?>
 
             <?php if ($abertos > 0): ?>
@@ -511,6 +490,7 @@ foreach ($incidentes as $inc) {
 
     </section>
 
+    </div>
 </main>
 
 </body>
