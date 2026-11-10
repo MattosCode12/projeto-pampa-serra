@@ -47,10 +47,9 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
     <title>Mapa dos Trens - Pampa Serra</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
     <style>
-        body { background: #f3f3f3; }
-        .topo { background: #174eae; color: white; padding: 25px; }
-        .painel { background: white; padding: 25px; border-radius: 15px; }
+        .ps-mapa .ps-moldura { width: 1140px; }
         .btn-azul { background: #0755bc; color: white; }
         .btn-azul:hover { background: #08469a; color: white; }
         #mapa { width: 100%; height: auto; background: #eaf3e4;
@@ -69,17 +68,21 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
                         border-radius: 50%; margin-right: 4px; }
     </style>
 </head>
-<body>
+<body class="ps-pagina ps-mapa">
 
-<header class="topo">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1>Mapa dos Trens</h1>
-        <a href="trens.php" class="btn btn-light">Voltar aos Trens</a>
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <h1 class="ps-titulo">Mapa dos Trens</h1>
+        <a href="trens.php" class="ps-voltar" aria-label="Voltar aos trens cadastrados">
+            <span aria-hidden="true">←</span> Voltar
+        </a>
     </div>
 </header>
 
-<main class="container py-4">
-    <section class="painel">
+<main class="ps-conteudo">
+    <div class="ps-moldura">
+    <section class="ps-painel" aria-label="Simulação das rotas dos trens">
 
         <div class="row g-3 mb-3 align-items-end">
             <div class="col-md-6">
@@ -122,6 +125,7 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
             <p class="text-center text-muted mt-3">Nenhum trem cadastrado.</p>
         <?php endif; ?>
     </section>
+    </div>
 </main>
 
 <script>
