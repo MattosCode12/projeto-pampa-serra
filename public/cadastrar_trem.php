@@ -95,50 +95,54 @@ function trem_h($valor) {
     <title>Cadastrar Trem - Pampa Serra</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
-    <style>
-        body { background: #f3f3f3; }
-        .topo { background: #174eae; color: white; padding: 25px; }
-        .painel { background: white; border-radius: 15px; padding: 30px; }
-    </style>
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
 </head>
-<body>
+<body class="ps-pagina">
 
-<header class="topo">
-    <div class="container">
-        <h1>Cadastrar Trem</h1>
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+
+        <h1 class="ps-titulo">Cadastrar Trem</h1>
+
+        <a href="trens.php" class="ps-voltar" aria-label="Voltar aos trens cadastrados">
+            <span aria-hidden="true">←</span> Voltar
+        </a>
     </div>
 </header>
 
-<main class="container py-4">
-    <div class="painel mx-auto" style="max-width: 700px;">
+<main class="ps-conteudo">
+    <div class="ps-moldura ps-moldura-cadastro">
+        <section class="ps-painel">
+        <h2 class="mb-4">Cadastrar Trem</h2>
 
         <?php if ($erro !== ""): ?>
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" role="alert">
                 <?= trem_h($erro) ?>
             </div>
         <?php endif; ?>
 
-        <form method="POST">
+        <form method="POST" class="row g-3">
 
             <input type="hidden"
                    name="csrf_trens"
                    value="<?= trem_h($_SESSION["csrf_trens"]) ?>">
 
-            <div class="mb-3">
+            <div class="col-md-6">
                 <label for="codigo" class="form-label">Código do trem</label>
                 <input type="text" name="codigo" id="codigo"
                        class="form-control" maxlength="50" required
                        value="<?= trem_h($codigo) ?>">
             </div>
 
-            <div class="mb-3">
+            <div class="col-md-6">
                 <label for="modelo" class="form-label">Modelo</label>
                 <input type="text" name="modelo" id="modelo"
                        class="form-control" maxlength="100" required
                        value="<?= trem_h($modelo) ?>">
             </div>
 
-            <div class="mb-3">
+            <div class="col-md-6">
                 <label for="status" class="form-label">Status</label>
                 <select name="status" id="status" class="form-select">
                     <?php foreach (["Normal", "Alerta", "Falha"] as $opcao): ?>
@@ -150,7 +154,7 @@ function trem_h($valor) {
                 </select>
             </div>
 
-            <div class="mb-3">
+            <div class="col-md-6">
                 <label for="id_usuario" class="form-label">
                     Responsável
                 </label>
@@ -167,6 +171,7 @@ function trem_h($valor) {
                 </select>
             </div>
 
+            <div class="col-12 d-flex flex-wrap gap-2">
             <button type="submit" class="btn btn-primary">
                 Cadastrar Trem
             </button>
@@ -174,8 +179,10 @@ function trem_h($valor) {
             <a href="trens.php" class="btn btn-secondary">
                 Cancelar
             </a>
+            </div>
 
         </form>
+        </section>
     </div>
 </main>
 
