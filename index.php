@@ -1120,7 +1120,7 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
         </section>
 
 
-        <!-- FUNCIONALIDADES -->
+
 
 
         <section class="section funcionalidades" id="funcionalidades">
@@ -1274,7 +1274,7 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 
 
 
-        <!-- CONSULTA DE CEP E CLIMA -->
+        
         <section class="section consulta-section" id="consulta-local" aria-labelledby="titulo-consulta">
             <div class="container consulta-wrap">
                 <div class="section-heading">
@@ -1355,8 +1355,6 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 
     <?php else: ?>
 
-
-    <!-- LOGIN: SÓ APARECE AO CLICAR NO BOTÃO -->
 
 
     <a href="index.php" class="voltar">
@@ -1470,7 +1468,6 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 <?php endif; ?>
 
 
-<!-- Script de consultas e demais interações da landing page -->
 <?php if ($pagina === "landing"): ?>
 <script src="script.js" defer></script>
 <?php endif; ?>
@@ -1496,10 +1493,10 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
         status.classList.toggle("erro", erro);
     }
 
-    // Confirma que o JavaScript foi carregado
+   
     mensagem("Consulta pronta. Digite seu CEP.");
 
-    // Máscara automática
+  
     input.addEventListener("input", () => {
         const numeros = input.value.replace(/\D/g, "").slice(0, 8);
 
@@ -1525,7 +1522,7 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
         try {
             mensagem("Consultando CEP...");
 
-            // API 1 - VIACEP
+           
             const resposta = await fetch(
                 `https://viacep.com.br/ws/${cep}/json/`
             );
