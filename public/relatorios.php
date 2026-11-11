@@ -213,19 +213,20 @@ if (isset($_GET["exportar"])) {
         rel="stylesheet"
     >
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
 
     <style>
         .relatorios-page {
-            background: #f4f8ff;
-            color: #0e2340;
-            font-family: Arial, sans-serif;
+            background: #f3f3f3;
+            color: #212529;
             min-height: 100vh;
         }
 
         .relatorios-app {
+            width: 100%;
             max-width: 1100px;
             margin: 0 auto;
-            padding: 28px 16px 60px;
+            padding: 36px 16px;
             display: flex;
             flex-direction: column;
             gap: 18px;
@@ -236,27 +237,8 @@ if (isset($_GET["exportar"])) {
             align-items: center;
             gap: 14px;
             padding: 16px;
-            border-radius: 28px;
-            background: linear-gradient(
-                180deg,
-                #1457c2,
-                #0d3f8f
-            );
-            box-shadow: 0 10px 24px rgba(13,63,143,.18);
-        }
-
-        .btn-voltar-rel {
-            padding: 10px 18px;
-            border-radius: 12px;
-            background: white;
-            color: #0e2340;
-            font-weight: 700;
-            text-decoration: none;
-        }
-
-        .btn-voltar-rel:hover {
-            background: #e9eef8;
-            color: #0e2340;
+            border-radius: 21px;
+            background: #0c53b8;
         }
 
         .busca-rel {
@@ -266,22 +248,22 @@ if (isset($_GET["exportar"])) {
             display: flex;
             align-items: center;
             gap: 8px;
-            background: white;
-            border-radius: 999px;
+            background: #e2e5ea;
+            border-radius: 10px;
             padding: 10px 16px;
         }
 
         .busca-rel input {
             width: 100%;
             border: none;
-            outline: none;
             background: transparent;
+            color: #212529;
         }
 
         .lista-cards {
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 12px;
         }
 
@@ -293,8 +275,8 @@ if (isset($_GET["exportar"])) {
             gap: 6px;
             min-height: 100px;
             background: white;
-            border: 1px dashed #c9d8ee;
-            border-radius: 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
             padding: 12px;
             text-align: center;
         }
@@ -313,19 +295,20 @@ if (isset($_GET["exportar"])) {
 
         .rel-card strong {
             font-size: 26px;
-            color: #1457c2;
+            color: #0755bc;
         }
 
         .grade-paineis {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 14px;
             width: 100%;
         }
 
-        .painel {
+        .relatorios-page .painel {
+            min-width: 0;
             background: white;
-            border-radius: 16px;
+            border-radius: 15px;
             padding: 16px;
             min-height: 190px;
         }
@@ -341,16 +324,16 @@ if (isset($_GET["exportar"])) {
 
         .painel .legenda {
             font-size: 12px;
-            color: #5d738f;
+            color: #6c757d;
         }
 
         .sem-dados {
-            border: 1.5px dashed #c9d8ee;
+            border: 1px solid #dee2e6;
             border-radius: 12px;
             padding: 25px;
             margin-top: 12px;
             text-align: center;
-            color: #5d738f;
+            color: #6c757d;
         }
 
         .tabela-incidentes {
@@ -367,11 +350,12 @@ if (isset($_GET["exportar"])) {
         .tabela-incidentes th {
             position: sticky;
             top: 0;
-            background: #eaf1fc;
+            background: #e2e5ea;
             white-space: nowrap;
         }
 
         .botoes-exportar {
+            flex-wrap: wrap;
             display: flex;
             gap: 8px;
             margin-top: 14px;
@@ -379,7 +363,7 @@ if (isset($_GET["exportar"])) {
 
         .botoes-exportar a {
             padding: 8px 13px;
-            background: #1457c2;
+            background: #0755bc;
             color: white;
             text-decoration: none;
             border-radius: 8px;
@@ -387,7 +371,7 @@ if (isset($_GET["exportar"])) {
         }
 
         .botoes-exportar a:hover {
-            background: #0d3f8f;
+            background: #08469a;
         }
 
         .rodape-rel {
@@ -398,8 +382,8 @@ if (isset($_GET["exportar"])) {
         }
 
         .btn-principal-rel {
-            border-radius: 999px;
-            background: #1457c2;
+            border-radius: 15px;
+            background: #0755bc;
             color: white;
             font-weight: 700;
             padding: 12px 22px;
@@ -407,7 +391,7 @@ if (isset($_GET["exportar"])) {
         }
 
         .btn-principal-rel:hover {
-            background: #0d3f8f;
+            background: #08469a;
             color: white;
         }
 
@@ -432,9 +416,19 @@ if (isset($_GET["exportar"])) {
     </style>
 </head>
 
-<body class="relatorios-page">
+<body class="ps-pagina relatorios-page">
 
-<div class="relatorios-app">
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <h1 class="ps-titulo">Relatórios</h1>
+        <a href="home.php" class="ps-voltar" aria-label="Voltar à Home">
+            <span aria-hidden="true">←</span> Voltar
+        </a>
+    </div>
+</header>
+
+<main class="relatorios-app">
 
     <?php if ($erro !== ""): ?>
         <div class="alert alert-danger">
@@ -450,15 +444,13 @@ if (isset($_GET["exportar"])) {
 
     <div class="faixa-azul">
 
-        <a href="home.php" class="btn-voltar-rel">
-            ← Voltar
-        </a>
 
         <div class="busca-rel">
-            🔍
+
             <input
                 type="search"
                 id="campo-busca-rel"
+                aria-label="Buscar relatório"
                 placeholder="Buscar relatório..."
             >
         </div>
@@ -722,7 +714,7 @@ if (isset($_GET["exportar"])) {
         </a>
     </div>
 
-</div>
+</main>
 
 <script>
 const busca = document.getElementById("campo-busca-rel");
