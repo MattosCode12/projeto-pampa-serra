@@ -1,10 +1,8 @@
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
-require_once __DIR__ . "/endereco_usuario.php";
 
 exigir_login();
-$enderecoHome = endereco_carregar($conexao, (int)$_SESSION["usuario_id"]);
 
 $nome = $_SESSION["nome"] ?? "Usuário";
 $tipo_usuario = (int)($_SESSION["tipo_usuario"] ?? 0);
@@ -103,9 +101,12 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
 
-    <link rel="stylesheet" href="../style/clima-home.css">
     <link rel="stylesheet" href="../style/painel-home.css">
-    <script src="../script/clima-home.js" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+    <script src="../script/malha-rs.js" defer></script>
 </head>
 <body class="painel-home">
 <a class="visually-hidden-focusable" href="#conteudo-home">Ir para o conteúdo</a>
@@ -151,7 +152,7 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
 
     <main id="conteudo-home" class="conteudo-home">
         <h1>Visão geral</h1>
-        <?php require __DIR__ . "/cartao_clima.php"; ?>
+        <p class="mb-4">Olá, <?= h($nome) ?></p>
 
         <?php if ($busca !== ""): ?>
             <section class="resultados-busca">
@@ -276,6 +277,7 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
                 <?php endif; ?>
             </section>
         <?php endif; ?>
+        <?php require __DIR__ . "/malha_rs.php"; ?>
     </main>
 </div>
 </body>

@@ -87,6 +87,11 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
         .estacao .km { font-size: 11px; }
         .estacao:hover .rotulo-estacao, .estacao:focus .rotulo-estacao { fill: #e9f2ff; stroke: #174eae; stroke-width: 2.5; }
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+    <script src="../script/malha-rs.js" defer></script>
 </head>
 <body class="ps-pagina ps-mapa">
 
@@ -148,6 +153,7 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
             <p class="text-center text-muted mt-3">Nenhum trem cadastrado.</p>
         <?php endif; ?>
     </section>
+    <?php require __DIR__ . "/malha_rs.php"; ?>
     </div>
 </main>
 
