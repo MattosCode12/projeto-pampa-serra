@@ -53,10 +53,9 @@
 }
 
 .barra-home {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 34%) minmax(0, 1fr);
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
     gap: 14px 24px;
     min-height: 76px;
     padding: 16px clamp(16px, 4vw, 44px);
@@ -65,22 +64,69 @@
 }
 
 .busca-home {
-    flex: 1 1 275px;
+    grid-column: 2;
+    justify-self: center;
+    width: 100%;
     max-width: 465px;
 }
 
 .conta-home {
+    grid-column: 3;
+    justify-self: end;
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
-    margin-left: auto;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.icone-perfil-home {
+    flex: none;
+    padding: 8px;
+    border-radius: 50%;
+    background: #eef3fb;
+    color: #174eae;
+}
+
+.identidade-home {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.nome-home {
+    color: #123a85;
+    font-size: .95rem;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
 }
 
 .perfil-home {
+    justify-self: start;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #eef3fb;
     color: #123a85;
-    font-size: .875rem;
+    font-size: .75rem;
     font-weight: 600;
 }
+
+@media (max-width: 1099px) {
+    .barra-home {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .busca-home,
+    .conta-home {
+        grid-column: 1;
+    }
+
+    .conta-home {
+        grid-row: 1;
+    }
+}
+
 
 .conteudo-home {
     max-width: 1120px;

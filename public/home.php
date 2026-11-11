@@ -136,8 +136,16 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
         </form>
 
         <div class="conta-home">
-            <span class="perfil-home"><?= $tipo_usuario === 1 ? "Administrador" : "Usuário" ?></span>
             <a href="logout.php" class="btn btn-outline-primary btn-sm">Sair</a>
+            <svg class="icone-perfil-home" width="36" height="36" viewBox="0 0 24 24"
+                 fill="currentColor" aria-hidden="true">
+                <circle cx="12" cy="7.5" r="4.5"/>
+                <path d="M3 21c0-5 4-8 9-8s9 3 9 8z"/>
+            </svg>
+            <div class="identidade-home">
+                <span class="nome-home"><?= h($nome) ?></span>
+                <span class="perfil-home"><?= $tipo_usuario === 1 ? "Administrador" : "Usuário" ?></span>
+            </div>
         </div>
     </header>
 
