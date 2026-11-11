@@ -107,23 +107,17 @@ try {
         rel="stylesheet"
     >
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
 
     <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: #f5f5f5;
-            font-family: Arial, sans-serif;
-        }
-
         .pagina-sensores {
-            width: 95%;
-            max-width: 1200px;
+            width: 94%;
+            max-width: 1800px;
             min-height: 600px;
             margin: 32px auto;
             padding: 25px 35px 35px;
-            background: #064eb1;
-            border-radius: 25px;
+            background: #0c53b8;
+            border-radius: 21px;
         }
 
         .topo-sensores {
@@ -134,10 +128,7 @@ try {
             margin-bottom: 28px;
         }
 
-        .logo-sensores {
-            width: 100px;
-            height: auto;
-        }
+
 
         .busca-sensores {
             display: flex;
@@ -162,29 +153,50 @@ try {
             font-weight: bold;
         }
 
-        .botoes-topo {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .btn-topo {
-            background: #113a82;
-            color: white;
+        .criar-sensor {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 46px;
+            padding: 11px 22px;
+            border-radius: 15px;
+            background: #fff;
+            color: #174eae;
+            font-weight: 700;
             text-decoration: none;
-            padding: 11px 20px;
-            border-radius: 20px;
-            font-weight: bold;
         }
 
-        .btn-topo:hover {
-            background: #092a65;
-            color: white;
+        .criar-sensor:hover {
+            background: #e2e5ea;
+            color: #123a85;
         }
+
+        .criar-sensor:focus-visible {
+            outline: 3px solid #fff;
+            outline-offset: 3px;
+        }
+
+        .topo-sensores {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px minmax(0, 1fr);
+        }
+        .topo-sensores .busca-sensores { grid-column: 2; }
+        .acoes-topo-sensores { grid-column: 3; justify-self: end; }
+        @media (max-width: 900px) {
+            .topo-sensores { grid-template-columns: minmax(0, 1fr); }
+            .topo-sensores .busca-sensores {
+                grid-column: 1;
+                grid-row: 1;
+                justify-self: center;
+            }
+            .acoes-topo-sensores { grid-column: 1; grid-row: 2; }
+        }
+        .acoes-topo-sensores { margin-left: auto; }
 
         .grade-sensores {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 24px;
         }
 
@@ -193,7 +205,7 @@ try {
             flex-direction: column;
             background: white;
             color: black;
-            border-radius: 12px;
+            border-radius: 15px;
             overflow: hidden;
             text-align: center;
             min-width: 0;
@@ -277,46 +289,51 @@ try {
     </style>
 </head>
 
-<body>
+<body class="ps-pagina">
+
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <a href="home.php" aria-label="Pampa Serra — início">
+            <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        </a>
+        <h1 class="ps-titulo">Sensores</h1>
+        <a href="home.php" class="ps-voltar" aria-label="Voltar à Home">
+            <span aria-hidden="true">←</span> Voltar
+        </a>
+    </div>
+</header>
 
 <div class="pagina-sensores">
 
-    <header class="topo-sensores">
+    <div class="topo-sensores">
 
-        <a href="home.php">
-            <img
-                src="../assets/img/logo.png"
-                class="logo-sensores"
-                alt="Pampa Serra"
-            >
-        </a>
+
 
         <form method="GET" action="sensores.php" class="busca-sensores">
             <input
                 type="search"
                 name="busca"
                 placeholder="Buscar sensor"
+                aria-label="Buscar sensor"
                 value="<?= h($busca) ?>"
             >
 
             <button type="submit">Buscar</button>
         </form>
 
-        <div class="botoes-topo">
+        <div class="acoes-topo-sensores">
 
-            <a href="home.php" class="btn-topo">
-                Voltar
-            </a>
+
 
             <?php if ($admin): ?>
-                <a href="criar_sensor.php" class="btn-topo">
-                    + Criar Sensor
+                <a href="criar_sensor.php" class="criar-sensor">
+                    <span aria-hidden="true">+</span> Criar Sensor
                 </a>
             <?php endif; ?>
 
         </div>
 
-    </header>
+    </div>
 
     <?php if ($erro !== ""): ?>
         <div class="alert alert-danger">
