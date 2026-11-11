@@ -67,6 +67,30 @@ if ($busca !== "") {
     );
 }
 
+$resumoRotas = null;
+$rotasAtivas = [];
+
+if ($busca === "") {
+    try {
+        $resumoRotas = $conexao->query(
+            "SELECT COUNT(*) AS total,
+                    COUNT(CASE WHEN ativa = 1 THEN 1 END) AS ativas
+             FROM rota"
+        )->fetch_assoc();
+
+        $rotasAtivas = $conexao->query(
+            "SELECT id_rota, codigo, origem, destino
+             FROM rota
+             WHERE ativa = 1
+             ORDER BY id_rota DESC
+             LIMIT 6"
+        )->fetch_all(MYSQLI_ASSOC);
+    } catch (mysqli_sql_exception $e) {
+        error_log($e->getMessage());
+        $resumoRotas = null;
+    }
+}
+
 $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
 ?>
 <!DOCTYPE html>
@@ -79,313 +103,172 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
 
-    <style>
-        body {
-            margin: 0;
-            background: #f3f3f3;
-            min-height: 100vh;
-        }
-
-        .cabecalho {
-            width: 100%;
-            min-height: 138px;
-            background: #174eae;
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 35px;
-            gap: 20px;
-        }
-
-        .logo-home {
-            width: 90px;
-            height: auto;
-            justify-self: start;
-        }
-
-        .busca-home {
-            display: flex;
-            width: 415px;
-            max-width: calc(100% - 520px);
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            margin: 0;
-        }
-
-        .busca-home input {
-            border-radius: 14px 0 0 14px;
-            background: #e5e7eb;
-            border: none;
-        }
-
-        .busca-home button {
-            border-radius: 0 14px 14px 0;
-            background: white;
-            color: black;
-            border: none;
-            font-weight: bold;
-        }
-
-        .usuario-home {
-            display: flex;
-            align-items: center;
-            justify-self: end;
-            gap: 22px;
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .btn-sair {
-            background: #123a85;
-            color: white;
-            text-decoration: none;
-            border-radius: 14px;
-            padding: 9px 33px;
-            font-size: 14px;
-        }
-
-        .btn-sair:hover {
-            background: #0c2b65;
-            color: white;
-        }
-
-        .conteudo-home {
-            max-width: 535px;
-            margin: 37px auto;
-            padding: 0 15px;
-        }
-
-        .menu-home {
-            display: flex;
-            flex-direction: column;
-            gap: 22px;
-        }
-
-        .botao-menu {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            min-height: 90px;
-            border-radius: 12px;
-            background: #0755bc;
-            color: white;
-            text-decoration: none;
-            font-size: 36px;
-            font-weight: 900;
-            transition: background 0.2s, transform 0.2s;
-        }
-
-        .botao-menu:hover {
-            background: #08469a;
-            color: white;
-            transform: scale(1.02);
-        }
-
-        .resultados-busca {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-        }
-
-        .resultados-busca h2 {
-            font-size: 20px;
-            font-weight: 800;
-            margin: 0;
-        }
-
-        .resultados-busca h3 {
-            font-size: 16px;
-            font-weight: 800;
-            color: #0755bc;
-            margin: 18px 0 8px;
-        }
-
-        .resultados-busca .item-resultado {
-            display: block;
-            padding: 8px 10px;
-            border-radius: 8px;
-            color: #222;
-            text-decoration: none;
-        }
-
-        .resultados-busca .item-resultado:hover {
-            background: #eef3fb;
-        }
-
-        .resultados-busca .item-resultado small {
-            display: block;
-            color: #666;
-        }
-
-        @media (max-width: 768px) {
-            .cabecalho {
-                flex-direction: column;
-                justify-content: center;
-                padding: 18px;
-            }
-
-            .busca-home {
-                position: static;
-                transform: none;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .usuario-home {
-                font-size: 20px;
-            }
-
-            .botao-menu {
-                min-height: 75px;
-                font-size: 28px;
-            }
-        }
-    </style>
-<link rel="stylesheet" href="../style/clima-home.css">
-<script src="../script/clima-home.js" defer></script>
+    <link rel="stylesheet" href="../style/clima-home.css">
+    <link rel="stylesheet" href="../style/painel-home.css">
+    <script src="../script/clima-home.js" defer></script>
 </head>
+<body class="painel-home">
+<a class="visually-hidden-focusable" href="#conteudo-home">Ir para o conteúdo</a>
 
-<body>
-
-<header class="cabecalho">
-
-    <img
-        src="../assets/img/logo.png"
-        alt="Pampa Serra"
-        class="logo-home"
-    >
-
-    <form class="busca-home" action="home.php" method="GET">
-        <input
-            type="text"
-            name="busca"
-            class="form-control"
-            placeholder="Buscar"
-            maxlength="100"
-            value="<?= h($busca) ?>"
-        >
-
-        <button type="submit" class="btn">
-            Buscar
-        </button>
-    </form>
-
-    <div class="usuario-home">
-    <a href="logout.php" class="btn-sair">Sair</a>
-
-    <span class="divisor-usuario"></span>
-
-    <svg class="icone-usuario" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <circle cx="12" cy="7.5" r="4.5"/>
-        <path d="M3 21c0-5 4-8 9-8s9 3 9 8z"/>
-    </svg>
-
-    <div class="usuario-info" style="display:flex; flex-direction:column; align-items:center; gap:3px; white-space:nowrap;">
-    <span class="nome-usuario" style="font-size:20px; font-weight:bold; line-height:1.1;">
-        <?= h($nome) ?>
-    </span>
-    <span class="tipo-usuario" style="font-size:13px; font-weight:600; background:#123a85; padding:2px 14px; border-radius:12px; line-height:1.3;">
-        <?= $tipo_usuario === 1 ? "Administrador" : "Usuário" ?>
-    </span>
-</div>
-</div>
-</div>
-
-</header>
-
-<main class="conteudo-home">
-    <?php require __DIR__ . "/cartao_clima.php"; ?>
-
-    <?php if ($busca !== ""): ?>
-        <section class="resultados-busca">
-
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h2>
-                    <?= $totalResultados ?> resultado(s) para
-                    "<?= h($busca) ?>"
-                </h2>
-                <a href="home.php">Limpar busca</a>
-            </div>
-
-            <?php if ($totalResultados === 0): ?>
-                <p class="text-muted mt-3 mb-0">
-                    Nada encontrado em trens, sensores ou rotas.
-                </p>
-            <?php endif; ?>
-
-            <?php if ($resTrens): ?>
-                <h3>Trens</h3>
-                <?php foreach ($resTrens as $t): ?>
-                    <a class="item-resultado"
-                       href="visualizar_trem.php?id=<?= (int)$t["id_trem"] ?>">
-                        <?= h($t["codigo"]) ?>
-                        <small><?= h($t["modelo"]) ?> • <?= h($t["status"]) ?></small>
-                    </a>
-                <?php endforeach; ?>
-            <?php endif; ?>
-
-            <?php if ($resSensores): ?>
-                <h3>Sensores</h3>
-                <?php foreach ($resSensores as $s): ?>
-                    <a class="item-resultado"
-                       href="sensores.php?busca=<?= urlencode($s["nome"]) ?>">
-                        <?= h($s["nome"]) ?>
-                        <small><?= h($s["localizacao"]) ?> • <?= h($s["tipo_dado"]) ?></small>
-                    </a>
-                <?php endforeach; ?>
-            <?php endif; ?>
-
-            <?php if ($resRotas): ?>
-                <h3>Rotas</h3>
-                <?php foreach ($resRotas as $r): ?>
-                    <a class="item-resultado"
-                       href="rotas.php?busca=<?= urlencode($r["codigo"]) ?>">
-                        <?= h($r["codigo"]) ?>
-                        <small>
-                            <?= h($r["origem"]) ?> → <?= h($r["destino"]) ?>
-                            <?= $r["parada"] ? " • Parada: " . h($r["parada"]) : "" ?>
-                        </small>
-                    </a>
-                <?php endforeach; ?>
-            <?php endif; ?>
-
-        </section>
-    <?php endif; ?>
-
-    <nav class="menu-home">
-
-        <a href="rotas.php" class="botao-menu">
-            Rotas
-        </a>
-
-        <a href="sensores.php" class="botao-menu">
-            Sensores
-        </a>
-
-        <a href="trens.php" class="botao-menu">
-            Trens
-        </a>
-
-        <a href="relatorios.php" class="botao-menu">
-            Relatórios
-        </a>
-
+<aside class="lateral-home" aria-label="Menu do Pampa Serra">
+    <a href="home.php" class="marca-home">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" width="104">
+    </a>
+    <nav class="menu-home" aria-label="Menu principal">
+        <a href="home.php" aria-current="page">Visão geral</a>
+        <a href="rotas.php">Rotas</a>
+        <a href="sensores.php">Sensores</a>
+        <a href="trens.php">Trens</a>
+        <a href="relatorios.php">Relatórios</a>
         <?php if ($tipo_usuario === 1): ?>
-            <a href="cadastro_usuarios.php" class="botao-menu">
-                Cadastrar
-            </a>
+            <a href="cadastro_usuarios.php">Cadastrar</a>
+        <?php endif; ?>
+    </nav>
+</aside>
+
+<div class="area-home">
+    <header class="barra-home">
+        <form class="input-group busca-home" action="home.php" method="get" role="search">
+            <input type="search" name="busca" class="form-control" maxlength="100"
+                   aria-label="Buscar trens, sensores e rotas"
+                   placeholder="Buscar trens, sensores e rotas" value="<?= h($busca) ?>">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+
+        <div class="conta-home">
+            <span class="perfil-home"><?= $tipo_usuario === 1 ? "Administrador" : "Usuário" ?></span>
+            <a href="logout.php" class="btn btn-outline-primary btn-sm">Sair</a>
+        </div>
+    </header>
+
+    <main id="conteudo-home" class="conteudo-home">
+        <h1>Visão geral</h1>
+        <?php require __DIR__ . "/cartao_clima.php"; ?>
+
+        <?php if ($busca !== ""): ?>
+            <section class="resultados-busca">
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h2>
+                        <?= $totalResultados ?> resultado(s) para
+                        "<?= h($busca) ?>"
+                    </h2>
+                    <a href="home.php">Limpar busca</a>
+                </div>
+
+                <?php if ($totalResultados === 0): ?>
+                    <p class="text-muted mt-3 mb-0">
+                        Nada encontrado em trens, sensores ou rotas.
+                    </p>
+                <?php endif; ?>
+
+                <?php if ($resTrens): ?>
+                    <h3>Trens</h3>
+                    <?php foreach ($resTrens as $t): ?>
+                        <a class="item-resultado"
+                           href="visualizar_trem.php?id=<?= (int)$t["id_trem"] ?>">
+                            <?= h($t["codigo"]) ?>
+                            <small><?= h($t["modelo"]) ?> • <?= h($t["status"]) ?></small>
+                        </a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+                <?php if ($resSensores): ?>
+                    <h3>Sensores</h3>
+                    <?php foreach ($resSensores as $s): ?>
+                        <a class="item-resultado"
+                           href="sensores.php?busca=<?= urlencode($s["nome"]) ?>">
+                            <?= h($s["nome"]) ?>
+                            <small><?= h($s["localizacao"]) ?> • <?= h($s["tipo_dado"]) ?></small>
+                        </a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+                <?php if ($resRotas): ?>
+                    <h3>Rotas</h3>
+                    <?php foreach ($resRotas as $r): ?>
+                        <a class="item-resultado"
+                           href="rotas.php?busca=<?= urlencode($r["codigo"]) ?>">
+                            <?= h($r["codigo"]) ?>
+                            <small>
+                                <?= h($r["origem"]) ?> → <?= h($r["destino"]) ?>
+                                <?= $r["parada"] ? " • Parada: " . h($r["parada"]) : "" ?>
+                            </small>
+                        </a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+            </section>
         <?php endif; ?>
 
-    </nav>
+        <?php if ($busca === ""): ?>
+            <section class="resumo-rotas" aria-labelledby="titulo-rotas">
+                <div class="cabecalho-rotas">
+                    <h2 id="titulo-rotas">Situação das rotas</h2>
+                    <a href="relatorios.php" class="btn btn-outline-primary btn-sm">Ver relatórios</a>
+                </div>
 
-</main>
+                <?php if ($resumoRotas === null): ?>
+                    <p class="mb-0 text-muted">Não foi possível carregar o resumo das rotas.</p>
+                <?php else: ?>
+                    <?php
+                    $total = (int)$resumoRotas["total"];
+                    $ativas = (int)$resumoRotas["ativas"];
+                    ?>
+                    <dl class="indicadores-rotas">
+                        <div>
+                            <dt>Cadastradas</dt>
+                            <dd><?= $total ?></dd>
+                        </div>
+                        <div>
+                            <dt>Ativas</dt>
+                            <dd><?= $ativas ?></dd>
+                        </div>
+                        <div>
+                            <dt>Inativas</dt>
+                            <dd><?= $total - $ativas ?></dd>
+                        </div>
+                    </dl>
 
+                    <div class="cabecalho-rotas">
+                        <h3>Rotas ativas</h3>
+                        <a href="rotas.php">Ver todas as rotas</a>
+                    </div>
+
+                    <?php if (!$rotasAtivas): ?>
+                        <p class="mb-0 text-muted">Nenhuma rota ativa no momento.</p>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0" aria-label="Rotas ativas mais recentes">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Código</th>
+                                        <th scope="col">Origem</th>
+                                        <th scope="col">Destino</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($rotasAtivas as $rota): ?>
+                                        <tr>
+                                            <td>
+                                                <a href="tela_rotas.php?id=<?= (int)$rota["id_rota"] ?>">
+                                                    <?= h($rota["codigo"]) ?>
+                                                </a>
+                                            </td>
+                                            <td><?= h($rota["origem"]) ?></td>
+                                            <td><?= h($rota["destino"]) ?></td>
+                                            <td><span class="badge text-bg-success">Ativa</span></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </section>
+        <?php endif; ?>
+    </main>
+</div>
 </body>
 </html>
