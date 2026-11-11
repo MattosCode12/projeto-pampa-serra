@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
@@ -90,33 +89,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/padrao-paginas.css">
 
     <style>
-        body {
-            background: #f3f3f3;
-            min-height: 100vh;
-        }
-
-        .topo {
-            background: #174eae;
-            padding: 25px;
-            color: white;
-        }
-
-        .painel {
-            max-width: 750px;
-            margin: 35px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.08);
-        }
-
-        .titulo {
-            color: #174eae;
-            font-weight: 800;
-        }
-
         .btn-azul {
             background: #0755bc;
             color: white;
@@ -130,29 +105,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 
-<body>
+<body class="ps-pagina">
 
-<header class="topo">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1>Cadastrar Usuário</h1>
-        <a href="home.php" class="btn btn-light">
-            Voltar à Home
+<header class="ps-cabecalho">
+    <div class="ps-cabecalho-conteudo">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <h1 class="ps-titulo">Cadastrar Usuário</h1>
+        <a href="home.php" class="ps-voltar" aria-label="Voltar à Home">
+            <span aria-hidden="true">←</span> Voltar
         </a>
     </div>
 </header>
 
-<main class="container">
+<main class="ps-conteudo">
+    <div class="ps-moldura ps-moldura-cadastro">
 
-    <section class="painel">
+    <section class="ps-painel">
 
         <img
             src="../assets/img/logo.png"
             alt="Pampa Serra"
             class="d-block mx-auto mb-4"
-            style="width:100px"
+            style="width:100px; filter: brightness(0);"
         >
 
-        <h2 class="titulo text-center mb-4">
+        <h2 class="mb-4">
             Novo Usuário
         </h2>
 
@@ -261,6 +238,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     </section>
 
+    </div>
 </main>
 
 </body>
