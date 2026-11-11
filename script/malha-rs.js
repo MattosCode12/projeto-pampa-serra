@@ -1,3 +1,48 @@
+// Corredores da Malha Sul (ANTT), desenhados por pontos de referência.
+const MALHA_RS = [
+    {
+        nome: 'Santa Maria – Uruguaiana',
+        cor: '#174eae',
+        pontos: [
+            ['Santa Maria', -29.69, -53.81],
+            ['Dilermando de Aguiar', -29.71, -54.12],
+            ['Cacequi', -29.88, -54.82],
+            ['Alegrete', -29.79, -55.79],
+            ['Uruguaiana', -29.76, -57.08],
+        ],
+    },
+    {
+        nome: 'Santa Maria – Passo Fundo',
+        cor: '#087752',
+        pontos: [
+            ['Santa Maria', -29.69, -53.81],
+            ['Cruz Alta', -28.64, -53.61],
+            ['Ibirubá', -28.63, -53.09],
+            ['Passo Fundo', -28.26, -52.41],
+        ],
+    },
+    {
+        nome: 'Cacequi – Rio Grande',
+        cor: '#a14809',
+        pontos: [
+            ['Cacequi', -29.88, -54.82],
+            ['Bagé', -31.33, -54.11],
+            ['Pelotas', -31.77, -52.34],
+            ['Rio Grande', -32.03, -52.10],
+        ],
+    },
+    {
+        nome: 'Cruz Alta – Santa Rosa',
+        cor: '#793fa0',
+        pontos: [
+            ['Cruz Alta', -28.64, -53.61],
+            ['Ijuí', -28.39, -53.91],
+            ['Santo Ângelo', -28.30, -54.27],
+            ['Santa Rosa', -27.87, -54.48],
+        ],
+    },
+];
+
 (() => {
     const painel = document.querySelector('[data-malha-rs]');
     if (!painel) return;
@@ -8,50 +53,6 @@
         return;
     }
 
-    // Corredores da Malha Sul (ANTT), desenhados por pontos de referência.
-    const linhas = [
-        {
-            nome: 'Santa Maria – Uruguaiana',
-            cor: '#174eae',
-            pontos: [
-                ['Santa Maria', -29.69, -53.81],
-                ['Dilermando de Aguiar', -29.71, -54.12],
-                ['Cacequi', -29.88, -54.82],
-                ['Alegrete', -29.79, -55.79],
-                ['Uruguaiana', -29.76, -57.08],
-            ],
-        },
-        {
-            nome: 'Santa Maria – Passo Fundo',
-            cor: '#087752',
-            pontos: [
-                ['Santa Maria', -29.69, -53.81],
-                ['Cruz Alta', -28.64, -53.61],
-                ['Ibirubá', -28.63, -53.09],
-                ['Passo Fundo', -28.26, -52.41],
-            ],
-        },
-        {
-            nome: 'Cacequi – Rio Grande',
-            cor: '#a14809',
-            pontos: [
-                ['Cacequi', -29.88, -54.82],
-                ['Bagé', -31.33, -54.11],
-                ['Pelotas', -31.77, -52.34],
-                ['Rio Grande', -32.03, -52.10],
-            ],
-        },
-        {
-            nome: 'Cruz Alta – Santa Rosa',
-            cor: '#793fa0',
-            pontos: [
-                ['Cruz Alta', -28.64, -53.61],
-                ['Ijuí', -28.39, -53.91],
-                ['Santo Ângelo', -28.30, -54.27],
-                ['Santa Rosa', -27.87, -54.48],
-            ],
-        },
-    ];
 
     const mapaElemento = painel.querySelector('[data-malha-mapa]');
     const filtro = painel.querySelector('select');
@@ -69,7 +70,7 @@
         .on('tileload', () => { status.textContent = ''; })
         .addTo(mapa);
 
-    const camadas = linhas.map((linha, indice) => {
+    const camadas = MALHA_RS.map((linha, indice) => {
         filtro.add(new Option(linha.nome, String(indice)));
         const trilho = L.polyline(linha.pontos.map(([, lat, lng]) => [lat, lng]), {
             color: linha.cor,

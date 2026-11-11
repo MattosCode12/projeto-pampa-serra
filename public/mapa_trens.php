@@ -87,10 +87,6 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
         .estacao .km { font-size: 11px; }
         .estacao:hover .rotulo-estacao, .estacao:focus .rotulo-estacao { fill: #e9f2ff; stroke: #174eae; stroke-width: 2.5; }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
     <script src="../script/malha-rs.js" defer></script>
 </head>
 <body class="ps-pagina ps-mapa">
@@ -153,7 +149,6 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
             <p class="text-center text-muted mt-3">Nenhum trem cadastrado.</p>
         <?php endif; ?>
     </section>
-    <?php require __DIR__ . "/malha_rs.php"; ?>
     </div>
 </main>
 
@@ -174,11 +169,13 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
 </dialog>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
 const TRENS    = <?= json_encode($trens,    $flags) ?>;
 const ROTAS    = <?= json_encode($rotas,    $flags) ?>;
 const ESTACOES = <?= json_encode($estacoes, $flags) ?>;
 
-const KM_TOTAL = ESTACOES.length ? Math.max(...ESTACOES.map(e => e.km)) : 120;
+let estacoesAtuais = ESTACOES;
+let kmTotal = 120;
 const NS = "http://www.w3.org/2000/svg";
 const COR = { Normal: "#198754", Alerta: "#ffc107", Falha: "#dc3545" };
 
@@ -206,7 +203,7 @@ function esc(s) {
 }
 
 function pontoNoKm(km) {
-    return base.getPointAtLength((km / KM_TOTAL) * compr);
+    return base.getPointAtLength((km / kmTotal) * compr);
 }
 
 const cidadeModal = document.getElementById('cidadeModal');
@@ -236,14 +233,14 @@ async function abrirCidade(estacao, gatilho) {
     cidadeController?.abort();
     cidadeController = new AbortController();
     document.getElementById('cidadeTitulo').textContent = estacao.nome;
-    document.getElementById('cidadeKm').textContent = 'Conheça a parada · KM ' + estacao.km;
+    document.getElementById('cidadeKm').textContent = 'Conheça a parada · ' + (estacao.referencia ? '≈ ' : '') + 'KM ' + estacao.km;
     cidadeFoto.hidden = cidadeFonte.hidden = cidadeTentar.hidden = true;
     cidadeFoto.removeAttribute('src');
     cidadeDescricao.textContent = '';
     cidadeEstado.textContent = 'Carregando foto e informações…';
     cidadeEstado.hidden = false;
     if (!cidadeModal.open) cidadeModal.showModal();
-    const titulo = cidadesWiki[estacao.nome];
+    const titulo = cidadesWiki[estacao.nome] ?? (estacao.referencia ? estacao.nome : null);
     if (!titulo) {
         cidadeEstado.textContent = 'Ainda não há informações turísticas cadastradas para esta parada.';
         return;
@@ -291,47 +288,86 @@ cidadeModal.addEventListener('close', () => { ++cidadePedido; cidadeController?.
 cidadeTentar.addEventListener('click', () => abrirCidade(cidadeAtual, cidadeGatilho));
 
 
-ESTACOES.forEach((e, i) => {
-    const p = pontoNoKm(e.km);
-    const g = el("g", { class: "estacao", role: "button", tabindex: "0", "aria-haspopup": "dialog", "aria-label": "Conhecer " + e.nome + ", KM " + e.km });
-    g.appendChild(el("circle", { cx: p.x, cy: p.y, r: 18, class: "alvo-estacao" }));
-    g.addEventListener("click", () => abrirCidade(e, g));
-    g.addEventListener("keydown", evento => {
-        if (evento.key === "Enter" || evento.key === " ") {
-            evento.preventDefault();
-            abrirCidade(e, g);
-        }
-    });
-    const acima = i % 2 === 0;
-    const quantidade = Math.ceil((ESTACOES.length - (acima ? 0 : 1)) / 2);
-    const indice = Math.floor(i / 2);
-    const largura = Math.min(150, 940 / Math.max(quantidade, 1) - 10);
-    const x = quantidade <= 1 ? 500 : 90 + indice * 820 / (quantidade - 1);
-    const y = acima ? -60 : 440;
-    const borda = acima ? y + 24 : y - 24;
-    g.appendChild(el("path", {
-        d: `M${p.x},${p.y} L${p.x},${acima ? 60 : 385} L${x},${borda}`,
-        class: "ligacao-estacao"
-    }));
-    g.appendChild(el("rect", { x: x - largura / 2, y: y - 24,
-        width: largura, height: 48, rx: 10, class: "rotulo-estacao" }));
-    const nome = el("text", { x, y: y - 3, "text-anchor": "middle", class: "nome-estacao" }, e.nome);
-    g.appendChild(nome);
-    g.appendChild(el("text", { x, y: y + 14, "text-anchor": "middle", class: "km" }, "KM " + e.km));
-    // A bolinha fica acima da linha de ligação e continua clicável.
-    g.appendChild(el("circle", { cx: p.x, cy: p.y, r: 7 }));
+function desenharEstacoes() {
+    camadaEst.replaceChildren();
+    estacoesAtuais.forEach((e, i) => {
+        const p = pontoNoKm(e.km);
+        const g = el("g", { class: "estacao", role: "button", tabindex: "0", "aria-haspopup": "dialog", "aria-label": "Conhecer " + e.nome + ", KM " + e.km });
+        g.appendChild(el("circle", { cx: p.x, cy: p.y, r: 18, class: "alvo-estacao" }));
+        g.addEventListener("click", () => abrirCidade(e, g));
+        g.addEventListener("keydown", evento => {
+            if (evento.key === "Enter" || evento.key === " ") {
+                evento.preventDefault();
+                abrirCidade(e, g);
+            }
+        });
+        const acima = i % 2 === 0;
+        const quantidade = Math.ceil((estacoesAtuais.length - (acima ? 0 : 1)) / 2);
+        const indice = Math.floor(i / 2);
+        const largura = Math.min(150, 940 / Math.max(quantidade, 1) - 10);
+        const x = quantidade <= 1 ? 500 : 90 + indice * 820 / (quantidade - 1);
+        const y = acima ? -60 : 440;
+        const borda = acima ? y + 24 : y - 24;
+        g.appendChild(el("path", {
+            d: `M${p.x},${p.y} L${p.x},${acima ? 60 : 385} L${x},${borda}`,
+            class: "ligacao-estacao"
+        }));
+        g.appendChild(el("rect", { x: x - largura / 2, y: y - 24,
+            width: largura, height: 48, rx: 10, class: "rotulo-estacao" }));
+        const nome = el("text", { x, y: y - 3, "text-anchor": "middle", class: "nome-estacao" }, e.nome);
+        g.appendChild(nome);
+        g.appendChild(el("text", { x, y: y + 14, "text-anchor": "middle", class: "km" }, (e.referencia ? "≈ " : "") + "KM " + e.km));
+        // A bolinha fica acima da linha de ligação e continua clicável.
+        g.appendChild(el("circle", { cx: p.x, cy: p.y, r: 7 }));
 
-    camadaEst.appendChild(g);
-});
+        camadaEst.appendChild(g);
+    });
+}
 
 if (!ROTAS.length) {
-    selRota.appendChild(new Option("Nenhuma rota ativa", ""));
+    selRota.appendChild(new Option("Porto Alegre → Gramado (simulação padrão)", ""));
 }
 ROTAS.forEach(r => selRota.appendChild(new Option(r.codigo + " — " + r.origem + " → " + r.destino, r.id_rota)));
 
+const rotasReferencia = MALHA_RS.map((linha) => {
+    let km = 0;
+    const estacoes = linha.pontos.map(([nome, lat, lng], indice) => {
+        if (indice > 0) {
+            const [, latAnterior, lngAnterior] = linha.pontos[indice - 1];
+            const rad = Math.PI / 180;
+            const a = Math.sin((lat - latAnterior) * rad / 2) ** 2 +
+                Math.cos(lat * rad) * Math.cos(latAnterior * rad) *
+                Math.sin((lng - lngAnterior) * rad / 2) ** 2;
+            km += 6371 * 2 * Math.asin(Math.sqrt(a));
+        }
+        return { nome, km: Math.round(km), referencia: true };
+    });
+    return { nome: linha.nome, cor: linha.cor, estacoes };
+});
+
+const grupoReferencia = document.createElement("optgroup");
+grupoReferencia.label = "Corredores ferroviários do RS";
+rotasReferencia.forEach((rota, indice) => {
+    grupoReferencia.appendChild(new Option(rota.nome, "ref-" + indice));
+});
+selRota.appendChild(grupoReferencia);
+
 let rotaAtual = ROTAS[0] || null;
+let rotaReferencia = null;
+
+function atualizarPercurso() {
+    estacoesAtuais = rotaReferencia?.estacoes ?? ESTACOES;
+    kmTotal = Math.max(...estacoesAtuais.map(e => e.km), 0) || 120;
+    base.style.stroke = rotaReferencia?.cor ?? "";
+    desenharEstacoes();
+}
 
 function mostrarInfoRota() {
+    if (rotaReferencia) {
+        infoRota.textContent = rotaReferencia.nome +
+            " · Simulação com distâncias aproximadas entre cidades.";
+        return;
+    }
     if (!rotaAtual) {
         infoRota.textContent = "Sem rota ativa. Mostrando simulação padrão.";
         return;
@@ -367,7 +403,7 @@ function criarTrens() {
         const v = velocidadeBase() * (0.85 + ((i * 37) % 30) / 100);
         return {
             t, g, rot,
-            km: (KM_TOTAL / (TRENS.length + 1)) * (i + 1),
+            km: (kmTotal / (TRENS.length + 1)) * (i + 1),
             dir: i % 2 === 0 ? 1 : -1,
             kmh: v
         };
@@ -399,13 +435,13 @@ function frame(agora) {
 
             o.km += o.dir * (o.kmh * mult / 3600) * fator * dt;
 
-            if (o.km >= KM_TOTAL) { o.km = KM_TOTAL; o.dir = -1; }
+            if (o.km >= kmTotal) { o.km = kmTotal; o.dir = -1; }
             if (o.km <= 0)        { o.km = 0;        o.dir = 1;  }
         });
     }
 
     objs.forEach(o => {
-        const L = (o.km / KM_TOTAL) * compr;
+        const L = (o.km / kmTotal) * compr;
         const p = base.getPointAtLength(L);
         const a = base.getPointAtLength(Math.min(L + 1, compr));
         const b = base.getPointAtLength(Math.max(L - 1, 0));
@@ -421,6 +457,11 @@ function frame(agora) {
 
 selRota.addEventListener("change", () => {
     rotaAtual = ROTAS.find(r => String(r.id_rota) === selRota.value) || null;
+    rotaReferencia = selRota.value.startsWith("ref-")
+        ? rotasReferencia[Number(selRota.value.slice(4))]
+        : null;
+    detalhe.replaceChildren();
+    atualizarPercurso();
     mostrarInfoRota();
     criarTrens();
 });
@@ -430,9 +471,11 @@ btnPausa.addEventListener("click", () => {
     btnPausa.textContent = pausado ? "Continuar" : "Pausar";
 });
 
+atualizarPercurso();
 mostrarInfoRota();
 criarTrens();
 requestAnimationFrame(frame);
+});
 </script>
 </body>
 </html>
