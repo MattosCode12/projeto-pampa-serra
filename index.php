@@ -231,6 +231,14 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
 
+        /* Logo alinhada ao canto superior esquerdo da tela */
+        .navbar-wide {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0 5% 0 24px;
+        }
+
         .logo {
             display: flex;
             align-items: center;
@@ -242,8 +250,8 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 
 
         .logo img {
-            width: 58px;
-            height: 58px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
 
@@ -274,6 +282,60 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
             color: #8bbcff;
         }
 
+
+        /* Cabeçalho: marca à esquerda, links centralizados e acesso à direita */
+        .navbar-wide {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: center;
+            padding-right: 5%;
+        }
+
+        .navbar-wide .logo {
+            justify-self: start;
+        }
+
+        .navbar-wide .nav-links {
+            justify-self: center;
+        }
+
+        .navbar-wide .btn-nav-main {
+            justify-self: end;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 32px;
+            min-height: 48px;
+            border-radius: 11px;
+            background: var(--azul);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .navbar-wide .btn-nav-main:hover {
+            background: #2876f0;
+        }
+
+        @media (max-width: 1100px) {
+            .navbar-wide {
+                grid-template-columns: minmax(0, 1fr) auto;
+                row-gap: 12px;
+                padding-bottom: 14px;
+            }
+            .navbar-wide .nav-links {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                justify-self: center;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .navbar-wide .btn-nav-main {
+                grid-column: 2;
+                grid-row: 1;
+            }
+        }
 
         /* HERO */
 
@@ -736,9 +798,12 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
 
 
         @media(max-width:650px) {
-            .navbar {
-                flex-direction: column;
-                padding: 15px 0;
+            .navbar-wide {
+                padding: 15px 20px;
+            }
+
+            .navbar-wide {
+                padding: 15px 20px;
             }
 
 
@@ -927,7 +992,7 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- LANDING PAGE PRINCIPAL -->
 
        <header class="header">
-        <nav class="navbar container">
+        <nav class="navbar navbar-wide">
 
 
             <a href="index.php" class="logo">
@@ -941,12 +1006,11 @@ if ($pagina === "login" || $_SERVER["REQUEST_METHOD"] === "POST") {
                 <a href="#sobre">Sobre</a>
                 <a href="#funcionalidades">Funcionalidades</a>
                 <a href="#consulta-local">CEP e Clima</a>
-
-
-                <a href="index.php?pagina=login" class="btn-nav">
-                    Acessar sistema
-                </a>
             </div>
+
+            <a href="index.php?pagina=login" class="btn-nav btn-nav-main">
+                Acessar sistema
+            </a>
 
 
         </nav>
