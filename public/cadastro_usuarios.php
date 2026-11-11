@@ -1,9 +1,12 @@
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+require_once __DIR__ . "/endereco_usuario.php";
 
 exigir_admin();
 
+$endereco = endereco_ler([]);
+$enderecoObrigatorio = true;
 $erro = "";
 $nome = "";
 $email = "";
@@ -12,6 +15,8 @@ $tipo_usuario = "0";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     validar_csrf();
+    $endereco = endereco_ler($_POST);
+    $erroEndereco = endereco_validar($endereco, $enderecoObrigatorio);
 
     $nome = trim((string)($_POST["nome"] ?? ""));
     $email = mb_strtolower(
@@ -41,8 +46,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $erro = "A senha deve ter pelo menos 8 caracteres.";
     } elseif (!in_array($tipo_usuario, ["0", "1"], true)) {
         $erro = "Tipo de usuário inválido.";
+    } elseif ($erroEndereco !== "") {
+        $erro = $erroEndereco;
     } else {
         try {
+            $conexao->begin_transaction();
             $hash = password_hash($senha, PASSWORD_DEFAULT);
             $tipo = (int)$tipo_usuario;
 
@@ -62,7 +70,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             );
 
             $stmt->execute();
+            $novoUsuarioId = (int)$conexao->insert_id;
             $stmt->close();
+            endereco_salvar($conexao, $novoUsuarioId, $endereco);
+            $conexao->commit();
 
             $_SESSION["mensagem_sucesso"] =
                 "Usuário cadastrado com sucesso!";
@@ -71,6 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
 
         } catch (mysqli_sql_exception $e) {
+            $conexao->rollback();
             error_log($e->getMessage());
 
             $erro = (int)$e->getCode() === 1062
@@ -103,6 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: white;
         }
     </style>
+<script src="../script/endereco-usuario.js" defer></script>
 </head>
 
 <body class="ps-pagina">
@@ -217,6 +230,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </option>
                 </select>
             </div>
+        <?php require __DIR__ . "/campos_endereco.php"; ?>
+
 
             <div class="d-flex flex-wrap gap-2">
 
