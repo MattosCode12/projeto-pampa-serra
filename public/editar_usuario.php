@@ -1,7 +1,7 @@
-
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+require_once __DIR__ . "/endereco_usuario.php";
 
 exigir_admin();
 
@@ -28,6 +28,8 @@ if (!$usuario) {
     exit("Usuário não encontrado.");
 }
 
+$endereco = endereco_carregar($conexao, $id);
+$enderecoObrigatorio = $endereco["cep"] !== "";
 $erro = "";
 $proprioUsuario = $id === (int)($_SESSION["usuario_id"] ?? 0);
 
@@ -36,6 +38,8 @@ $usuario["tipo_usuario"] = (string)$usuario["tipo_usuario"];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     validar_csrf();
+    $endereco = endereco_ler($_POST);
+    $erroEndereco = endereco_validar($endereco, $enderecoObrigatorio);
 
     $usuario["nome"] = trim((string)($_POST["nome"] ?? ""));
     $usuario["email"] = mb_strtolower(
@@ -77,8 +81,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $erro = "Você não pode remover seu próprio acesso de administrador.";
     }
 
+    if ($erro === "" && $erroEndereco !== "") {
+        $erro = $erroEndereco;
+    }
+
     if ($erro === "") {
         try {
+            $conexao->begin_transaction();
             $tipo = (int)$usuario["tipo_usuario"];
             $telefone = $usuario["telefone"] !== ""
                 ? $usuario["telefone"]
@@ -123,6 +132,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $stmt->execute();
             $stmt->close();
+            endereco_salvar($conexao, $id, $endereco);
+            $conexao->commit();
 
             if ($proprioUsuario) {
                 $_SESSION["nome"] = $usuario["nome"];
@@ -137,6 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
 
         } catch (mysqli_sql_exception $e) {
+            $conexao->rollback();
             error_log($e->getMessage());
 
             $erro = (int)$e->getCode() === 1062
@@ -182,6 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             font-weight: 800;
         }
     </style>
+<script src="../script/endereco-usuario.js" defer></script>
 </head>
 
 <body>
@@ -312,6 +325,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     autocomplete="new-password"
                 >
             </div>
+        <?php require __DIR__ . "/campos_endereco.php"; ?>
+
 
             <div class="d-flex gap-2 flex-wrap">
                 <button type="submit" class="btn btn-primary">

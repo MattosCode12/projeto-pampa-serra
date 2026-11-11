@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+require_once __DIR__ . "/endereco_usuario.php";
 
 exigir_login();
+$enderecoHome = endereco_carregar($conexao, (int)$_SESSION["usuario_id"]);
 
 $nome = $_SESSION["nome"] ?? "Usuário";
 $tipo_usuario = (int)($_SESSION["tipo_usuario"] ?? 0);
@@ -246,6 +248,8 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
             }
         }
     </style>
+<link rel="stylesheet" href="../style/clima-home.css">
+<script src="../script/clima-home.js" defer></script>
 </head>
 
 <body>
@@ -297,6 +301,7 @@ $totalResultados = count($resTrens) + count($resSensores) + count($resRotas);
 </header>
 
 <main class="conteudo-home">
+    <?php require __DIR__ . "/cartao_clima.php"; ?>
 
     <?php if ($busca !== ""): ?>
         <section class="resultados-busca">
