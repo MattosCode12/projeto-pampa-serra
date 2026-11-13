@@ -52,6 +52,13 @@ CREATE TABLE IF NOT EXISTS trens (
         ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS trem_rota (
+    id_trem INT NOT NULL PRIMARY KEY,
+    id_rota INT NOT NULL,
+    CONSTRAINT fk_trem_rota_trem FOREIGN KEY (id_trem) REFERENCES trens (id_trem),
+    CONSTRAINT fk_trem_rota_rota FOREIGN KEY (id_rota) REFERENCES rota (id_rota)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS tentativas_login (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL,

@@ -29,7 +29,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         } catch (mysqli_sql_exception $e) {
             error_log($e->getMessage());
-            $erro = "Não foi possível excluir a rota.";
+            $erro = (int)$e->getCode() === 1451
+                ? "Encerre a rota antes de excluí-la para liberar os trens vinculados."
+                : "Não foi possível excluir a rota.";
         }
     }
 }

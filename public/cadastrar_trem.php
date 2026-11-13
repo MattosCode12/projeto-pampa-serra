@@ -2,6 +2,7 @@
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+require_once __DIR__ . "/trem_rota.php";
 
 exigir_login();
 
@@ -24,6 +25,8 @@ $usuarios = $conexao->query(
     "SELECT id, nome FROM usuarios ORDER BY nome"
 )->fetch_all(MYSQLI_ASSOC);
 
+$idRota = null;
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $token = $_POST["csrf_trens"] ?? "";
@@ -41,12 +44,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         INPUT_POST, "id_usuario", FILTER_VALIDATE_INT
     );
 
+    $rotaEnviada = $_POST["id_rota"] ?? "";
+    $idRota = $rotaEnviada === "" ? null : filter_var(
+        $rotaEnviada, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]
+    );
+
     $idsValidos = array_map(
         "intval",
         array_column($usuarios, "id")
     );
 
     if (
+        $idRota === false ||
         $codigo === "" ||
         mb_strlen($codigo) > 50 ||
         $modelo === "" ||
@@ -57,6 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $erro = "Preencha todos os campos corretamente.";
     } else {
         try {
+            $conexao->begin_transaction();
+            if ($idRota !== null) {
+                bloquear_rota_ativa($conexao, $idRota);
+            }
+
             $stmt = $conexao->prepare(
                 "INSERT INTO trens (codigo, modelo, status, id_usuario)
                  VALUES (?, ?, ?, ?)"
@@ -71,17 +85,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             );
 
             $stmt->execute();
+            $idTrem = $conexao->insert_id;
             $stmt->close();
+
+            if ($idRota !== null) {
+                vincular_trem_rota($conexao, $idTrem, $idRota);
+            }
+            $conexao->commit();
 
             header("Location: trens.php?sucesso=cadastrado");
             exit;
 
+        } catch (DomainException $e) {
+            $conexao->rollback();
+            $erro = $e->getMessage();
         } catch (mysqli_sql_exception $e) {
+            $conexao->rollback();
             error_log($e->getMessage());
             $erro = "Não foi possível cadastrar. Verifique se o código já existe.";
         }
     }
 }
+
+$rotasAtivas = $conexao->query(
+    "SELECT id_rota, codigo, origem, destino FROM rota WHERE ativa = 1 ORDER BY codigo"
+)->fetch_all(MYSQLI_ASSOC);
 
 function trem_h($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, "UTF-8");
@@ -169,6 +197,22 @@ function trem_h($valor) {
                         </option>
                     <?php endforeach; ?>
                 </select>
+            </div>
+
+            <div class="col-12">
+                <label for="id_rota" class="form-label">Rota ativa</label>
+                <select name="id_rota" id="id_rota" class="form-select">
+                    <option value="">Sem rota</option>
+                    <?php foreach ($rotasAtivas as $rotaAtiva): ?>
+                        <option value="<?= (int)$rotaAtiva["id_rota"] ?>"
+                            <?= $idRota === (int)$rotaAtiva["id_rota"] ? "selected" : "" ?>>
+                            <?= trem_h($rotaAtiva["codigo"] . " — " . $rotaAtiva["origem"] . " → " . $rotaAtiva["destino"]) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (!$rotasAtivas): ?>
+                    <div class="form-text">Nenhuma rota ativa disponível.</div>
+                <?php endif; ?>
             </div>
 
             <div class="col-12 d-flex flex-wrap gap-2">

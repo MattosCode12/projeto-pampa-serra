@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/verificar_acesso.php";
 require_once __DIR__ . "/../conexao.php";
+require_once __DIR__ . "/trem_rota.php";
 
 exigir_login();
 
@@ -21,8 +22,12 @@ if (!$id || $id < 1) {
 }
 
 $stmt = $conexao->prepare(
-    "SELECT id_trem, codigo, modelo, status, id_usuario
-     FROM trens WHERE id_trem = ?"
+    "SELECT t.id_trem, t.codigo, t.modelo, t.status, t.id_usuario,
+            r.id_rota, r.codigo AS codigo_rota
+     FROM trens t
+     LEFT JOIN trem_rota tr ON tr.id_trem = t.id_trem
+     LEFT JOIN rota r ON r.id_rota = tr.id_rota
+     WHERE t.id_trem = ?"
 );
 
 $stmt->bind_param("i", $id);
@@ -41,6 +46,8 @@ $usuarios = $conexao->query(
 
 $erro = "";
 
+$idRota = null;
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $token = $_POST["csrf_trens"] ?? "";
@@ -58,12 +65,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         INPUT_POST, "id_usuario", FILTER_VALIDATE_INT
     );
 
+    $rotaEnviada = $_POST["id_rota"] ?? "";
+    $idRota = $rotaEnviada === "" ? null : filter_var(
+        $rotaEnviada, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]
+    );
+
     $idsValidos = array_map(
         "intval",
         array_column($usuarios, "id")
     );
 
     if (
+        $idRota === false ||
         $trem["codigo"] === "" ||
         mb_strlen($trem["codigo"]) > 50 ||
         $trem["modelo"] === "" ||
@@ -74,6 +87,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $erro = "Preencha os campos corretamente.";
     } else {
         try {
+            $conexao->begin_transaction();
+            if ($idRota !== null) {
+                bloquear_rota_ativa($conexao, $idRota);
+            }
+
             $stmt = $conexao->prepare(
                 "UPDATE trens
                  SET codigo = ?, modelo = ?, status = ?, id_usuario = ?
@@ -92,15 +110,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->execute();
             $stmt->close();
 
+            if ($idRota !== null) {
+                vincular_trem_rota($conexao, $id, $idRota);
+            }
+            $conexao->commit();
+
             header("Location: visualizar_trem.php?id=" . $id);
             exit;
 
+        } catch (DomainException $e) {
+            $conexao->rollback();
+            $erro = $e->getMessage();
         } catch (mysqli_sql_exception $e) {
+            $conexao->rollback();
             error_log($e->getMessage());
             $erro = "Não foi possível atualizar o trem. Verifique se o código já existe.";
         }
     }
 }
+
+$rotasAtivas = $trem["id_rota"] ? [] : $conexao->query(
+    "SELECT id_rota, codigo, origem, destino FROM rota WHERE ativa = 1 ORDER BY codigo"
+)->fetch_all(MYSQLI_ASSOC);
 
 function trem_h($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, "UTF-8");
@@ -202,6 +233,29 @@ function trem_h($valor) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <?php if ($trem["id_rota"]): ?>
+                            <p class="mb-1"><strong>Rota atual</strong>
+                                <a href="tela_rotas.php?id=<?= (int)$trem["id_rota"] ?>"><?= trem_h($trem["codigo_rota"]) ?></a>
+                            </p>
+                            <div class="form-text">Encerre a rota atual para liberar o trem.</div>
+                        <?php else: ?>
+                            <label for="id_rota" class="form-label">Rota ativa</label>
+                            <select name="id_rota" id="id_rota" class="form-select">
+                                <option value="">Sem rota</option>
+                                <?php foreach ($rotasAtivas as $rotaAtiva): ?>
+                                    <option value="<?= (int)$rotaAtiva["id_rota"] ?>"
+                                        <?= $idRota === (int)$rotaAtiva["id_rota"] ? "selected" : "" ?>>
+                                        <?= trem_h($rotaAtiva["codigo"] . " — " . $rotaAtiva["origem"] . " → " . $rotaAtiva["destino"]) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php if (!$rotasAtivas): ?>
+                                <div class="form-text">Nenhuma rota ativa disponível.</div>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
 
                     <div class="d-flex flex-wrap gap-2">

@@ -43,7 +43,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         } catch (mysqli_sql_exception $e) {
             error_log($e->getMessage());
-            $erro = "Não foi possível excluir o trem.";
+            $erro = (int)$e->getCode() === 1451
+                ? "Encerre a rota atual antes de excluir o trem."
+                : "Não foi possível excluir o trem.";
         }
     } else {
         $erro = "Trem inválido.";
@@ -55,9 +57,11 @@ $termo = "%" . $busca . "%";
 
 $stmt = $conexao->prepare(
     "SELECT t.id_trem, t.codigo, t.modelo, t.status,
-            u.nome AS responsavel
+            u.nome AS responsavel, r.id_rota, r.codigo AS codigo_rota
      FROM trens t
      INNER JOIN usuarios u ON u.id = t.id_usuario
+     LEFT JOIN trem_rota tr ON tr.id_trem = t.id_trem
+     LEFT JOIN rota r ON r.id_rota = tr.id_rota
      WHERE t.codigo LIKE ?
         OR t.modelo LIKE ?
         OR u.nome LIKE ?
@@ -176,6 +180,7 @@ function trem_h($valor) {
                             <th>Modelo</th>
                             <th>Status</th>
                             <th>Responsável</th>
+                            <th>Rota atual</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -186,6 +191,13 @@ function trem_h($valor) {
                                 <td><?= trem_h($trem["modelo"]) ?></td>
                                 <td><?= trem_h($trem["status"]) ?></td>
                                 <td><?= trem_h($trem["responsavel"]) ?></td>
+                                <td>
+                                    <?php if ($trem["id_rota"]): ?>
+                                        <a href="tela_rotas.php?id=<?= (int)$trem["id_rota"] ?>"><?= trem_h($trem["codigo_rota"]) ?></a>
+                                    <?php else: ?>
+                                        Disponível
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <div class="d-flex gap-2 flex-wrap">
                                         <a
@@ -240,7 +252,7 @@ function trem_h($valor) {
 
                         <?php if (!$trens): ?>
                             <tr>
-                                <td colspan="5" class="text-center py-4">
+                                <td colspan="6" class="text-center py-4">
                                     Nenhum trem encontrado.
                                 </td>
                             </tr>

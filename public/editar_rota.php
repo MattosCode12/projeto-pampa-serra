@@ -69,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ativa = (int)$rota["ativa"];
 
         try {
+            $conexao->begin_transaction();
             $stmt = $conexao->prepare(
                 "UPDATE rota SET
                     codigo = ?,
@@ -100,10 +101,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->execute();
             $stmt->close();
 
+            if ($ativa === 0) {
+                $stmt = $conexao->prepare("DELETE FROM trem_rota WHERE id_rota = ?");
+                $stmt->bind_param("i", $id);
+                $stmt->execute();
+                $stmt->close();
+            }
+            $conexao->commit();
+
             header("Location: tela_rotas.php?id=" . $id);
             exit;
 
         } catch (mysqli_sql_exception $e) {
+            $conexao->rollback();
             error_log($e->getMessage());
             $erro = (int)$e->getCode() === 1062
                 ? "Já existe uma rota com esse código."
@@ -203,6 +213,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <option value="0" <?= (int)$rota["ativa"] === 0 ? "selected" : "" ?>>Inativa</option>
                 </select>
             </div>
+
+            <div class="col-12 form-text">Ao salvar a rota como inativa, os trens vinculados ficam disponíveis para outra rota.</div>
 
             <div class="col-12 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
