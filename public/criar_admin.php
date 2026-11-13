@@ -6,13 +6,11 @@ if (PHP_SAPI !== "cli") {
     exit;
 }
 
-require __DIR__ . "/../includes/config.php";
-
 [, $nome, $email] = $argv + [null, "", ""];
 $email = mb_strtolower(trim($email), "UTF-8");
 
 if (trim($nome) === "" || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    fwrite(STDERR, "Uso: php database/criar_admin.php \"Nome\" email@exemplo.com\n");
+    fwrite(STDERR, "Uso: php public/criar_admin.php \"Nome\" email@exemplo.com\n");
     exit(1);
 }
 
@@ -24,7 +22,7 @@ if (strlen($senha) < 8 || strlen($senha) > 72 || !preg_match('/[A-Za-z]/', $senh
     exit(1);
 }
 
-require __DIR__ . "/../includes/conexao.php";
+require __DIR__ . "/../conexao.php";
 
 $hash = password_hash($senha, PASSWORD_DEFAULT);
 $stmt = $conexao->prepare(

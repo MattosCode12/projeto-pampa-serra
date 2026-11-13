@@ -9,9 +9,11 @@ function trem_h($valor) {
 }
 
 $trens = $conexao->query(
-    "SELECT t.id_trem, t.codigo, t.modelo, t.status, u.nome AS responsavel
+    "SELECT t.id_trem, t.codigo, t.modelo, t.status, u.nome AS responsavel, tr.id_rota
      FROM trens t
      INNER JOIN usuarios u ON u.id = t.id_usuario
+     INNER JOIN trem_rota tr ON tr.id_trem = t.id_trem
+     INNER JOIN rota r ON r.id_rota = tr.id_rota AND r.ativa = 1
      ORDER BY t.codigo"
 )->fetch_all(MYSQLI_ASSOC);
 
@@ -145,9 +147,7 @@ $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNES
 
         <div id="detalheTrem" class="mt-3"></div>
 
-        <?php if (!$trens): ?>
-            <p class="text-center text-muted mt-3">Nenhum trem cadastrado.</p>
-        <?php endif; ?>
+        <p id="estadoTrens" class="text-center text-muted mt-3" role="status" hidden></p>
     </section>
     </div>
 </main>
@@ -188,6 +188,7 @@ const selVel = document.getElementById("selVel");
 const btnPausa = document.getElementById("btnPausa");
 const infoRota = document.getElementById("infoRota");
 const detalhe = document.getElementById("detalheTrem");
+const estadoTrens = document.getElementById("estadoTrens");
 
 function el(tag, attrs = {}, texto) {
     const e = document.createElementNS(NS, tag);
@@ -390,7 +391,12 @@ function velocidadeBase() {
 
 function criarTrens() {
     camadaTrens.innerHTML = "";
-    objs = TRENS.map((t, i) => {
+    const trensDaRota = rotaAtual
+        ? TRENS.filter(t => String(t.id_rota) === String(rotaAtual.id_rota))
+        : [];
+    estadoTrens.hidden = !rotaAtual || trensDaRota.length > 0;
+    estadoTrens.textContent = estadoTrens.hidden ? "" : "Nenhum trem vinculado a esta rota.";
+    objs = trensDaRota.map((t, i) => {
         const g = el("g", { class: "trem" });
         const corpo = el("rect", { x: -14, y: -8, width: 28, height: 16, rx: 4,
                                    fill: COR[t.status] || "#555", stroke: "#222", "stroke-width": 1.5 });
@@ -403,7 +409,7 @@ function criarTrens() {
         const v = velocidadeBase() * (0.85 + ((i * 37) % 30) / 100);
         return {
             t, g, rot,
-            km: (kmTotal / (TRENS.length + 1)) * (i + 1),
+            km: (kmTotal / (trensDaRota.length + 1)) * (i + 1),
             dir: i % 2 === 0 ? 1 : -1,
             kmh: v
         };
