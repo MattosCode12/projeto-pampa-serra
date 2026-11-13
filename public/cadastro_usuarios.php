@@ -104,6 +104,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="../style/padrao-paginas.css">
 
     <style>
+        .ps-moldura-usuarios {
+            width: 1100px;
+            padding-block: 24px;
+        }
+
+        .ps-moldura-usuarios #cep {
+            min-width: 0;
+        }
+
         .btn-azul {
             background: #0755bc;
             color: white;
@@ -131,20 +140,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </header>
 
 <main class="ps-conteudo">
-    <div class="ps-moldura ps-moldura-cadastro">
+    <div class="ps-moldura ps-moldura-cadastro ps-moldura-usuarios">
 
     <section class="ps-painel">
 
-        <img
-            src="../assets/img/logo.png"
-            alt="Pampa Serra"
-            class="d-block mx-auto mb-4"
-            style="width:100px; filter: brightness(0);"
-        >
-
-        <h2 class="mb-4">
-            Novo Usuário
-        </h2>
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <img
+                src="../assets/img/logo.png"
+                alt="Pampa Serra"
+                width="64"
+                style="filter: brightness(0);"
+            >
+            <h2>Novo Usuário</h2>
+        </div>
 
         <?php if ($erro !== ""): ?>
             <div class="alert alert-danger" role="alert">
@@ -156,82 +164,89 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <?= campo_csrf() ?>
 
-            <div class="mb-3">
-                <label for="nome" class="form-label">Nome</label>
-                <input
-                    type="text"
-                    name="nome"
-                    id="nome"
-                    class="form-control"
-                    maxlength="100"
-                    value="<?= h($nome) ?>"
-                    required
-                >
+            <div class="row gx-md-5">
+                <fieldset class="col-md-5">
+                    <legend class="fs-5 fw-bold">Dados do usuário</legend>
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input
+                            type="text"
+                            name="nome"
+                            id="nome"
+                            class="form-control"
+                            maxlength="100"
+                            value="<?= h($nome) ?>"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            class="form-control"
+                            maxlength="100"
+                            value="<?= h($email) ?>"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">
+                            Telefone
+                        </label>
+                        <input
+                            type="tel"
+                            name="telefone"
+                            id="telefone"
+                            class="form-control"
+                            maxlength="20"
+                            value="<?= h($telefone) ?>"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">
+                            Senha
+                        </label>
+                        <input
+                            type="password"
+                            name="senha"
+                            id="senha"
+                            class="form-control"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="tipo_usuario" class="form-label">
+                            Tipo de Usuário
+                        </label>
+
+                        <select
+                            name="tipo_usuario"
+                            id="tipo_usuario"
+                            class="form-select"
+                            required
+                        >
+                            <option value="0" <?= $tipo_usuario === "0" ? "selected" : "" ?>>
+                                Usuário
+                            </option>
+                            <option value="1" <?= $tipo_usuario === "1" ? "selected" : "" ?>>
+                                Administrador
+                            </option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <div class="col-md-7">
+                    <?php require __DIR__ . "/campos_endereco.php"; ?>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">E-mail</label>
-                <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    class="form-control"
-                    maxlength="100"
-                    value="<?= h($email) ?>"
-                    required
-                >
-            </div>
-
-            <div class="mb-3">
-                <label for="telefone" class="form-label">
-                    Telefone
-                </label>
-                <input
-                    type="tel"
-                    name="telefone"
-                    id="telefone"
-                    class="form-control"
-                    maxlength="20"
-                    value="<?= h($telefone) ?>"
-                >
-            </div>
-
-            <div class="mb-3">
-                <label for="senha" class="form-label">
-                    Senha
-                </label>
-                <input
-                    type="password"
-                    name="senha"
-                    id="senha"
-                    class="form-control"
-                    minlength="8"
-                    autocomplete="new-password"
-                    required
-                >
-            </div>
-
-            <div class="mb-4">
-                <label for="tipo_usuario" class="form-label">
-                    Tipo de Usuário
-                </label>
-
-                <select
-                    name="tipo_usuario"
-                    id="tipo_usuario"
-                    class="form-select"
-                    required
-                >
-                    <option value="0" <?= $tipo_usuario === "0" ? "selected" : "" ?>>
-                        Usuário
-                    </option>
-                    <option value="1" <?= $tipo_usuario === "1" ? "selected" : "" ?>>
-                        Administrador
-                    </option>
-                </select>
-            </div>
-        <?php require __DIR__ . "/campos_endereco.php"; ?>
-
 
             <div class="d-flex flex-wrap gap-2">
 
