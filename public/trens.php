@@ -95,6 +95,14 @@ function trem_h($valor) {
             color: white;
         }
 
+        .ps-trens .ps-moldura {
+            width: 1100px;
+        }
+
+        .ps-trens .ps-painel {
+            padding-block: 40px;
+        }
+
         .ps-trens .ps-painel .table {
             min-width: 0;
         }
