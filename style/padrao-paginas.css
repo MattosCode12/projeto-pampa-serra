@@ -26,6 +26,18 @@ body.ps-pagina {
     gap: 20px;
 }
 
+.ps-logo-link {
+    display: block;
+    justify-self: start;
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.ps-logo-link:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+}
+
 .ps-logo {
     width: 90px;
     height: auto;

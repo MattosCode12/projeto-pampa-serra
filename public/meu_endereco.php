@@ -36,7 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="ps-pagina">
 <header class="ps-cabecalho"><div class="ps-cabecalho-conteudo">
-    <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+    <a href="home.php" class="ps-logo-link" aria-label="Ir para o dashboard do Pampa Serra">
+        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+    </a>
     <h1 class="ps-titulo">Meu endereço</h1>
     <a href="home.php" class="ps-voltar"><span aria-hidden="true">←</span> Voltar</a>
 </div></header>

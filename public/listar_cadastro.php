@@ -106,12 +106,13 @@ $idLogado = (int)($_SESSION["usuario_id"] ?? 0);
 
     <div class="card p-4 shadow-sm">
 
-        <img
-            src="../assets/img/logo.png"
-            class="mx-auto d-block mb-4"
-            alt="Logo Pampa Serra"
-            style="width:120px;"
-        >
+        <a href="home.php" class="mx-auto d-block mb-4" style="width:120px" aria-label="Ir para o dashboard do Pampa Serra">
+            <img
+                src="../assets/img/logo.png"
+                class="d-block w-100"
+                alt="Logo Pampa Serra"
+            >
+        </a>
 
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
 

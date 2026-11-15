@@ -56,7 +56,9 @@ function trem_h($valor) {
 
 <header class="ps-cabecalho">
     <div class="ps-cabecalho-conteudo">
-        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <a href="home.php" class="ps-logo-link" aria-label="Ir para o dashboard do Pampa Serra">
+            <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        </a>
         <h1 class="ps-titulo">Detalhes do Trem</h1>
         <a href="trens.php" class="ps-voltar" aria-label="Voltar à lista de trens">
             <span aria-hidden="true">←</span> Voltar

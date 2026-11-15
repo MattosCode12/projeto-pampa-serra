@@ -131,7 +131,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <header class="ps-cabecalho">
     <div class="ps-cabecalho-conteudo">
-        <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        <a href="home.php" class="ps-logo-link" aria-label="Ir para o dashboard do Pampa Serra">
+            <img src="../assets/img/logo.png" alt="Pampa Serra" class="ps-logo">
+        </a>
         <h1 class="ps-titulo">Cadastrar Usuário</h1>
         <a href="home.php" class="ps-voltar" aria-label="Voltar à Home">
             <span aria-hidden="true">←</span> Voltar
@@ -145,12 +147,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <section class="ps-painel">
 
         <div class="d-flex align-items-center gap-3 mb-4">
-            <img
-                src="../assets/img/logo.png"
-                alt="Pampa Serra"
-                width="64"
-                style="filter: brightness(0);"
-            >
+            <a href="home.php" aria-label="Ir para o dashboard do Pampa Serra">
+                <img
+                    src="../assets/img/logo.png"
+                    alt="Pampa Serra"
+                    width="64"
+                    style="filter: brightness(0);"
+                >
+            </a>
             <h2>Novo Usuário</h2>
         </div>
 
