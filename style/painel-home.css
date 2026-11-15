@@ -11,6 +11,19 @@
     padding: 26px 16px;
 }
 
+@media (min-width: 768px) {
+    .lateral-home {
+        position: sticky;
+        top: 0;
+        align-self: start;
+        box-sizing: border-box;
+        height: 100vh;
+        height: 100dvh;
+        overflow-y: auto;
+    }
+}
+
+
 .marca-home {
     display: block;
     width: fit-content;
