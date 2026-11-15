@@ -7,7 +7,7 @@
 ---
 
 <p align="center">
-   <img src="http://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=RED&style=for-the-badge" #vitrinedev/>
+   <img src="http://img.shields.io/static/v1?label=STATUS&message=VERS%C3%83O%20DE%20DEMONSTRA%C3%87%C3%83O&color=BLUE&style=for-the-badge" #vitrinedev/>
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@ Projeto desenvolvido com foco em tecnologia, automação e monitoramento ferrovi
 - [Segurança](#segurança)
 - [Documentação](#documentação)
 - [Metodologia de desenvolvimento](#metodologia-de-desenvolvimento)
-- [Próximos passos](#próximos-passos)
+- [Manual de utilização](MANUAL.md)
 - [Licença](#licença)
 
 ## Descrição do projeto
@@ -65,7 +65,7 @@ A linha monitorada vai de **Porto Alegre (KM 0) até Gramado (KM 120)**, passand
 | RF16 | Permitir visualização detalhada dos sensores cadastrados |
 
 
-> Para acompanhar o status atual de cada Requisito Funcional (concluído, em desenvolvimento ou pendente), consulte o [Kanban do projeto no GitHub Projects](#).
+> Para acompanhar o status atual de cada Requisito Funcional (concluído, em desenvolvimento ou pendente), consulte o [Kanban do projeto no GitHub Projects](https://github.com/users/MattosCode12/projects/1).
 
 ## Funcionalidades adicionais
 
@@ -107,6 +107,25 @@ projeto-pampa-serra/
 ```
 
 Repositório: `https://github.com/MattosCode12/projeto-pampa-serra`
+
+## Banco de dados
+
+O script [database/banco.sql](database/banco.sql) cria o banco `pampa_serra`, as tabelas da aplicação e registros iniciais de sensores. O primeiro administrador é criado separadamente com uma senha definida pelo responsável pela estação.
+
+## Como executar o projeto
+
+1. Coloque este repositório na pasta `htdocs` do XAMPP e inicie **Apache** e **MySQL**.
+2. No phpMyAdmin, importe `database/banco.sql`. Se a estação usar outra configuração de banco, confira os parâmetros em `conexao.php`.
+3. Em um terminal aberto na raiz do projeto, crie um administrador fictício com o script de linha de comando. O script solicitará a senha.
+
+   ```powershell
+   C:/xampp/php/php.exe public/criar_admin.php "Admin de demonstração" admin@exemplo.test
+   ```
+
+4. No navegador, abra `http://localhost/projeto-pampa-serra/` se o projeto estiver diretamente em `htdocs`. Inclua as subpastas no endereço, caso existam. Selecione **Acessar sistema** e entre com a conta cadastrada.
+5. Pela interface, cadastre um usuário comum fictício, uma rota ativa e um trem vinculado à rota e com um responsável. Use as duas contas para demonstrar permissões e consultas.
+
+Consulte o [manual de utilização](MANUAL.md) para navegar pelas telas e seguir o roteiro de demonstração.
 
 ## Segurança
 

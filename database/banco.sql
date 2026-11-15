@@ -68,25 +68,6 @@ CREATE TABLE IF NOT EXISTS tentativas_login (
     INDEX idx_tentativas_ip (ip, criado_em)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO usuarios (
-    nome,
-    email,
-    senha,
-    telefone,
-    tipo_usuario
-)
-VALUES (
-    'Admin Pampa Serra',
-    'pampa_serra@gmail.com',
-    '$2y$12$G4R1ija4Jw1l9XS1In1jluC0iJ.LmuVErJy7xErsyAlkjgcbYFYyu',
-    NULL,
-    1
-)
-ON DUPLICATE KEY UPDATE
-    nome = VALUES(nome),
-    senha = VALUES(senha),
-    tipo_usuario = 1;
-
 INSERT INTO sensores
 (nome, localizacao, tipo_dado, descricao)
 SELECT
